@@ -15,9 +15,11 @@ namespace SolarSailNavigator {
 	// Cone angle
 	[KSPField(isPersistant = true)]
 	protected float coneAngle_f = 0;
+	protected string coneAngle = "";
 	// Clock angle
 	[KSPField(isPersistant = true)]
 	protected float clockAngle_f = 0;
+	protected string clockAngle = "";
 	
 	// Persistent False
 	[KSPField]
@@ -70,9 +72,6 @@ namespace SolarSailNavigator {
 
 	// Tilt controls
 
-	protected string coneAngle = "";
-
-
 	public void TiltPlus() {
 	    coneAngle_f += 5;
 	    if (coneAngle_f > 90) {
@@ -88,8 +87,6 @@ namespace SolarSailNavigator {
 	}
 
 	// Rotate controls
-
-	protected string clockAngle = "";
 
 	public void RotatePlus() {
 	    clockAngle_f += 5;
@@ -141,19 +138,26 @@ namespace SolarSailNavigator {
 	public override void OnFixedUpdate() {
 	    if (FlightGlobals.fetch != null) {
 
+		double UT = Planetarium.GetUniversalTime();
+		
 		solar_force_d = 0;
 		if (!IsEnabled) { return; }
 
 		// Force attitude to sail frame
 		if (IsLocked) {
-		    vessel.SetRotation(SailFrame(vessel, coneAngle_f, clockAngle_f));
+		    // vessel.SetRotation(SailFrame(vessel, coneAngle_f, clockAngle_f));
+		    vessel.SetRotation(SailFrame(vessel.orbit, coneAngle_f, clockAngle_f, UT));
 		}
 		
 		double sunlightFactor = 1.0;
 		//Vector3 sunVector = FlightGlobals.fetch.bodies[0].position - part.orgPos;
 		
-		if (!lineOfSightToSun(vessel)) {
-		    sunlightFactor = 0.0f;
+//		if (!lineOfSightToSun(vessel)) {
+//		    sunlightFactor = 0.0f;
+//		}
+
+		if (!inSun(vessel.orbit, UT)) {
+		    sunlightFactor = 0.0;
 		}
 		
 		//Debug.Log("Detecting sunlight: " + sunlightFactor.ToString());
@@ -226,28 +230,7 @@ namespace SolarSailNavigator {
 	    return force_to_return;
 	}
 
-	public static bool lineOfSightToSun(Vessel vess) {
-	    Vector3d a = vess.transform.position;
-	    Vector3d b = FlightGlobals.Bodies[0].transform.position;
-	    foreach (CelestialBody referenceBody in FlightGlobals.Bodies) {
-		if (referenceBody.flightGlobalsIndex == 0) { // the sun should not block line of sight to the sun
-		    continue;
-		}
-		Vector3d refminusa = referenceBody.position - a;
-		Vector3d bminusa = b - a;
-		if (Vector3d.Dot(refminusa, bminusa) > 0) {
-		    if (Vector3d.Dot(refminusa, bminusa.normalized) < bminusa.magnitude) {
-			Vector3d tang = refminusa - Vector3d.Dot(refminusa, bminusa.normalized) * bminusa.normalized;
-			if (tang.magnitude < referenceBody.Radius) {
-			    return false;
-			}
-		    }
-		}
-	    }
-	    return true;
-	}
-
-	public static Quaternion RTHFrame (Vessel vessel) {
+	public static Quaternion RTNFrame (Vessel vessel) {
 	    // Center of mass position
 	    var CM = vessel.findWorldCenterOfMass();
 	    // Unit position vector
@@ -258,15 +241,14 @@ namespace SolarSailNavigator {
 	    var h = Vector3d.Cross(r, v).normalized;
 	    // Tangential vector
 	    var t = Vector3d.Cross(h, r).normalized;
-	    // Quaternion of RTH frame
-	    var QRTH = Quaternion.LookRotation(t, r);
-	    return QRTH;
+	    // Quaternion of RTN frame
+	    return Quaternion.LookRotation(t, r);
 	}
 
 	public static Quaternion SailFrame (Vessel vessel, float cone, float clock) {
-	    var QRTH = RTHFrame(vessel);
+	    var QRTN = RTNFrame(vessel);
 	    var QCC = Quaternion.Euler(0, 90 - clock, cone);
-	    return QRTH * QCC;
+	    return QRTN * QCC;
 	}
 	
 	private Rect controlWindowPos = new Rect();
@@ -275,10 +257,8 @@ namespace SolarSailNavigator {
 	    if (this.vessel == FlightGlobals.ActiveVessel)
 		controlWindowPos = GUILayout.Window(10, controlWindowPos, SailControlsGUI, "Sail Controls");
 	}
-	
+
 	private void SailControlsGUI (int WindowID) {
-	    //GUIStyle wSty = new GUIStyle(GUI.skin.button);
-	    //wSty.padding = new RectOffset(8, 8, 8, 8);
 
 	    GUILayout.BeginVertical();
 
@@ -313,7 +293,59 @@ namespace SolarSailNavigator {
 
 	    GUI.DragWindow();
 	}
+
+	// Calculate RTN frame quaternion given an orbit and UT
+	public static Quaternion RTNFrame (Orbit orbit, double UT) {
+	    // Position
+	    var r = transposeYZ(orbit.getRelativePositionAtUT(UT).normalized);
+	    // Velocity
+	    var v = transposeYZ(orbit.getOrbitalVelocityAtUT(UT).normalized);
+	    // Unit orbit angular momentum
+	    var h = Vector3d.Cross(r, v).normalized;
+	    // Tangential
+	    var t = Vector3d.Cross(h, r).normalized;
+	    // QRTN
+	    return Quaternion.LookRotation(t, r);
+	}
+
+	// Sail frame in local (RTN) coordinates
+	public static Quaternion SailFrameLocal (float cone, float clock) {
+	    return Quaternion.Euler(0, 90 - clock, cone);
+	}
 	
+	// Sail frame given an orbit, angles, and UT
+	public static Quaternion SailFrame (Orbit orbit, float cone, float clock, double UT) {
+	    var QRTN = RTNFrame(orbit, UT);
+	    var QCC = SailFrameLocal(cone, clock);
+	    return QRTN * QCC;
+	}
+
+	// Test if an orbit at UT is in sunlight
+	public static bool inSun(Orbit orbit, double UT) {
+	    Vector3d a = orbit.getPositionAtUT(UT);
+	    Vector3d b = FlightGlobals.Bodies[0].getPositionAtUT(UT);
+	    foreach (CelestialBody referenceBody in FlightGlobals.Bodies) {
+		if (referenceBody.flightGlobalsIndex == 0) { // the sun should not block line of sight to the sun
+		    continue;
+		}
+		Vector3d refminusa = referenceBody.getPositionAtUT(UT) - a;
+		Vector3d bminusa = b - a;
+		if (Vector3d.Dot(refminusa, bminusa) > 0) {
+		    if (Vector3d.Dot(refminusa, bminusa.normalized) < bminusa.magnitude) {
+			Vector3d tang = refminusa - Vector3d.Dot(refminusa, bminusa.normalized) * bminusa.normalized;
+			if (tang.magnitude < referenceBody.Radius) {
+			    return false;
+			}
+		    }
+		}
+	    }
+	    return true;
+	}
+	
+	// Transpose X and Y elements for conversion of Orbit vector3d
+	public static Vector3d transposeYZ (Vector3d v) {
+	    return new Vector3d(v.x, v.z, v.y);
+	}
     }
 }
 
