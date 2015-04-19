@@ -105,8 +105,6 @@ namespace SolarSailNavigator {
 	// Initialization
 	public override void OnStart(StartState state) {
 	    if (state != StartState.None && state != StartState.Editor) {
-		//surfaceTransform = part.FindModelTransform(surfaceTransformName);
-		//solarSailAnim = (ModuleAnimateGeneric)part.Modules["ModuleAnimateGeneric"];
 		if (animName != null) {
 		    solarSailAnim = part.FindModelAnimators(animName).FirstOrDefault();
 		}
@@ -145,24 +143,16 @@ namespace SolarSailNavigator {
 
 		// Force attitude to sail frame
 		if (IsLocked) {
-		    // vessel.SetRotation(SailFrame(vessel, coneAngle_f, clockAngle_f));
 		    vessel.SetRotation(SailFrame(vessel.orbit, coneAngle_f, clockAngle_f, UT));
 		}
 		
 		double sunlightFactor = 1.0;
-		//Vector3 sunVector = FlightGlobals.fetch.bodies[0].position - part.orgPos;
-		
-//		if (!lineOfSightToSun(vessel)) {
-//		    sunlightFactor = 0.0f;
-//		}
 
 		if (!inSun(vessel.orbit, UT)) {
 		    sunlightFactor = 0.0;
 		}
 		
-		//Debug.Log("Detecting sunlight: " + sunlightFactor.ToString());
-		Vector3d solarForce = CalculateSolarForce() * sunlightFactor;
-		//print(surfaceArea);
+		Vector3d solarForce = CalculateSolarForce(this, vessel.orbit, this.part.transform, UT);
 		
 		Vector3d solar_accel = solarForce / vessel.GetTotalMass() / 1000.0 * TimeWarp.fixedDeltaTime;
 		if (!this.vessel.packed) {
@@ -195,39 +185,8 @@ namespace SolarSailNavigator {
 		}
 		solar_force_d = solarForce.magnitude;
 		solar_acc_d = solar_accel.magnitude / TimeWarp.fixedDeltaTime;
-		//print(solarForce.x.ToString() + ", " + solarForce.y.ToString() + ", " + solarForce.z.ToString());
-
 	    }
 	    count++;
-	}
-
-	private Vector3d CalculateSolarForce() {
-	    if (this.part != null) {
-		Vector3d sunPosition = FlightGlobals.fetch.bodies[0].position;
-		Vector3d ownPosition = this.part.transform.position;
-		Vector3d ownsunPosition = ownPosition - sunPosition;
-		Vector3d normal = this.part.transform.up;
-		if (surfaceTransform != null) {
-		    normal = surfaceTransform.forward;
-		}
-		// If normal points away from sun, negate so our force is always away from the sun
-		// so that turning the backside towards the sun thrusts correctly
-		if (Vector3d.Dot (normal, ownsunPosition) < 0) {
-		    normal = -normal;
-		}
-		// Magnitude of force proportional to cosine-squared of angle between sun-line and normal
-		double cosConeAngle = Vector3.Dot (ownsunPosition.normalized, normal);
-		Vector3d force = normal * cosConeAngle * cosConeAngle * surfaceArea * reflectedPhotonRatio * solarForceAtDistance();
-		return force;
-	    } else {
-		return Vector3d.zero;
-	    }
-	}
-
-	private double solarForceAtDistance() {
-	    double distance_from_sun = Vector3.Distance(FlightGlobals.Bodies[0].transform.position, vessel.transform.position);
-	    double force_to_return = thrust_coeff * kerbin_distance * kerbin_distance / distance_from_sun / distance_from_sun;
-	    return force_to_return;
 	}
 
 	public static Quaternion RTNFrame (Vessel vessel) {
@@ -340,6 +299,36 @@ namespace SolarSailNavigator {
 		}
 	    }
 	    return true;
+	}
+
+	private static double solarForceAtDistance(Vector3d sunPosition, Vector3d ownPosition) {
+	    double distance_from_sun = Vector3.Distance(sunPosition, ownPosition);
+	    double force_to_return = thrust_coeff * kerbin_distance * kerbin_distance / distance_from_sun / distance_from_sun;
+	    return force_to_return;
+	}
+	
+	// Calculate solar force as function of
+	// sail, orbit, transform, and UT
+	public static Vector3d CalculateSolarForce(ModuleSolarSail sail, Orbit orbit, Transform transform, double UT) {
+	    if (sail.part != null) {
+		Vector3d sunPosition = FlightGlobals.Bodies[0].getPositionAtUT(UT);
+		Vector3d ownPosition = orbit.getPositionAtUT(UT);
+		Vector3d ownsunPosition = ownPosition - sunPosition;
+		Vector3d normal = transform.up;
+		// If normal points away from sun, negate so our force is always away from the sun
+		// so that turning the backside towards the sun thrusts correctly
+		if (Vector3d.Dot (normal, ownsunPosition) < 0) {
+		    normal = -normal;
+		}
+		// Magnitude of force proportional to cosine-squared of angle between sun-line and normal
+		double cosConeAngle = Vector3.Dot (ownsunPosition.normalized, normal);
+		
+		Vector3d force = normal * cosConeAngle * cosConeAngle * sail.surfaceArea * sail.reflectedPhotonRatio * solarForceAtDistance(sunPosition, ownPosition);
+		return force;
+	    } else {
+		return Vector3d.zero;
+	    }
+
 	}
 	
 	// Transpose X and Y elements for conversion of Orbit vector3d
