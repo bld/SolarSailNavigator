@@ -135,60 +135,40 @@ namespace SolarSailNavigator {
 	
 	public override void OnFixedUpdate() {
 	    if (FlightGlobals.fetch != null) {
-
+		
 		double UT = Planetarium.GetUniversalTime();
+		double dT = TimeWarp.fixedDeltaTime;
 		
 		solar_force_d = 0;
 		if (!IsEnabled) { return; }
-
+		
 		// Force attitude to sail frame
 		if (IsLocked) {
 		    vessel.SetRotation(SailFrame(vessel.orbit, coneAngle_f, clockAngle_f, UT));
 		}
-		
+
 		double sunlightFactor = 1.0;
 
 		if (!inSun(vessel.orbit, UT)) {
 		    sunlightFactor = 0.0;
 		}
-		
-		Vector3d solarForce = CalculateSolarForce(this, vessel.orbit, this.part.transform, UT);
-		
-		Vector3d solar_accel = solarForce / vessel.GetTotalMass() / 1000.0 * TimeWarp.fixedDeltaTime;
-		if (!this.vessel.packed) {
-		    vessel.ChangeWorldVelocity(solar_accel);
-		} else {
-		    if (sunlightFactor > 0) {
-			double temp1 = solar_accel.y;
-			solar_accel.y = solar_accel.z;
-			solar_accel.z = temp1;
-			Vector3d position = vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime());
-			Orbit orbit2 = new Orbit(vessel.orbit.inclination, vessel.orbit.eccentricity, vessel.orbit.semiMajorAxis, vessel.orbit.LAN, vessel.orbit.argumentOfPeriapsis, vessel.orbit.meanAnomalyAtEpoch, vessel.orbit.epoch, vessel.orbit.referenceBody);
-			orbit2.UpdateFromStateVectors(position, vessel.orbit.vel + solar_accel, vessel.orbit.referenceBody, Planetarium.GetUniversalTime());
-			//print(orbit2.timeToAp);
-			if (!double.IsNaN(orbit2.inclination) && !double.IsNaN(orbit2.eccentricity) && !double.IsNaN(orbit2.semiMajorAxis) && orbit2.timeToAp > TimeWarp.fixedDeltaTime) {
-			    vessel.orbit.inclination = orbit2.inclination;
-			    vessel.orbit.eccentricity = orbit2.eccentricity;
-			    vessel.orbit.semiMajorAxis = orbit2.semiMajorAxis;
-			    vessel.orbit.LAN = orbit2.LAN;
-			    vessel.orbit.argumentOfPeriapsis = orbit2.argumentOfPeriapsis;
-			    vessel.orbit.meanAnomalyAtEpoch = orbit2.meanAnomalyAtEpoch;
-			    vessel.orbit.epoch = orbit2.epoch;
-			    vessel.orbit.referenceBody = orbit2.referenceBody;
-			    vessel.orbit.Init();
-			    
-			    //vessel.orbit.UpdateFromOrbitAtUT(orbit2, Planetarium.GetUniversalTime(), orbit2.referenceBody);
-			    vessel.orbit.UpdateFromUT(Planetarium.GetUniversalTime());
-			}
 
-		    }
+		Vector3d solarForce = CalculateSolarForce(this, vessel.orbit, this.part.transform, UT) * sunlightFactor;
+
+		Vector3d solarAccel = solarForce / vessel.GetTotalMass() / 1000.0;
+
+		if (!this.vessel.packed) {
+		    vessel.ChangeWorldVelocity(solarAccel * dT);
+		} else {
+		    PropagateStep(vessel.orbit, solarAccel, this.part.transform, UT, dT);
 		}
+
 		solar_force_d = solarForce.magnitude;
-		solar_acc_d = solar_accel.magnitude / TimeWarp.fixedDeltaTime;
+		solar_acc_d = solarAccel.magnitude;
 	    }
 	    count++;
 	}
-
+		
 	public static Quaternion RTNFrame (Vessel vessel) {
 	    // Center of mass position
 	    var CM = vessel.findWorldCenterOfMass();
@@ -328,9 +308,33 @@ namespace SolarSailNavigator {
 	    } else {
 		return Vector3d.zero;
 	    }
-
 	}
-	
+
+	// Propagate orbit one time step
+	public static void PropagateStep (Orbit orbit, Vector3d accel, Transform transform, double UT, double dT) {
+
+	    // Return updated orbit if in sun
+	    if (accel.magnitude > 0) {
+		// Transpose Y and Z for Orbit class
+		Vector3d accel_orbit = new Vector3d(accel.x, accel.z, accel.y);
+		Vector3d position = orbit.getRelativePositionAtUT(UT);
+		Orbit orbit2 = new Orbit(orbit.inclination, orbit.eccentricity, orbit.semiMajorAxis, orbit.LAN, orbit.argumentOfPeriapsis, orbit.meanAnomalyAtEpoch, orbit.epoch, orbit.referenceBody);
+		orbit2.UpdateFromStateVectors(position, orbit.getOrbitalVelocityAtUT(UT) + accel_orbit * dT, orbit.referenceBody, UT);
+		if (!double.IsNaN(orbit2.inclination) && !double.IsNaN(orbit2.eccentricity) && !double.IsNaN(orbit2.semiMajorAxis) && orbit2.timeToAp > dT) {
+		    orbit.inclination = orbit2.inclination;
+		    orbit.eccentricity = orbit2.eccentricity;
+		    orbit.semiMajorAxis = orbit2.semiMajorAxis;
+		    orbit.LAN = orbit2.LAN;
+		    orbit.argumentOfPeriapsis = orbit2.argumentOfPeriapsis;
+		    orbit.meanAnomalyAtEpoch = orbit2.meanAnomalyAtEpoch;
+		    orbit.epoch = orbit2.epoch;
+		    orbit.referenceBody = orbit2.referenceBody;
+		    orbit.Init();
+		    orbit.UpdateFromUT(UT);
+		}
+	    }
+	}
+
 	// Transpose X and Y elements for conversion of Orbit vector3d
 	public static Vector3d transposeYZ (Vector3d v) {
 	    return new Vector3d(v.x, v.z, v.y);
