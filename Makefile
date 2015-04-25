@@ -1,6 +1,6 @@
 # Makefile for building SolarSailNavigator
 
-KSPDIR	:= ${HOME}/.steam/steam/SteamApps/common/Kerbal Space Program
+KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 SSFILES	:= SolarSailNavigator/SolarSailNavigator.cs
 GMCS	:= gmcs
