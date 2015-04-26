@@ -29,6 +29,7 @@ namespace SolarSailNavigator {
 	// Preview orbit
 	protected Orbit previewOrbit0;
 	protected Orbit previewOrbitf;
+	protected Orbit[] previewOrbits;
 	protected LineRenderer previewOrbitLine;
 	protected double UT0;
 	protected double UTf;
@@ -172,7 +173,7 @@ namespace SolarSailNavigator {
 		if (!this.vessel.packed) {
 		    vessel.ChangeWorldVelocity(solarAccel * dT);
 		} else {
-		    PropagateStep(vessel.orbit, solarAccel, UT, dT);
+		    PerturbOrbit(vessel.orbit, solarAccel, UT, dT);
 		}
 
 		solar_force_d = solarForce.magnitude;
@@ -186,10 +187,11 @@ namespace SolarSailNavigator {
 		if (MapView.MapIsEnabled) {
 		    previewOrbitLine.enabled = true;
 		    // Update points
-		    Vector3d rUT0 = previewOrbit0.getRelativePositionAtUT(UT0).xzy;
 		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
-		    previewOrbitLine.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUT0 + rUT0));
-		    previewOrbitLine.SetPosition(1, ScaledSpace.LocalToScaledSpace(previewOrbitf.getRelativePositionAtUT(UTf).xzy + rRefUT0));
+		    for (int i = 0; i < previewOrbits.Length; i++) {
+			double UTi = previewOrbits[i].epoch;
+			previewOrbitLine.SetPosition(i, ScaledSpace.LocalToScaledSpace(previewOrbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
+		    }
 		} else {
 		    previewOrbitLine.enabled = false;
 		}
@@ -361,15 +363,15 @@ namespace SolarSailNavigator {
 	    }
 	}
 
-	// Propagate orbit one time step
-	public static void PropagateStep (Orbit orbit, Vector3d accel, double UT, double dT) {
+	// Perturn an orbit by an acceleration at UT with time step dT
+	public static void PerturbOrbit (Orbit orbit, Vector3d accel, double UT, double dT) {
 
 	    // Return updated orbit if in sun
 	    if (accel.magnitude > 0) {
 		// Transpose Y and Z for Orbit class
 		Vector3d accel_orbit = new Vector3d(accel.x, accel.z, accel.y);
 		Vector3d position = orbit.getRelativePositionAtUT(UT);
-		Orbit orbit2 = CloneOrbit(orbit); //new Orbit(orbit.inclination, orbit.eccentricity, orbit.semiMajorAxis, orbit.LAN, orbit.argumentOfPeriapsis, orbit.meanAnomalyAtEpoch, orbit.epoch, orbit.referenceBody);
+		Orbit orbit2 = CloneOrbit(orbit);
 		orbit2.UpdateFromStateVectors(position, orbit.getOrbitalVelocityAtUT(UT) + accel_orbit * dT, orbit.referenceBody, UT);
 		if (!double.IsNaN(orbit2.inclination) && !double.IsNaN(orbit2.eccentricity) && !double.IsNaN(orbit2.semiMajorAxis) && orbit2.timeToAp > dT) {
 		    orbit.inclination = orbit2.inclination;
@@ -405,8 +407,9 @@ namespace SolarSailNavigator {
 	    double dT = TimeWarp.fixedDeltaTime * Convert.ToDouble(previewCurrentRate_str);
 	    Debug.Log(dT.ToString());
 	    // Calculate preview orbit
-	    previewOrbit0 = CloneOrbit(vessel.orbit);
-	    previewOrbitf = PropagateOrbit(this, vessel.orbit, UT0, UTf, dT, coneAngle_f, clockAngle_f, vessel.GetTotalMass());
+	    previewOrbits = PropagateOrbit(this, vessel.orbit, UT0, UTf, dT, coneAngle_f, clockAngle_f, vessel.GetTotalMass());
+	    previewOrbit0 = previewOrbits[0];
+	    previewOrbitf = previewOrbits[previewOrbits.Length - 1];
 	    // Draw preview orbit
 	    if (previewOrbitLine != null) {
 		Destroy(previewOrbitLine);
@@ -418,12 +421,12 @@ namespace SolarSailNavigator {
 	    previewOrbitLine.material = MapView.fetch.orbitLinesMaterial;
 	    previewOrbitLine.SetColors(Color.yellow, Color.yellow);
 	    previewOrbitLine.SetWidth(10000, 10000);
-	    previewOrbitLine.SetVertexCount(2);
+	    previewOrbitLine.SetVertexCount(previewOrbits.Length);
 	}
 
 	// Propagate an orbit
-	public static Orbit PropagateOrbit (ModuleSolarSail sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
-	    Orbit orbit = CloneOrbit(orbit0); //new Orbit(orbit0.inclination, orbit0.eccentricity, orbit0.semiMajorAxis, orbit0.LAN, orbit0.argumentOfPeriapsis, orbit0.meanAnomalyAtEpoch, orbit0.epoch, orbit0.referenceBody);
+	public static Orbit[] PropagateOrbit (ModuleSolarSail sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
+	    Orbit orbit = CloneOrbit(orbit0);
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
 	    Debug.Log("nsteps: " + nsteps.ToString());
@@ -431,6 +434,9 @@ namespace SolarSailNavigator {
 	    Debug.Log("dTlast: " + dTlast.ToString());
 
 	    double UT;
+
+	    var orbits = new Orbit[1 + nsteps];
+	    orbits[0] = CloneOrbit(orbit0);
 	    
 	    for (int i = 0; i < nsteps; i++) {
 		// Last step goes to UTf
@@ -453,19 +459,22 @@ namespace SolarSailNavigator {
 		Vector3d solarForce = CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
 
 		Vector3d solarAccel = solarForce / mass / 1000.0;
+		
+		PerturbOrbit(orbit, solarAccel, UT, dT);
 
-		PropagateStep(orbit, solarAccel, UT, dT);
-
+		orbits[1 + i] = CloneOrbit(orbit);
+		
 		Debug.Log("i: " + i.ToString() +
 			  ", UT: " + UT.ToString() +
 			  ", dT: " + dT.ToString() +
 			  ", UTf-UT: " + (UTf-UT).ToString() +
 			  ", ApA: " + orbit.ApA.ToString() +
-			  ", PeA: " + orbit.PeA.ToString());
+			  ", PeA: " + orbit.PeA.ToString() +
+			  ", epoch: " + orbit.epoch.ToString());
 	    }
-		
+	    
 	    // Return propagated orbit
-	    return orbit;
+	    return orbits;
 	}
     }
 }
