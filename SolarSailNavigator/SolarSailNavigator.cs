@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SolarSailNavigator {
 
-    class ModuleSolarSail : PartModule {
+    public class ModuleSolarSail : PartModule {
 	// Persistent Variables
 	// Sail enabled
 	[KSPField(isPersistant = true)]
@@ -182,20 +182,7 @@ namespace SolarSailNavigator {
 	    count++;
 
 	    // Update preview orbit if it exists
-	    if (previewOrbitLine != null) {
-		// Enable only on map
-		if (MapView.MapIsEnabled) {
-		    previewOrbitLine.enabled = true;
-		    // Update points
-		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
-		    for (int i = 0; i < previewOrbits.Length; i++) {
-			double UTi = previewOrbits[i].epoch;
-			previewOrbitLine.SetPosition(i, ScaledSpace.LocalToScaledSpace(previewOrbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
-		    }
-		} else {
-		    previewOrbitLine.enabled = false;
-		}
-	    }
+	    UpdatePreview();
 	}
 		
 	public static Quaternion RTNFrame (Vessel vessel) {
@@ -422,6 +409,23 @@ namespace SolarSailNavigator {
 	    previewOrbitLine.SetColors(Color.yellow, Color.yellow);
 	    previewOrbitLine.SetWidth(10000, 10000);
 	    previewOrbitLine.SetVertexCount(previewOrbits.Length);
+	}
+
+	public void UpdatePreview() {
+	    if (previewOrbitLine != null) {
+		// Enable only on map
+		if (MapView.MapIsEnabled) {
+		    previewOrbitLine.enabled = true;
+		    // Update points
+		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
+		    for (int i = 0; i < previewOrbits.Length; i++) {
+			double UTi = previewOrbits[i].epoch;
+			previewOrbitLine.SetPosition(i, ScaledSpace.LocalToScaledSpace(previewOrbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
+		    }
+		} else {
+		    previewOrbitLine.enabled = false;
+		}
+	    }
 	}
 
 	// Propagate an orbit
