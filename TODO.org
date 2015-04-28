@@ -1,0 +1,74 @@
+* TODO Manual sail navigation [6/16]
+** DONE Propagate trajectory XX days ahead at current attitude
+** DONE Draw start and end points
+** DONE Collect intermediate points
+** DONE Draw points along trajectory
+** DONE Classes for controls and previews
+** DONE Make non-array control persistant
+** TODO Add additional steering/duration segments [0/2]
+*** TODO Controls and segments as arrays
+*** TODO buttons to add/remove segments
+** TODO Show orbit at end of segments
+** TODO Select target body
+** TODO Show intersections with target body
+** TODO Other time unit choices
+** TODO +/- buttons for time
+** TODO Allow +/-180 deg cone angles
+** TODO Longer time steps for preview orbit
+** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
+** TODO Make control history persistant
+*** TODO Cone angles [0/0]
+*** TODO Clock angles
+*** TODO Durations
+*** TODO Warp factors
+* TODO Make new solar sail models
+** Square sail (LightSail, Lunar Flashlight, NEA Scout)
+*** 4 triangular panels with billowed shape
+*** Wrinkled looking surface
+** Sunjammer
+*** 4 triangular panels with stripe net and billow in between
+** Steering vanes
+*** Vanes at boom tips that rotate to face sun with ~20 deg cant for stability
+** Halley Rendezvous square sail
+*** Big, billowed sail with masts and stays
+** IKAROS
+*** Animated rotation
+**** Scale rotation speed to sensible amount during time warp
+* TODO Make sail deployment a staged event that can only happen once
+* TODO Realistic sail attitude control
+** Vanes to cause solar torque about CM
+** Gimbaled boom to shift CM
+** Realistic moments of inertia (i.e. BIG)
+* TODO Automatic navigation
+** Orbital rendezvous
+*** Select target
+*** Specify number of control nodes
+*** Optimal control method runs behind scenes to generate angle/time profile
+*** Allow execution of steering strategy
+** Locally optimal steering strategies
+* TODO Sails on Rails
+As currently designed KSP seems to run Kepler orbits when a spacecraft
+is not active.  Is there a way to keep the sail propagator running in
+the background to allow command profiles to complete? This would use
+extra CPU. May want a notification when the sequence is completed.
+* TODO Modularize functions [5/8]
+** TODO steering during timewarp so it can be used elsewhere, e.g. ion engines
+** TODO manual navigation
+** TODO automatic navigation
+** DONE check if spacecraft in sun
+** DONE sail force calculation
+** DONE sail EOM
+** DONE sail EOM propagation
+** DONE SailFrame
+* TODO Planet centered sailing [0/7]
+  Orbit element control laws. See:
+*** http://strathprints.strath.ac.uk/6255/
+*** http://strathprints.strath.ac.uk/6252/
+*** TODO SMA
+*** TODO rp
+*** TODO ecc
+*** TODO ra
+*** TODO Inclination
+*** TODO AoP
+*** TODO Blended?
+
