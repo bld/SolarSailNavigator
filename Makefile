@@ -2,7 +2,9 @@
 
 KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
-SSFILES	:= SolarSailNavigator/SolarSailNavigator.cs
+SSFILES	:= SolarSailNavigator/Controls.cs \
+	SolarSailNavigator/Preview.cs \
+	SolarSailNavigator/SolarSailNavigator.cs
 GMCS	:= gmcs
 TAR	:= tar
 ZIP	:= zip

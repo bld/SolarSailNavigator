@@ -12,35 +12,30 @@ namespace SolarSailNavigator {
 	// Attitude locked
 	[KSPField(isPersistant = true)]
 	public bool IsLocked = false;
-	// Cone angle
+	// Controls
 	[KSPField(isPersistant = true)]
-	protected float coneAngle_f = 0;
-	protected string coneAngle = "";
-	// Clock angle
+	public string cone = SailControl.defaultCone;
 	[KSPField(isPersistant = true)]
-	protected float clockAngle_f = 0;
-	protected string clockAngle = "";
-	// Preview seconds
+	public string clock = SailControl.defaultClock;
 	[KSPField(isPersistant = true)]
-	protected string previewSeconds_str = KSPUtil.KerbinYear.ToString();
-	// Preview warp factor
+	public string duration = SailControl.defaultDuration;
 	[KSPField(isPersistant = true)]
-	protected string previewCurrentRate_str = "1";
+	public string factor = SailControl.defaultFactor;
+
 	// Preview orbit
-	protected Orbit previewOrbit0;
-	protected Orbit previewOrbitf;
-	protected Orbit[] previewOrbits;
-	protected LineRenderer previewOrbitLine;
-	protected double UT0;
-	protected double UTf;
+	protected PreviewSegment previewSegment = new PreviewSegment();
+
+	// Sail controls
+	public SailControl controls;
 	
 	// Persistent False
 	[KSPField]
 	public float reflectedPhotonRatio = 1f;
 	[KSPField]
-	public float surfaceArea; // Surface area of the panel.
+	public float surfaceArea; // Sail surface area
 	[KSPField]
 	public string animName;
+	
 	
 	// GUI
 	// Force and Acceleration
@@ -82,39 +77,7 @@ namespace SolarSailNavigator {
 	    // Remove control window
 	    RenderingManager.RemoveFromPostDrawQueue(3, new Callback(DrawControls));
 	}
-
-	// Tilt controls
-
-	public void TiltPlus() {
-	    coneAngle_f += 5;
-	    if (coneAngle_f > 90) {
-		coneAngle_f = coneAngle_f - 180;
-	    }
-	}
-
-	public void TiltMinus() {
-	    coneAngle_f -= 5;
-	    if (coneAngle_f < -90) {
-		coneAngle_f = coneAngle_f + 180;
-	    }
-	}
-
-	// Rotate controls
-
-	public void RotatePlus() {
-	    clockAngle_f += 5;
-	    if (clockAngle_f > 180) {
-		clockAngle_f = clockAngle_f - 360;
-	    }
-	}
-
-	public void RotateMinus() {
-	    clockAngle_f -= 5;
-	    if (clockAngle_f < -180) {
-		clockAngle_f = 360 + clockAngle_f;
-	    }
-	}
-
+	
 	// Initialization
 	public override void OnStart(StartState state) {
 	    if (state != StartState.None && state != StartState.Editor) {
@@ -129,6 +92,7 @@ namespace SolarSailNavigator {
 		}
 
 		this.part.force_activate();
+		controls = new SailControl(this);
 	    }
 	}
 
@@ -141,9 +105,6 @@ namespace SolarSailNavigator {
 	    Fields["forceAcquired"].guiActive = IsEnabled;
 	    forceAcquired = solar_force_d.ToString("E") + " N";
 	    solarAcc = solar_acc_d.ToString("E") + " m/s";
-	    // Tilt/rotate control strings
-	    coneAngle = coneAngle_f.ToString() + " deg";
-	    clockAngle = clockAngle_f.ToString() + " deg";
 	}
 	
 	public override void OnFixedUpdate() {
@@ -157,7 +118,7 @@ namespace SolarSailNavigator {
 		
 		// Force attitude to sail frame
 		if (IsLocked) {
-		    vessel.SetRotation(SailFrame(vessel.orbit, coneAngle_f, clockAngle_f, UT));
+		    vessel.SetRotation(SailFrame(vessel.orbit, controls.coneAngle, controls.clockAngle, UT));
 		}
 
 		double sunlightFactor = 1.0;
@@ -182,7 +143,7 @@ namespace SolarSailNavigator {
 	    count++;
 
 	    // Update preview orbit if it exists
-	    UpdatePreview();
+	    previewSegment.Update(vessel);
 	}
 		
 	public static Quaternion RTNFrame (Vessel vessel) {
@@ -220,55 +181,21 @@ namespace SolarSailNavigator {
 	    // Lock/Unlock attitude
 	    IsLocked = GUILayout.Toggle(IsLocked, "Lock Attitude");
 
-	    // Cone angle controls
+	    // Steering controls
 	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("Cone angle");
-	    GUILayout.Label(coneAngle);
-	    if (GUILayout.Button("+")) {
-		TiltPlus();
-	    }
-	    if (GUILayout.Button("-")) {
-		TiltMinus();
-	    }
+	    GUILayout.Label("Cone");
+	    GUILayout.Label("Clock");
+	    GUILayout.Label("Duration");
+	    GUILayout.Label("Warp");
 	    GUILayout.EndHorizontal();
-	    
-	    // Clock angle controls
-	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("Clock angle");
-	    GUILayout.Label(clockAngle);
-	    if (GUILayout.Button("+")) {
-		RotatePlus();
-	    }
-	    if (GUILayout.Button("-")) {
-		RotateMinus();
-	    }
-	    GUILayout.EndHorizontal();
+	    controls.GUILine();
 
 	    // Preview orbit
 	    GUILayout.Label("Preview Orbit");
-	    GUILayout.Label("Seconds ahead:");
-	    previewSeconds_str = GUILayout.TextField(previewSeconds_str, 25);
-	    GUILayout.Label("Warp factor:");
-	    previewCurrentRate_str = GUILayout.TextField(previewCurrentRate_str, 25);
 	    if (GUILayout.Button("Preview Orbit")) {
-		Debug.Log("Preview");
-		PreviewOrbit();
+		previewSegment.Calculate(this);
 	    }
 
-	    if (previewOrbitf != null) {
-		GUILayout.Label("i: " + previewOrbitf.inclination.ToString());
-		GUILayout.Label("e: " + previewOrbitf.eccentricity.ToString());
-		GUILayout.Label("SMA: " + previewOrbitf.semiMajorAxis.ToString());
-		GUILayout.Label("LAN: " + previewOrbitf.LAN.ToString());
-		GUILayout.Label("AoP: " + previewOrbitf.argumentOfPeriapsis.ToString());
-		GUILayout.Label("mAaE: " + previewOrbitf.meanAnomalyAtEpoch.ToString());
-	    }
-
-	    // Debugging stuff
-	    if (GUILayout.Button("Debuginfo")) {
-		Debug.Log("ScaledSpace.ScaleFactor: " + ScaledSpace.ScaleFactor.ToString());
-	    }
-	    
 	    GUILayout.EndVertical();
 	    
 	    GUI.DragWindow();
@@ -384,58 +311,13 @@ namespace SolarSailNavigator {
 	public static Orbit CloneOrbit(Orbit orbit0) {
 	    return new Orbit(orbit0.inclination, orbit0.eccentricity, orbit0.semiMajorAxis, orbit0.LAN, orbit0.argumentOfPeriapsis, orbit0.meanAnomalyAtEpoch, orbit0.epoch, orbit0.referenceBody);
 	}
-	
-	// Preview current state in new orbit
-	public void PreviewOrbit() {
-	    UT0 = Planetarium.GetUniversalTime();
-	    Debug.Log(UT0.ToString());
-	    UTf = UT0 + Convert.ToDouble(previewSeconds_str);
-	    Debug.Log(UTf.ToString());
-	    double dT = TimeWarp.fixedDeltaTime * Convert.ToDouble(previewCurrentRate_str);
-	    Debug.Log(dT.ToString());
-	    // Calculate preview orbit
-	    previewOrbits = PropagateOrbit(this, vessel.orbit, UT0, UTf, dT, coneAngle_f, clockAngle_f, vessel.GetTotalMass());
-	    previewOrbit0 = previewOrbits[0];
-	    previewOrbitf = previewOrbits[previewOrbits.Length - 1];
-	    // Draw preview orbit
-	    if (previewOrbitLine != null) {
-		Destroy(previewOrbitLine);
-	    }
-	    GameObject previewObject = new GameObject("Preview Orbit");
-	    previewOrbitLine = previewObject.AddComponent<LineRenderer>();
-	    previewOrbitLine.useWorldSpace = false;
-	    previewObject.layer = 10;
-	    previewOrbitLine.material = MapView.fetch.orbitLinesMaterial;
-	    previewOrbitLine.SetColors(Color.yellow, Color.yellow);
-	    previewOrbitLine.SetWidth(10000, 10000);
-	    previewOrbitLine.SetVertexCount(previewOrbits.Length);
-	}
-
-	public void UpdatePreview() {
-	    if (previewOrbitLine != null) {
-		// Enable only on map
-		if (MapView.MapIsEnabled) {
-		    previewOrbitLine.enabled = true;
-		    // Update points
-		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
-		    for (int i = 0; i < previewOrbits.Length; i++) {
-			double UTi = previewOrbits[i].epoch;
-			previewOrbitLine.SetPosition(i, ScaledSpace.LocalToScaledSpace(previewOrbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
-		    }
-		} else {
-		    previewOrbitLine.enabled = false;
-		}
-	    }
-	}
 
 	// Propagate an orbit
 	public static Orbit[] PropagateOrbit (ModuleSolarSail sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
 	    Orbit orbit = CloneOrbit(orbit0);
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
-	    Debug.Log("nsteps: " + nsteps.ToString());
 	    double dTlast = (UTf - UT0) % dT;
-	    Debug.Log("dTlast: " + dTlast.ToString());
 
 	    double UT;
 
@@ -467,14 +349,6 @@ namespace SolarSailNavigator {
 		PerturbOrbit(orbit, solarAccel, UT, dT);
 
 		orbits[1 + i] = CloneOrbit(orbit);
-		
-		Debug.Log("i: " + i.ToString() +
-			  ", UT: " + UT.ToString() +
-			  ", dT: " + dT.ToString() +
-			  ", UTf-UT: " + (UTf-UT).ToString() +
-			  ", ApA: " + orbit.ApA.ToString() +
-			  ", PeA: " + orbit.PeA.ToString() +
-			  ", epoch: " + orbit.epoch.ToString());
 	    }
 	    
 	    // Return propagated orbit
