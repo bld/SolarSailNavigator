@@ -1,14 +1,14 @@
-* TODO Manual sail navigation [6/16]
+* TODO Manual sail navigation [9/16]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
 ** DONE Draw points along trajectory
 ** DONE Classes for controls and previews
 ** DONE Make non-array control persistant
-** TODO Add additional steering/duration segments [0/2]
-*** TODO Controls and segments as arrays
-*** TODO buttons to add/remove segments
-** TODO Show orbit at end of segments
+** DONE Add additional steering/duration segments [2/2]
+*** DONE Controls and segments as arrays
+*** DONE buttons to add/remove segments
+** DONE Show orbit at end of segments
 ** TODO Select target body
 ** TODO Show intersections with target body
 ** TODO Other time unit choices
@@ -16,11 +16,11 @@
 ** TODO Allow +/-180 deg cone angles
 ** TODO Longer time steps for preview orbit
 ** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
-** TODO Make control history persistant
-*** TODO Cone angles [0/0]
-*** TODO Clock angles
-*** TODO Durations
-*** TODO Warp factors
+** DONE Make control history persistant
+*** DONE Cone angles
+*** DONE Clock angles
+*** DONE Durations
+*** DONE Warp factors
 * TODO Make new solar sail models
 ** Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape

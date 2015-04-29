@@ -77,14 +77,18 @@ namespace SolarSailNavigator {
     public class Preview {
 	
 	// Fields
-	PreviewSegment[] segments;
-	ModuleSolarSail sail;
+	PreviewSegment[] segments; // Trajectory segments
+	ModuleSolarSail sail; // Sail this preview is attached to
+	LineRenderer linef; // Final orbit line
+	Vector3d[] linefPoints; // 3d points of final orbit
 	
 	// Constructor
 	
 	public Preview(ModuleSolarSail sail) {
 	    this.sail = sail;
 	}
+
+	// Calculate & draw trajectory prediction
 	
 	public void Calculate () {
 	    // Destroy existing lines
@@ -111,12 +115,57 @@ namespace SolarSailNavigator {
 		// Update initial orbit
 		orbitInitial = segments[i].orbitf;
 	    }
+
+	    // Draw one complete final orbit
+
+	    // Destroy existing line
+	    if (linef != null) {
+		UnityEngine.Object.Destroy(linef);
+	    }
+	    // Create linerenderer & object
+	    GameObject objf = new GameObject("Final orbit");
+	    linef = objf.AddComponent<LineRenderer>();
+	    linef.useWorldSpace = false;
+	    objf.layer = 10; // Map
+	    linef.material = MapView.fetch.orbitLinesMaterial;
+	    linef.SetColors(Color.cyan, Color.cyan);
+	    linef.SetWidth(20000, 20000);
+	    linef.SetVertexCount(360);
+	    // 3D points to use in linef
+	    linefPoints = new Vector3d[360];
+	    // Final orbit of sail trajectory
+	    Orbit orbitf = orbitInitial;
+	    // Period of final orbit
+	    double TPf = orbitf.period;
+	    // Position of reference body at end of trajectory
+	    Vector3d rRefUTf = orbitf.referenceBody.getPositionAtUT(UT0);
+	    // Populate points
+	    for(var i = 0; i < 360; i++) {
+		double UTi = UT0 + i * TPf / 360;
+		// Relative orbitf position
+		Vector3d rRelOrbitf = orbitf.getRelativePositionAtUT(UTi).xzy;
+		// Absolute position
+		linefPoints[i] = rRefUTf + rRelOrbitf;
+	    }
 	}
+	
 
 	// Update
 	public void Update (Vessel vessel) {
 	    foreach(var segment in segments) {
 		segment.Update(vessel);
+	    }
+
+	    // Update final orbit line from points
+	    if (linef != null) {
+		if (MapView.MapIsEnabled) {
+		    linef.enabled = true;
+		    for (var i = 0; i < 360; i++) {
+			linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(linefPoints[i]));
+		    }
+		} else {
+		    linef.enabled = false;
+		}
 	    }
 	}
     }
