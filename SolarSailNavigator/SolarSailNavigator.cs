@@ -5,6 +5,7 @@ using UnityEngine;
 namespace SolarSailNavigator {
 
     public class ModuleSolarSail : PartModule {
+
 	// Persistent Variables
 	// Sail enabled
 	[KSPField(isPersistant = true)]
@@ -14,19 +15,21 @@ namespace SolarSailNavigator {
 	public bool IsLocked = false;
 	// Controls
 	[KSPField(isPersistant = true)]
-	public string cone = SailControl.defaultCone;
+	public double UT0;
 	[KSPField(isPersistant = true)]
-	public string clock = SailControl.defaultClock;
+	public string cones;
 	[KSPField(isPersistant = true)]
-	public string duration = SailControl.defaultDuration;
+	public string clocks;
 	[KSPField(isPersistant = true)]
-	public string factor = SailControl.defaultFactor;
+	public string durations;
+	[KSPField(isPersistant = true)]
+	public string factors;
 
 	// Preview orbit
-	protected PreviewSegment previewSegment = new PreviewSegment();
+	protected Preview preview;
 
 	// Sail controls
-	public SailControl controls;
+	public SailControls controls;
 	
 	// Persistent False
 	[KSPField]
@@ -80,7 +83,9 @@ namespace SolarSailNavigator {
 	
 	// Initialization
 	public override void OnStart(StartState state) {
+
 	    if (state != StartState.None && state != StartState.Editor) {
+
 		if (animName != null) {
 		    solarSailAnim = part.FindModelAnimators(animName).FirstOrDefault();
 		}
@@ -92,7 +97,12 @@ namespace SolarSailNavigator {
 		}
 
 		this.part.force_activate();
-		controls = new SailControl(this);
+
+		// Sail controls
+		controls = new SailControls(this);
+
+		// Orbit preview
+		preview = new Preview(this);
 	    }
 	}
 
@@ -118,7 +128,8 @@ namespace SolarSailNavigator {
 		
 		// Force attitude to sail frame
 		if (IsLocked) {
-		    vessel.SetRotation(SailFrame(vessel.orbit, controls.coneAngle, controls.clockAngle, UT));
+		    SailControl control = controls.Lookup(UT);
+		    vessel.SetRotation(SailFrame(vessel.orbit, control.cone, control.clock, UT));
 		}
 
 		double sunlightFactor = 1.0;
@@ -143,7 +154,7 @@ namespace SolarSailNavigator {
 	    count++;
 
 	    // Update preview orbit if it exists
-	    previewSegment.Update(vessel);
+	    preview.Update(vessel);
 	}
 		
 	public static Quaternion RTNFrame (Vessel vessel) {
@@ -182,18 +193,12 @@ namespace SolarSailNavigator {
 	    IsLocked = GUILayout.Toggle(IsLocked, "Lock Attitude");
 
 	    // Steering controls
-	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("Cone");
-	    GUILayout.Label("Clock");
-	    GUILayout.Label("Duration");
-	    GUILayout.Label("Warp");
-	    GUILayout.EndHorizontal();
-	    controls.GUILine();
+	    controls.GUI();
 
 	    // Preview orbit
 	    GUILayout.Label("Preview Orbit");
 	    if (GUILayout.Button("Preview Orbit")) {
-		previewSegment.Calculate(this);
+	    	preview.Calculate();
 	    }
 
 	    GUILayout.EndVertical();

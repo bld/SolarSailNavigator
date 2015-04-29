@@ -20,22 +20,20 @@ namespace SolarSailNavigator {
 	GameObject obj;
 	public VectorLine vline;
 
-	public PreviewSegment () { }
-	
-	public void Calculate (ModuleSolarSail sail) {
+	// Constructor & calculate
 
-	    UT0 = Planetarium.GetUniversalTime();
-	    Debug.Log(UT0.ToString());
-
-	    UTf = UT0 + sail.controls.duration;
-	    Debug.Log(UTf.ToString());
-
-	    dT = TimeWarp.fixedDeltaTime * sail.controls.factor;
-	    Debug.Log(dT.ToString());
+	public PreviewSegment(ModuleSolarSail sail, Orbit orbitInitial, double UT0, double UTf, SailControl control) {
+	    
+	    this.UT0 = UT0;
+	    Debug.Log("UT0: " + UT0.ToString());
+	    this.UTf = UTf;
+	    Debug.Log("UTf: " + UTf.ToString());
+	    dT = TimeWarp.fixedDeltaTime * control.factor;
+	    Debug.Log("dT: " + dT.ToString());
 	    
 	    // Calculate preview orbits
 
-	    orbits = ModuleSolarSail.PropagateOrbit(sail, sail.vessel.orbit, UT0, UTf, dT, sail.controls.coneAngle, sail.controls.clockAngle, sail.vessel.GetTotalMass());
+	    orbits = ModuleSolarSail.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
 	    orbit0 = orbits[0];
 	    orbitf = orbits[orbits.Length - 1];
 	    
@@ -72,6 +70,53 @@ namespace SolarSailNavigator {
 		} else {
 		    line.enabled = false;
 		}
+	    }
+	}
+    }
+    
+    public class Preview {
+	
+	// Fields
+	PreviewSegment[] segments;
+	ModuleSolarSail sail;
+	
+	// Constructor
+	
+	public Preview(ModuleSolarSail sail) {
+	    this.sail = sail;
+	}
+	
+	public void Calculate () {
+	    // Destroy existing lines
+	    if (segments != null) {
+		foreach(var segment in segments) {
+		    if (segment.line != null) {
+			UnityEngine.Object.Destroy(segment.line);
+		    }
+		}
+	    }
+	    // New segments array
+	    segments = new PreviewSegment[sail.controls.ncontrols];
+	    // Beginning time
+	    double UT0 = sail.controls.UT0;
+	    Orbit orbitInitial = sail.vessel.orbit;
+	    // Calculate each segment
+	    for (var i = 0; i < segments.Length; i++) {
+		// End time
+		double UTf = UT0 + sail.controls.controls[i].duration;
+		// Calculate segment
+		segments[i] = new PreviewSegment(sail, orbitInitial, UT0, UTf, sail.controls.controls[i]);
+		// Update initial time
+		UT0 = UTf;
+		// Update initial orbit
+		orbitInitial = segments[i].orbitf;
+	    }
+	}
+
+	// Update
+	public void Update (Vessel vessel) {
+	    foreach(var segment in segments) {
+		segment.Update(vessel);
 	    }
 	}
     }
