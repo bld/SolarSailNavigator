@@ -1,4 +1,4 @@
-* TODO Manual sail navigation [9/16]
+* TODO Manual sail navigation [9/18]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -9,29 +9,38 @@
 *** DONE Controls and segments as arrays
 *** DONE buttons to add/remove segments
 ** DONE Show orbit at end of segments
-** TODO Select target body
-** TODO Show intersections with target body
-** TODO Other time unit choices
-** TODO +/- buttons for time
-** TODO Allow +/-180 deg cone angles
-** TODO Longer time steps for preview orbit
-** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
 ** DONE Make control history persistant
 *** DONE Cone angles
 *** DONE Clock angles
 *** DONE Durations
 *** DONE Warp factors
-* TODO Make new solar sail models
-** Square sail (LightSail, Lunar Flashlight, NEA Scout)
+** TODO Other time unit choices [1/4]
+*** DONE Days
+*** TODO Hours
+*** TODO Minutes
+*** TODO Seconds
+** TODO +/-, +10/-10 buttons for time [1/4]
+*** DONE Days
+*** TODO Hours
+*** TODO Minutes
+*** TODO Seconds
+** TODO Allow +/-180 deg cone angles
+** TODO Longer time steps for preview orbit
+** TODO Pre-calculate line render points of sail trajectory
+** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
+** TODO Select target body [0/1]
+*** TODO Show intersections with target body
+* TODO Make new solar sail models [0/5]
+** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
 *** Wrinkled looking surface
-** Sunjammer
+** TODO Sunjammer
 *** 4 triangular panels with stripe net and billow in between
-** Steering vanes
+** TODO Steering vanes
 *** Vanes at boom tips that rotate to face sun with ~20 deg cant for stability
-** Halley Rendezvous square sail
+** TODO Halley Rendezvous square sail
 *** Big, billowed sail with masts and stays
-** IKAROS
+** TODO IKAROS
 *** Animated rotation
 **** Scale rotation speed to sensible amount during time warp
 * TODO Make sail deployment a staged event that can only happen once
