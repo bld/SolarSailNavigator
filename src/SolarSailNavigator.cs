@@ -23,7 +23,7 @@ namespace SolarSailNavigator {
 	[KSPField(isPersistant = true)]
 	public string durations;
 	[KSPField(isPersistant = true)]
-	public string factors;
+	public string iwarps;
 
 	// Preview orbit
 	protected Preview preview;

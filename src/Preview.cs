@@ -28,7 +28,7 @@ namespace SolarSailNavigator {
 	    Debug.Log("UT0: " + UT0.ToString());
 	    this.UTf = UTf;
 	    Debug.Log("UTf: " + UTf.ToString());
-	    dT = TimeWarp.fixedDeltaTime * control.factor;
+	    dT = TimeWarp.fixedDeltaTime * control.warp;
 	    Debug.Log("dT: " + dT.ToString());
 	    
 	    // Calculate preview orbits
@@ -70,8 +70,6 @@ namespace SolarSailNavigator {
 		    // Update points
 		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
 		    for (int i = 0; i < orbits.Length; i++) {
-			//double UTi = orbits[i].epoch;
-			//line.SetPosition(i, ScaledSpace.LocalToScaledSpace(orbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
 			line.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUT0 + relativePoints[i]));
 		    }
 		} else {
@@ -161,8 +159,10 @@ namespace SolarSailNavigator {
 
 	// Update
 	public void Update (Vessel vessel) {
-	    foreach(var segment in segments) {
-		segment.Update(vessel);
+	    if (segments != null) {
+		foreach(var segment in segments) {
+		    segment.Update(vessel);
+		}
 	    }
 
 	    // Update final orbit line from points

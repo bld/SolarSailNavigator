@@ -20,8 +20,8 @@ namespace SolarSailNavigator {
 	double days;
 	string days_str;
 	// Warp factor
-	public double factor;
-	public string factor_str;
+	public int iwarp; // Index of warpLevels array
+	public double warp; // Warp factor
 	// Color
 	public Color color;
 	// Controls object this control is attached to
@@ -33,10 +33,11 @@ namespace SolarSailNavigator {
 	public static float defaultCone = 90f;
 	public static float defaultClock = 0f;
 	public static double defaultDuration = 100000.0;
-	public static double defaultFactor = 100000.0;
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
 	public static double SecondsPerMinute = 60.0;
+	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
+	public static int defaultiwarp = 10;
 	
 	// Cone controls
 	public void GUICone () {
@@ -121,10 +122,13 @@ namespace SolarSailNavigator {
 
 	// Warp factor controls
 	public void GUIWarp () {
-	    factor_str = GUILayout.TextField(factor_str, 25);
-	    double tmpf;
-	    if (Double.TryParse(factor_str, out tmpf)) {
-		factor = tmpf;
+	    GUILayout.Label(warp.ToString());
+	    if (GUILayout.Button("+")) {
+		iwarp++;
+		if (iwarp >= warpLevels.Length) {
+		    iwarp = 0;
+		}
+		warp = warpLevels[iwarp];
 	    }
 	}
 
@@ -171,10 +175,20 @@ namespace SolarSailNavigator {
 		return 0.0;
 	    }
 	}
-	
+
+	// Parse a string to an int
+	public static int ParseInt (string str) {
+	    int tmp;
+	    if (Int32.TryParse(str, out tmp)) {
+		return tmp;
+	    } else {
+		return 0;
+	    }
+	}
+
 	// Constructor
 
-	public SailControl(SolarSailPart sail, float cone, float clock, double duration, double factor) {
+	public SailControl(SolarSailPart sail, float cone, float clock, double duration, int iwarp) {
 	    this.sail = sail;
 	    this.cone = cone;
 	    cone_str = cone.ToString();
@@ -187,12 +201,12 @@ namespace SolarSailNavigator {
 	    this.duration = days * SecondsPerDay;
 	    duration_str = duration.ToString();
 	    // Warp factor
-	    this.factor = factor;
-	    factor_str = factor.ToString();
+	    this.iwarp = iwarp;
+	    warp = warpLevels[iwarp];
 	}
 
 	public static SailControl Default (SolarSailPart sail) {
-	    return new SailControl (sail, defaultCone, defaultClock, defaultDuration, defaultFactor);
+	    return new SailControl (sail, defaultCone, defaultClock, defaultDuration, defaultiwarp);
 	}
     }
 
@@ -244,7 +258,7 @@ namespace SolarSailNavigator {
 	    if (String.IsNullOrEmpty(sail.cones) ||
 		String.IsNullOrEmpty(sail.clocks) ||
 		String.IsNullOrEmpty(sail.durations) ||
-		String.IsNullOrEmpty(sail.factors)) {
+		String.IsNullOrEmpty(sail.iwarps)) {
 		ncontrols = 1;
 		controls = new SailControl[ncontrols];
 		controls[0] = SailControl.Default(sail);
@@ -255,10 +269,10 @@ namespace SolarSailNavigator {
 		var coneStrings = sail.cones.Split(delimiter);
 		var clockStrings = sail.clocks.Split(delimiter);
 		var durationStrings = sail.durations.Split(delimiter);
-		var factorStrings = sail.factors.Split(delimiter);
+		var iwarpStrings = sail.iwarps.Split(delimiter);
 
 		// Find number of controls
-		ncontrols = Math.Min(coneStrings.Length, Math.Min(clockStrings.Length, Math.Min(durationStrings.Length, factorStrings.Length)));
+		ncontrols = Math.Min(coneStrings.Length, Math.Min(clockStrings.Length, Math.Min(durationStrings.Length, iwarpStrings.Length)));
 
 		// Initialize controls array
 		controls = new SailControl[ncontrols];
@@ -269,7 +283,7 @@ namespace SolarSailNavigator {
 						  SailControl.ParseSingle(coneStrings[i]),
 						  SailControl.ParseSingle(clockStrings[i]),
 						  SailControl.ParseDouble(durationStrings[i]),
-						  SailControl.ParseSingle(factorStrings[i]));
+						  SailControl.ParseInt(iwarpStrings[i]));
 		}
 	    }
 	}
@@ -382,18 +396,18 @@ namespace SolarSailNavigator {
 	    sail.cones = controls[0].cone_str;
 	    sail.clocks = controls[0].clock_str;
 	    sail.durations = controls[0].duration_str;
-	    sail.factors = controls[0].factor_str;
+	    sail.iwarps = controls[0].iwarp.ToString();
 	    for (var i = 1; i < ncontrols; i++) {
 		sail.cones += delimiter + controls[i].cone_str;
 		sail.clocks += delimiter + controls[i].clock_str;
 		sail.durations += delimiter + controls[i].duration_str;
-		sail.factors += delimiter + controls[i].factor_str;
+		sail.iwarps += delimiter + controls[i].iwarp.ToString();
 	    }
 	    Debug.Log(sail.UT0.ToString());
 	    Debug.Log(sail.cones);
 	    Debug.Log(sail.clocks);
 	    Debug.Log(sail.durations);
-	    Debug.Log(sail.factors);
+	    Debug.Log(sail.iwarps);
 	}
     }
 }
