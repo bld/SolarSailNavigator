@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SolarSailNavigator {
 
-    public class ModuleSolarSail : PartModule {
+    public class SolarSailPart : PartModule {
 
 	// Persistent Variables
 	// Sail enabled
@@ -262,7 +262,7 @@ namespace SolarSailNavigator {
 	
 	// Calculate solar force as function of
 	// sail, orbit, transform, and UT
-	public static Vector3d CalculateSolarForce(ModuleSolarSail sail, Orbit orbit, Vector3d normal, double UT) {
+	public static Vector3d CalculateSolarForce(SolarSailPart sail, Orbit orbit, Vector3d normal, double UT) {
 	    if (sail.part != null) {
 		Vector3d sunPosition = FlightGlobals.Bodies[0].getPositionAtUT(UT);
 		Vector3d ownPosition = orbit.getPositionAtUT(UT);
@@ -318,7 +318,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Propagate an orbit
-	public static Orbit[] PropagateOrbit (ModuleSolarSail sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
+	public static Orbit[] PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
 	    Orbit orbit = CloneOrbit(orbit0);
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
