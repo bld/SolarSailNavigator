@@ -10,19 +10,19 @@ namespace SolarSailNavigator {
 
 	// Fields
 	
-	public Orbit orbit0;
-	public Orbit orbitf;
-	public Orbit[] orbits;
-	public LineRenderer line;
-	public double UT0;
-	public double UTf;
-	double dT;
-	GameObject obj;
-	public VectorLine vline;
+	public Orbit orbit0; // Initial orbit of segment
+	public Orbit orbitf; // Final orbit of segment
+	public Orbit[] orbits; // Intermediate segment orbits
+	public Vector3d[] relativePoints; // Relative points along orbit
+	public LineRenderer line; // Line drawing sail trajectory
+	public double UT0; // Initial time of segment
+	public double UTf; // Final time of segment
+	double dT; // Step size
+	GameObject obj; // Game object of line
 
 	// Constructor & calculate
 
-	public PreviewSegment(ModuleSolarSail sail, Orbit orbitInitial, double UT0, double UTf, SailControl control) {
+	public PreviewSegment(SolarSailPart sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
 	    
 	    this.UT0 = UT0;
 	    Debug.Log("UT0: " + UT0.ToString());
@@ -33,7 +33,7 @@ namespace SolarSailNavigator {
 	    
 	    // Calculate preview orbits
 
-	    orbits = ModuleSolarSail.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
+	    orbits = SolarSailPart.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
 	    orbit0 = orbits[0];
 	    orbitf = orbits[orbits.Length - 1];
 	    
@@ -49,9 +49,15 @@ namespace SolarSailNavigator {
 	    line.useWorldSpace = false;
 	    obj.layer = 10; // Map view
 	    line.material = MapView.fetch.orbitLinesMaterial;
-	    line.SetColors(Color.yellow, Color.yellow);
+	    line.SetColors(color, color);
 	    line.SetWidth(20000, 20000);
 	    line.SetVertexCount(orbits.Length);
+	    // Calculate relative position vectors
+	    relativePoints = new Vector3d[orbits.Length];
+	    for(var i = 0; i < orbits.Length; i++) {
+		double UTi = orbits[i].epoch;
+		relativePoints[i] = orbits[i].getRelativePositionAtUT(UTi).xzy;
+	    }
 	}
 
 	// Update segment during renders
@@ -64,8 +70,9 @@ namespace SolarSailNavigator {
 		    // Update points
 		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
 		    for (int i = 0; i < orbits.Length; i++) {
-			double UTi = orbits[i].epoch;
-			line.SetPosition(i, ScaledSpace.LocalToScaledSpace(orbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
+			//double UTi = orbits[i].epoch;
+			//line.SetPosition(i, ScaledSpace.LocalToScaledSpace(orbits[i].getRelativePositionAtUT(UTi).xzy + rRefUT0));
+			line.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUT0 + relativePoints[i]));
 		    }
 		} else {
 		    line.enabled = false;
@@ -78,13 +85,14 @@ namespace SolarSailNavigator {
 	
 	// Fields
 	PreviewSegment[] segments; // Trajectory segments
-	ModuleSolarSail sail; // Sail this preview is attached to
+	SolarSailPart sail; // Sail this preview is attached to
 	LineRenderer linef; // Final orbit line
 	Vector3d[] linefPoints; // 3d points of final orbit
-	
+	double UTf; // final time of trajectory
+
 	// Constructor
 	
-	public Preview(ModuleSolarSail sail) {
+	public Preview(SolarSailPart sail) {
 	    this.sail = sail;
 	}
 
@@ -109,12 +117,15 @@ namespace SolarSailNavigator {
 		// End time
 		double UTf = UT0 + sail.controls.controls[i].duration;
 		// Calculate segment
-		segments[i] = new PreviewSegment(sail, orbitInitial, UT0, UTf, sail.controls.controls[i]);
+		segments[i] = new PreviewSegment(sail, orbitInitial, UT0, UTf, sail.controls.controls[i], sail.controls.controls[i].color);
 		// Update initial time
 		UT0 = UTf;
 		// Update initial orbit
 		orbitInitial = segments[i].orbitf;
 	    }
+
+	    // Final time of trajectory
+	    this.UTf = UT0;
 
 	    // Draw one complete final orbit
 
@@ -128,7 +139,7 @@ namespace SolarSailNavigator {
 	    linef.useWorldSpace = false;
 	    objf.layer = 10; // Map
 	    linef.material = MapView.fetch.orbitLinesMaterial;
-	    linef.SetColors(Color.cyan, Color.cyan);
+	    linef.SetColors(sail.controls.colorFinal, sail.controls.colorFinal);
 	    linef.SetWidth(20000, 20000);
 	    linef.SetVertexCount(360);
 	    // 3D points to use in linef
@@ -137,15 +148,13 @@ namespace SolarSailNavigator {
 	    Orbit orbitf = orbitInitial;
 	    // Period of final orbit
 	    double TPf = orbitf.period;
-	    // Position of reference body at end of trajectory
-	    Vector3d rRefUTf = orbitf.referenceBody.getPositionAtUT(UT0);
 	    // Populate points
 	    for(var i = 0; i < 360; i++) {
-		double UTi = UT0 + i * TPf / 360;
+		double UTi = this.UTf + i * TPf / 360;
 		// Relative orbitf position
 		Vector3d rRelOrbitf = orbitf.getRelativePositionAtUT(UTi).xzy;
 		// Absolute position
-		linefPoints[i] = rRefUTf + rRelOrbitf;
+		linefPoints[i] = rRelOrbitf;
 	    }
 	}
 	
@@ -160,8 +169,10 @@ namespace SolarSailNavigator {
 	    if (linef != null) {
 		if (MapView.MapIsEnabled) {
 		    linef.enabled = true;
+		    // Position of reference body at end of trajectory
+		    Vector3d rRefUTf = vessel.orbit.referenceBody.getPositionAtUT(UTf);
 		    for (var i = 0; i < 360; i++) {
-			linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(linefPoints[i]));
+			linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUTf + linefPoints[i]));
 		    }
 		} else {
 		    linef.enabled = false;
