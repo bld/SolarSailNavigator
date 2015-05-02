@@ -1,4 +1,4 @@
-* TODO Manual sail navigation [9/18]
+* TODO Manual sail navigation [10/18]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -14,6 +14,10 @@
 *** DONE Clock angles
 *** DONE Durations
 *** DONE Warp factors
+** DONE Update preview when controls updated [2/2]
+*** DONE Add toggle button to show preview or not
+*** DONE Calculate when controls updated
+** TODO Add/remove controls anywhere in sequence
 ** TODO Other time unit choices [1/4]
 *** DONE Days
 *** TODO Hours

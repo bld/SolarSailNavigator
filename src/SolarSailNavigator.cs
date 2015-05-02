@@ -26,7 +26,9 @@ namespace SolarSailNavigator {
 	public string iwarps;
 
 	// Preview orbit
-	protected Preview preview;
+	public Preview preview;
+	protected string previewButtonText = "Show Preview";
+	public bool showPreview = false;
 
 	// Sail controls
 	public SailControls controls;
@@ -196,9 +198,16 @@ namespace SolarSailNavigator {
 	    controls.GUI();
 
 	    // Preview orbit
-	    GUILayout.Label("Preview Orbit");
-	    if (GUILayout.Button("Preview Orbit")) {
-	    	preview.Calculate();
+	    if (GUILayout.Button(previewButtonText)) {
+	    	if (!showPreview) {
+		    showPreview = true;
+		    preview.Calculate();
+		    previewButtonText = "Hide Preview";
+		} else {
+		    showPreview = false;
+		    preview.Destroy();
+		    previewButtonText = "Show Preview";
+		}
 	    }
 
 	    GUILayout.EndVertical();

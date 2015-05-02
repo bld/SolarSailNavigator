@@ -95,8 +95,8 @@ namespace SolarSailNavigator {
 	}
 
 	// Calculate & draw trajectory prediction
-	
-	public void Calculate () {
+
+	public void Destroy () {
 	    // Destroy existing lines
 	    if (segments != null) {
 		foreach(var segment in segments) {
@@ -105,77 +105,96 @@ namespace SolarSailNavigator {
 		    }
 		}
 	    }
-	    // New segments array
-	    segments = new PreviewSegment[sail.controls.ncontrols];
-	    // Beginning time
-	    double UT0 = sail.controls.UT0;
-	    Orbit orbitInitial = sail.vessel.orbit;
-	    // Calculate each segment
-	    for (var i = 0; i < segments.Length; i++) {
-		// End time
-		double UTf = UT0 + sail.controls.controls[i].duration;
-		// Calculate segment
-		segments[i] = new PreviewSegment(sail, orbitInitial, UT0, UTf, sail.controls.controls[i], sail.controls.controls[i].color);
-		// Update initial time
-		UT0 = UTf;
-		// Update initial orbit
-		orbitInitial = segments[i].orbitf;
-	    }
-
-	    // Final time of trajectory
-	    this.UTf = UT0;
-
-	    // Draw one complete final orbit
-
 	    // Destroy existing line
 	    if (linef != null) {
 		UnityEngine.Object.Destroy(linef);
 	    }
-	    // Create linerenderer & object
-	    GameObject objf = new GameObject("Final orbit");
-	    linef = objf.AddComponent<LineRenderer>();
-	    linef.useWorldSpace = false;
-	    objf.layer = 10; // Map
-	    linef.material = MapView.fetch.orbitLinesMaterial;
-	    linef.SetColors(sail.controls.colorFinal, sail.controls.colorFinal);
-	    linef.SetWidth(20000, 20000);
-	    linef.SetVertexCount(360);
-	    // 3D points to use in linef
-	    linefPoints = new Vector3d[360];
-	    // Final orbit of sail trajectory
-	    Orbit orbitf = orbitInitial;
-	    // Period of final orbit
-	    double TPf = orbitf.period;
-	    // Populate points
-	    for(var i = 0; i < 360; i++) {
-		double UTi = this.UTf + i * TPf / 360;
-		// Relative orbitf position
-		Vector3d rRelOrbitf = orbitf.getRelativePositionAtUT(UTi).xzy;
-		// Absolute position
-		linefPoints[i] = rRelOrbitf;
+	}
+	
+	public void Calculate () {
+	    if (sail.showPreview) {
+		// Destroy existing lines
+		if (segments != null) {
+		    foreach(var segment in segments) {
+			if (segment.line != null) {
+			    UnityEngine.Object.Destroy(segment.line);
+			}
+		    }
+		}
+		// New segments array
+		segments = new PreviewSegment[sail.controls.ncontrols];
+		// Beginning time
+		double UT0 = sail.controls.UT0;
+		Orbit orbitInitial = sail.vessel.orbit;
+		// Calculate each segment
+		for (var i = 0; i < segments.Length; i++) {
+		    // End time
+		    double UTf = UT0 + sail.controls.controls[i].duration;
+		    // Calculate segment
+		    segments[i] = new PreviewSegment(sail, orbitInitial, UT0, UTf, sail.controls.controls[i], sail.controls.controls[i].color);
+		    // Update initial time
+		    UT0 = UTf;
+		    // Update initial orbit
+		    orbitInitial = segments[i].orbitf;
+		}
+
+		// Final time of trajectory
+		this.UTf = UT0;
+
+		// Draw one complete final orbit
+
+		// Destroy existing line
+		if (linef != null) {
+		    UnityEngine.Object.Destroy(linef);
+		}
+		// Create linerenderer & object
+		GameObject objf = new GameObject("Final orbit");
+		linef = objf.AddComponent<LineRenderer>();
+		linef.useWorldSpace = false;
+		objf.layer = 10; // Map
+		linef.material = MapView.fetch.orbitLinesMaterial;
+		linef.SetColors(sail.controls.colorFinal, sail.controls.colorFinal);
+		linef.SetWidth(20000, 20000);
+		linef.SetVertexCount(360);
+		// 3D points to use in linef
+		linefPoints = new Vector3d[360];
+		// Final orbit of sail trajectory
+		Orbit orbitf = orbitInitial;
+		// Period of final orbit
+		double TPf = orbitf.period;
+		// Populate points
+		for(var i = 0; i < 360; i++) {
+		    double UTi = this.UTf + i * TPf / 360;
+		    // Relative orbitf position
+		    Vector3d rRelOrbitf = orbitf.getRelativePositionAtUT(UTi).xzy;
+		    // Absolute position
+		    linefPoints[i] = rRelOrbitf;
+		}
 	    }
 	}
 	
 
 	// Update
 	public void Update (Vessel vessel) {
-	    if (segments != null) {
-		foreach(var segment in segments) {
-		    segment.Update(vessel);
-		}
-	    }
-
-	    // Update final orbit line from points
-	    if (linef != null) {
-		if (MapView.MapIsEnabled) {
-		    linef.enabled = true;
-		    // Position of reference body at end of trajectory
-		    Vector3d rRefUTf = vessel.orbit.referenceBody.getPositionAtUT(UTf);
-		    for (var i = 0; i < 360; i++) {
-			linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUTf + linefPoints[i]));
+	    if (sail.showPreview) {
+		if (segments != null) {
+		    foreach(var segment in segments) {
+			segment.Update(vessel);
 		    }
-		} else {
-		    linef.enabled = false;
+		}
+
+		// Update final orbit line from points
+		if (linef != null) {
+		    if (MapView.MapIsEnabled) {
+			linef.enabled = true;
+			// Position of reference body at end of trajectory
+			Vector3d rRefUTf = vessel.orbit.referenceBody.getPositionAtUT(UTf);
+			for (var i = 0; i < 360; i++) {
+			    linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUTf + linefPoints[i]));
+			}
+		    } else {
+			linef.enabled = false;
+		    }
 		}
 	    }
 	}

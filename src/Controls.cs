@@ -48,6 +48,7 @@ namespace SolarSailNavigator {
 		    cone = cone - 180;
 		}
 		cone_str = cone.ToString();
+		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
 		cone -= 5;
@@ -55,6 +56,7 @@ namespace SolarSailNavigator {
 		    cone = cone + 180;
 		}
 		cone_str = cone.ToString();
+		controls.Update();
 	    }
 	}
 
@@ -67,6 +69,7 @@ namespace SolarSailNavigator {
 		    clock = clock - 360;
 		}
 		clock_str = clock.ToString();
+		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
 		clock -= 5;
@@ -74,6 +77,7 @@ namespace SolarSailNavigator {
 		    clock = 360 + clock;
 		}
 		clock_str = clock.ToString();
+		controls.Update();
 	    }
 	}
 
@@ -90,12 +94,14 @@ namespace SolarSailNavigator {
 		days_str = days.ToString();
 		duration = SecondsPerDay * days;
 		duration_str = duration.ToString();
+		controls.Update();
 	    }
 	    if (GUILayout.Button("+10")) {
 		days += 10;
 		days_str = days.ToString();
 		duration = SecondsPerDay * days;
 		duration_str = duration.ToString();
+		controls.Update();
 	    }
 	    GUILayout.EndVertical();
 
@@ -104,18 +110,20 @@ namespace SolarSailNavigator {
 	    if (GUILayout.Button("-")) {
 		if (days > 0) {
 		    days--;
+		    days_str = days.ToString();
+		    duration = SecondsPerDay * days;
+		    duration_str = duration.ToString();
+		    controls.Update();
 		}
-		days_str = days.ToString();
-		duration = SecondsPerDay * days;
-		duration_str = duration.ToString();
 	    }
 	    if (GUILayout.Button("-10")) {
 		if (days >= 10) {
 		    days -= 10;
+		    days_str = days.ToString();
+		    duration = SecondsPerDay * days;
+		    duration_str = duration.ToString();
+		    controls.Update();
 		}
-		days_str = days.ToString();
-		duration = SecondsPerDay * days;
-		duration_str = duration.ToString();
 	    }
 	    GUILayout.EndVertical();
 	}
@@ -129,6 +137,7 @@ namespace SolarSailNavigator {
 		    iwarp = 0;
 		}
 		warp = warpLevels[iwarp];
+		controls.Update();
 	    }
 	}
 
@@ -188,9 +197,13 @@ namespace SolarSailNavigator {
 
 	// Constructor
 
-	public SailControl(SolarSailPart sail, float cone, float clock, double duration, int iwarp) {
+	public SailControl(SolarSailPart sail, SailControls controls, float cone, float clock, double duration, int iwarp) {
+	    // Sail
 	    this.sail = sail;
 	    this.cone = cone;
+	    // Parent controls object
+	    this.controls = controls;
+	    // Angles
 	    cone_str = cone.ToString();
 	    this.clock = clock;
 	    clock_str = clock.ToString();
@@ -205,8 +218,8 @@ namespace SolarSailNavigator {
 	    warp = warpLevels[iwarp];
 	}
 
-	public static SailControl Default (SolarSailPart sail) {
-	    return new SailControl (sail, defaultCone, defaultClock, defaultDuration, defaultiwarp);
+	public static SailControl Default (SolarSailPart sail, SailControls controls) {
+	    return new SailControl (sail, controls, defaultCone, defaultClock, defaultDuration, defaultiwarp);
 	}
     }
 
@@ -252,7 +265,7 @@ namespace SolarSailNavigator {
 	    Debug.Log(UT0.ToString());
 
 	    // Off sail control
-	    sailOff = SailControl.Default(sail);
+	    sailOff = SailControl.Default(sail, this);
 
 	    // If the sail doesn't have saved controls, return default
 	    if (String.IsNullOrEmpty(sail.cones) ||
@@ -261,7 +274,7 @@ namespace SolarSailNavigator {
 		String.IsNullOrEmpty(sail.iwarps)) {
 		ncontrols = 1;
 		controls = new SailControl[ncontrols];
-		controls[0] = SailControl.Default(sail);
+		controls[0] = SailControl.Default(sail, this);
 
 	    } else { // Otherwise, parse saved controls
 
@@ -280,6 +293,7 @@ namespace SolarSailNavigator {
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
 		    controls[i] = new SailControl(sail,
+						  this,
 						  SailControl.ParseSingle(coneStrings[i]),
 						  SailControl.ParseSingle(clockStrings[i]),
 						  SailControl.ParseDouble(durationStrings[i]),
@@ -297,6 +311,7 @@ namespace SolarSailNavigator {
 	    GUILayout.Label("Start time: " + UT0.ToString());
 	    if(GUILayout.Button("Set to Now")) {
 		UT0 = Planetarium.GetUniversalTime();
+		Update();
 	    }
 	    GUILayout.EndHorizontal();
 
@@ -348,7 +363,6 @@ namespace SolarSailNavigator {
 	    GUILayout.Label("Total: " + durationTotal + " sec");
 	    
 	    GUILayout.EndVertical();
-	    Update();
 	}
 
 	// Add a control
@@ -357,9 +371,10 @@ namespace SolarSailNavigator {
 	    for(var i = 0; i < ncontrols; i++) {
 		newControls[i] = controls[i];
 	    }
-	    newControls[ncontrols] = SailControl.Default(sail);
+	    newControls[ncontrols] = SailControl.Default(sail, this);
 	    controls = newControls;
 	    ncontrols++;
+	    Update();
 	}
 	
 	// Remove a control
@@ -371,6 +386,7 @@ namespace SolarSailNavigator {
 		}
 		controls = newControls;
 		ncontrols--;
+		Update();
 	    }
 	}
 	
@@ -408,6 +424,8 @@ namespace SolarSailNavigator {
 	    Debug.Log(sail.clocks);
 	    Debug.Log(sail.durations);
 	    Debug.Log(sail.iwarps);
+
+	    sail.preview.Calculate();
 	}
     }
 }
