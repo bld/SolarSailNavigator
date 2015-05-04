@@ -133,7 +133,8 @@ The Mechanical Jeb plugin (http://mechjeb.com) includes a tool called
 "Warp Helper" that helps in executing the attitude maneuver
 sequence. In the "Warp to" dropdown, select "Time". In the "Warp for"
 field, type in the total duration, with "s" at the end for
-seconds. Leave "Lead time" at 0s. Click "Warp" and watch 
+seconds. Leave "Lead time" at 0s. Click "Warp" and watch it follow the
+trajectory, returning to realtime and 90 degrees at the end.
 
 ** Known Problems and Limitations
 
@@ -156,7 +157,7 @@ to help lay out planet-centered trajectories for tasks like:
 - Orbit maneuvers around the planet
 *** Smaller time units
 Hours, minutes, and seconds for the duration of attitude maneuver
-segments.
+segments. Just need a clean interface that isn't too cluttered.
 
 ** Wish List
 
@@ -218,10 +219,13 @@ can point make life interesting for sail navigators.
 **** Attitude control
 Real sails use the torque of sunlight to steer. It would be
 interesting exercise to have the sail slow down the time warp and use
-special sail steering hardware to change attitude.
+special sail steering hardware to change attitude - slowly.
 - Steering vanes
 - Move the center of mass
-- Reflective control panels (used by IKAROS)
+- Thin film reflective control devices (used by IKAROS)
+
+Real sails have massive moments of inertia, which make traditional
+control by reaction wheels and RCS thrusters difficult.
 
 **** Spinning sails
 IKAROS spun to hold the sail flat instead of using structural booms.
@@ -232,3 +236,8 @@ curved, with wrinkles, and sail film that absorbs and scatters
 light. The direction of thrust on a sail is affected by these
 factors. Also, a non-flat sail will still present some area to the sun
 at 90 degrees and produce a little thrust.
+*** TweakScale
+
+Get this plugin working with the sail to fly larger & smaller
+sails by scaling the surface area (square scale change).
+*** Make the plugin more generic to work with ion engines etc.
