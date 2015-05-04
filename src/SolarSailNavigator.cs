@@ -180,7 +180,7 @@ namespace SolarSailNavigator {
 	    return QRTN * QCC;
 	}
 	
-	private Rect controlWindowPos = new Rect();
+	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
 
 	private void DrawControls () {
 	    if (this.vessel == FlightGlobals.ActiveVessel)
