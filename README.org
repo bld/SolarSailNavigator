@@ -6,7 +6,7 @@
 Plot the course of a spacecraft pushed by the pressure of sunlight.
 
 This is the first release of a solar sail navigation plugin for Kerbal
-Space Program (KSP, http://www.kerspaceprogram.com). It includes a
+Space Program (KSP, http://www.kerbalspaceprogram.com). It includes a
 solar sail model with animated deployment by Sasquatch Marmalade, and
 a force model by Fractal_UK from the KSP Interstellar mod, which works
 during time warp. See License.md for the KSP Interstellar open source
