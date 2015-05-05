@@ -31,6 +31,9 @@ This plugin adds two critical features needed to navigate a sail.
 
 ** Usage
 
+*** Tutorial
+See: https://github.com/bld/SolarSailNavigator/wiki/Tutorials
+
 *** Building a solar sail spacecraft
 
 In the Vehicle Assembly Building (VAB), look in the "Engines" section
@@ -44,7 +47,8 @@ all directions - front, back, sides, up, down. Though, as we'll see
 later, this plugin doesn't need power to change attitude and get power
 if you run out. But, that's cheating.
 
-You can deploy the sail on the launch pad to see how it will look.
+You can deploy the sail on the launch pad to see how it will
+look. DON'T lock the attidue on the pad, unless you like explosions.
 
 *** Deployment
 
@@ -57,7 +61,8 @@ from sunlight. Once deployed, a "Sail Controls" window will appear.
 **** Lock Attitude
 There is a "Lock Attitude" toggle button. Clicking this will cause the
 attitude maneuver profile to be executed, forcing the sail to the
-specified attitude.
+specified attitude. This is needed to hold the attitude during time
+warp.
 
 **** Start Time
 This shows the time that the attitude maneuvers begin in Universal
