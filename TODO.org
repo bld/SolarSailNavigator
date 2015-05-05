@@ -1,4 +1,4 @@
-* TODO Manual sail navigation [10/18]
+* TODO Manual sail navigation [12/21]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -30,10 +30,17 @@
 *** TODO Seconds
 ** TODO Allow +/-180 deg cone angles
 ** TODO Longer time steps for preview orbit
-** TODO Pre-calculate line render points of sail trajectory
+** DONE Pre-calculate line render points of sail trajectory
 ** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
-** TODO Select target body [0/1]
+** TODO Select target body [0/2]
 *** TODO Show intersections with target body
+*** TODO Show difference between final orbit elements & target body elements
+** TODO Improve propagation accuracy
+*** Currently multiplies acceleration by time step size and adds to velocity
+*** Could integrate for one time step using Runge Kutta
+** TODO Initial time calculation
+Currently need to manually click "Set to Now"
+** DONE Make control GUI fields fixed width
 * TODO Make new solar sail models [0/5]
 ** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
@@ -47,18 +54,22 @@
 ** TODO IKAROS
 *** Animated rotation
 **** Scale rotation speed to sensible amount during time warp
+*** Animate change in reflective control device color as it performs attitude maneuvers
 * TODO Make sail deployment a staged event that can only happen once
 * TODO Realistic sail attitude control
 ** Vanes to cause solar torque about CM
 ** Gimbaled boom to shift CM
 ** Realistic moments of inertia (i.e. BIG)
+** IKAROS style thin film reflective control devices
 * TODO Automatic navigation
+** Using manual navigation as initial guess, perform local optimization (e.g. gradient) to calculate cones/clocks/durations
 ** Orbital rendezvous
 *** Select target
 *** Specify number of control nodes
 *** Optimal control method runs behind scenes to generate angle/time profile
 *** Allow execution of steering strategy
 ** Locally optimal steering strategies
+*** Maximize rate of change of one orbit element or combination of elements
 * TODO Sails on Rails
 As currently designed KSP seems to run Kepler orbits when a spacecraft
 is not active.  Is there a way to keep the sail propagator running in
@@ -84,4 +95,3 @@ extra CPU. May want a notification when the sequence is completed.
 *** TODO Inclination
 *** TODO AoP
 *** TODO Blended?
-
