@@ -32,16 +32,16 @@ namespace SolarSailNavigator {
 	// Static fields
 	public static float defaultCone = 90f;
 	public static float defaultClock = 0f;
-	public static double defaultDuration = 100000.0;
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
 	public static double SecondsPerMinute = 60.0;
+	public static double defaultDuration = 10 * SecondsPerDay;
 	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
 	public static int defaultiwarp = 10;
 	
 	// Cone controls
 	public void GUICone () {
-	    GUILayout.Label(cone_str);
+	    GUILayout.Label(cone_str, GUILayout.Width(30));
 	    if (GUILayout.Button("+")) {
 		cone += 5;
 		if (cone > 90) {
@@ -62,7 +62,7 @@ namespace SolarSailNavigator {
 
 	// Clock controls
 	public void GUIClock () {
-	    GUILayout.Label(clock_str);
+	    GUILayout.Label(clock_str, GUILayout.Width(30));
 	    if (GUILayout.Button("+")) {
 		clock += 5;
 		if (clock > 180) {
@@ -85,7 +85,7 @@ namespace SolarSailNavigator {
 	public void GUITime () {
 
 	    // Days
-	    GUILayout.Label(days_str);
+	    GUILayout.Label(days_str, GUILayout.Width(30));
 
 	    // Increase
 	    GUILayout.BeginVertical();
@@ -130,7 +130,7 @@ namespace SolarSailNavigator {
 
 	// Warp factor controls
 	public void GUIWarp () {
-	    GUILayout.Label(warp.ToString());
+	    GUILayout.Label(warp.ToString(), GUILayout.Width(45));
 	    if (GUILayout.Button("+")) {
 		iwarp++;
 		if (iwarp >= warpLevels.Length) {
@@ -149,7 +149,7 @@ namespace SolarSailNavigator {
 	    cstyle.normal.background = ctx;
 	    ctx.SetPixel(1,1,color);
 	    ctx.Apply();
-	    GUILayout.Label("___", cstyle);
+	    GUILayout.Label(" ", cstyle, GUILayout.Width(30));
 	}
 	
 	// GUI line
@@ -317,11 +317,11 @@ namespace SolarSailNavigator {
 
 	    // Controls
 	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("_Cone__|");
-	    GUILayout.Label("_Clock_|");
-	    GUILayout.Label("_Days__|");
-	    GUILayout.Label("__Warp____|");
-	    GUILayout.Label("Color");
+	    GUILayout.Label("Cone", GUILayout.Width(75));
+	    GUILayout.Label("Clock", GUILayout.Width(75));
+	    GUILayout.Label("Days", GUILayout.Width(95));
+	    GUILayout.Label("Warp", GUILayout.Width(70));
+	    GUILayout.Label("Color", GUILayout.Width(30));
 	    GUILayout.EndHorizontal();
 
 	    int icolor = 0;
@@ -356,7 +356,7 @@ namespace SolarSailNavigator {
 	    ctx.Apply();
 	    GUILayout.BeginHorizontal();
 	    GUILayout.Label("Final orbit color: ");
-	    GUILayout.Label("___", cstyle);
+	    GUILayout.Label(" ", cstyle);
 	    GUILayout.EndHorizontal();
 
 	    // Total duration of sequences
@@ -364,7 +364,7 @@ namespace SolarSailNavigator {
 	    
 	    GUILayout.EndVertical();
 	}
-
+	
 	// Add a control
 	public void Add () {
 	    var newControls = new SailControl[ncontrols + 1];
@@ -374,6 +374,7 @@ namespace SolarSailNavigator {
 	    newControls[ncontrols] = SailControl.Default(sail, this);
 	    controls = newControls;
 	    ncontrols++;
+	    colorFinal = colorMap[ncontrols % colorMap.Length];
 	    Update();
 	}
 	
@@ -386,6 +387,7 @@ namespace SolarSailNavigator {
 		}
 		controls = newControls;
 		ncontrols--;
+		colorFinal = colorMap[ncontrols % colorMap.Length];
 		Update();
 	    }
 	}
