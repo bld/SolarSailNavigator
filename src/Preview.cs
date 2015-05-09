@@ -33,7 +33,7 @@ namespace SolarSailNavigator {
 	    
 	    // Calculate preview orbits
 
-	    orbits = SolarSailPart.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
+	    orbits = Preview.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
 	    orbit0 = orbits[0];
 	    orbitf = orbits[orbits.Length - 1];
 	    
@@ -197,6 +197,54 @@ namespace SolarSailNavigator {
 		    }
 		}
 	    }
+	}
+
+	// Propagate an orbit
+	public static Orbit[] PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
+	    Orbit orbit = CloneOrbit(orbit0);
+
+	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
+	    double dTlast = (UTf - UT0) % dT;
+
+	    double UT;
+
+	    var orbits = new Orbit[1 + nsteps];
+	    orbits[0] = CloneOrbit(orbit0);
+	    
+	    for (int i = 0; i < nsteps; i++) {
+		// Last step goes to UTf
+		if (i == nsteps - 1) {
+		    dT = dTlast;
+		    UT = UTf;
+		} else {
+		    UT = UT0 + i * dT;
+		}
+
+		double sunlightFactor = 1.0;
+		if(!SolarSailPart.inSun(orbit, UT)) {
+		    sunlightFactor = 0.0;
+		}
+
+		Quaternion sailFrame = SolarSailPart.SailFrame(orbit, cone, clock, UT);
+
+		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
+
+		Vector3d solarForce = SolarSailPart.CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
+
+		Vector3d solarAccel = solarForce / mass / 1000.0;
+		
+		SolarSailPart.PerturbOrbit(orbit, solarAccel, UT, dT);
+
+		orbits[1 + i] = CloneOrbit(orbit);
+	    }
+	    
+	    // Return propagated orbit
+	    return orbits;
+	}
+
+	// Dublicate an orbit
+	public static Orbit CloneOrbit(Orbit orbit0) {
+	    return new Orbit(orbit0.inclination, orbit0.eccentricity, orbit0.semiMajorAxis, orbit0.LAN, orbit0.argumentOfPeriapsis, orbit0.meanAnomalyAtEpoch, orbit0.epoch, orbit0.referenceBody);
 	}
     }
 }

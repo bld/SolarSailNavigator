@@ -70,11 +70,14 @@ Currently need to manually click "Set to Now"
 *** Allow execution of steering strategy
 ** Locally optimal steering strategies
 *** Maximize rate of change of one orbit element or combination of elements
-* TODO Sails on Rails
+* TODO Sails on Rails [0/2]
+** Problem
 As currently designed KSP seems to run Kepler orbits when a spacecraft
 is not active.  Is there a way to keep the sail propagator running in
 the background to allow command profiles to complete? This would use
 extra CPU. May want a notification when the sequence is completed.
+** TODO Save preview trajectory to persistant variables
+** TODO Set orbit state to that in the preview when you return to the spacecraft
 * TODO Modularize functions [5/8]
 ** TODO steering during timewarp so it can be used elsewhere, e.g. ion engines
 ** TODO manual navigation
@@ -95,3 +98,15 @@ extra CPU. May want a notification when the sequence is completed.
 *** TODO Inclination
 *** TODO AoP
 *** TODO Blended?
+* TODO Make a low thrust navigation tool for any low thrust propulsion, sail, ion engine, etc [0/2]
+** TODO Propulsion part module
+*** Force model
+*** Realtime propagation
+*** Time warp propagation
+*** On/off & throttle controls
+** TODO Separate navigation module that is applied to low thrust parts
+*** Steering and preview tacked on to low thrust
+*** Use patched config files to apply?
+*** Calculate mass use for reaction thrusters
+*** Save trajectory and mass prediction to persistant variables
+*** Update vessel orbit and mass when returning to them
