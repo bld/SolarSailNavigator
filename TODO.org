@@ -1,4 +1,4 @@
-* TODO Manual sail navigation [12/21]
+* TODO Manual sail navigation [12/22]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -29,7 +29,11 @@
 *** TODO Minutes
 *** TODO Seconds
 ** TODO Allow +/-180 deg cone angles
-** TODO Longer time steps for preview orbit
+** TODO Draw fewer segments in preview
+*** Condition to sample? Period of orbit0, divide by 360, sample when elapsed time exceeds?
+*** Or... calculate period with each new perturbed orbit
+**** Divide by 360
+**** Check if that much time has passed since last sampling?
 ** DONE Pre-calculate line render points of sail trajectory
 ** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
 ** TODO Select target body [0/2]
@@ -41,6 +45,7 @@
 ** TODO Initial time calculation
 Currently need to manually click "Set to Now"
 ** DONE Make control GUI fields fixed width
+** TODO Draw mini sails at points along map to show attitude
 * TODO Make new solar sail models [0/5]
 ** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
