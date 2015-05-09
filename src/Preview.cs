@@ -12,7 +12,7 @@ namespace SolarSailNavigator {
 	
 	public Orbit orbit0; // Initial orbit of segment
 	public Orbit orbitf; // Final orbit of segment
-	public Orbit[] orbits; // Intermediate segment orbits
+	public List<Orbit> orbits; // Intermediate segment orbits
 	public Vector3d[] relativePoints; // Relative points along orbit
 	public LineRenderer line; // Line drawing sail trajectory
 	public double UT0; // Initial time of segment
@@ -35,7 +35,7 @@ namespace SolarSailNavigator {
 
 	    orbits = Preview.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
 	    orbit0 = orbits[0];
-	    orbitf = orbits[orbits.Length - 1];
+	    orbitf = orbits[orbits.Count - 1];
 	    
 	    // Initialize LineRenderer
 
@@ -51,10 +51,10 @@ namespace SolarSailNavigator {
 	    line.material = MapView.fetch.orbitLinesMaterial;
 	    line.SetColors(color, color);
 	    line.SetWidth(20000, 20000);
-	    line.SetVertexCount(orbits.Length);
+	    line.SetVertexCount(orbits.Count);
 	    // Calculate relative position vectors
-	    relativePoints = new Vector3d[orbits.Length];
-	    for(var i = 0; i < orbits.Length; i++) {
+	    relativePoints = new Vector3d[orbits.Count];
+	    for(var i = 0; i < orbits.Count; i++) {
 		double UTi = orbits[i].epoch;
 		relativePoints[i] = orbits[i].getRelativePositionAtUT(UTi).xzy;
 	    }
@@ -69,7 +69,7 @@ namespace SolarSailNavigator {
 		    line.enabled = true;
 		    // Update points
 		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
-		    for (int i = 0; i < orbits.Length; i++) {
+		    for (int i = 0; i < orbits.Count; i++) {
 			line.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUT0 + relativePoints[i]));
 		    }
 		} else {
@@ -200,7 +200,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Propagate an orbit
-	public static Orbit[] PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
+	public static List<Orbit> PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
 	    Orbit orbit = CloneOrbit(orbit0);
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
@@ -208,8 +208,14 @@ namespace SolarSailNavigator {
 
 	    double UT;
 
-	    var orbits = new Orbit[1 + nsteps];
-	    orbits[0] = CloneOrbit(orbit0);
+	    // Reseting time step to choose orbit for saving
+	    double dTchoose = 0.0;
+
+	    // List of orbits to preview
+	    var orbits = new List<Orbit>();
+
+	    // Add initial orbit
+	    orbits.Add(CloneOrbit(orbit0));
 	    
 	    for (int i = 0; i < nsteps; i++) {
 		// Last step goes to UTf
@@ -235,7 +241,19 @@ namespace SolarSailNavigator {
 		
 		SolarSailPart.PerturbOrbit(orbit, solarAccel, UT, dT);
 
-		orbits[1 + i] = CloneOrbit(orbit);
+		// Increment choose time step
+		dTchoose += dT;
+
+		// Orbit period
+		double TP = orbit.period;
+
+		// Decide whether to add orbit to list of orbits to draw
+		if (i == nsteps - 1) { // Always add last orbit
+		    orbits.Add(CloneOrbit(orbit));
+		} else if (dTchoose >= TP / 360) { // If 1/360th of current period passed, pick
+		    orbits.Add(CloneOrbit(orbit));
+		    dTchoose = 0.0;
+		}
 	    }
 	    
 	    // Return propagated orbit
