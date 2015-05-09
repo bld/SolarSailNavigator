@@ -197,9 +197,9 @@ namespace SolarSailNavigator {
 	// Calculate RTN frame quaternion given an orbit and UT
 	public static Quaternion RTNFrame (Orbit orbit, double UT) {
 	    // Position
-	    var r = transposeYZ(orbit.getRelativePositionAtUT(UT).normalized);
+	    var r = orbit.getRelativePositionAtUT(UT).normalized.xzy;
 	    // Velocity
-	    var v = transposeYZ(orbit.getOrbitalVelocityAtUT(UT).normalized);
+	    var v = orbit.getOrbitalVelocityAtUT(UT).normalized.xzy;
 	    // Unit orbit angular momentum
 	    var h = Vector3d.Cross(r, v).normalized;
 	    // Tangential
@@ -293,11 +293,6 @@ namespace SolarSailNavigator {
 		    orbit.UpdateFromUT(UT);
 		}
 	    }
-	}
-
-	// Transpose X and Y elements for conversion of Orbit vector3d
-	public static Vector3d transposeYZ (Vector3d v) {
-	    return new Vector3d(v.x, v.z, v.y);
 	}
 
 	// Dublicate an orbit
