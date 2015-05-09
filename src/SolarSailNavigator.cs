@@ -159,27 +159,6 @@ namespace SolarSailNavigator {
 	    preview.Update(vessel);
 	}
 		
-	public static Quaternion RTNFrame (Vessel vessel) {
-	    // Center of mass position
-	    var CM = vessel.findWorldCenterOfMass();
-	    // Unit position vector
-	    var r = (CM - vessel.mainBody.position).normalized;
-	    // Unit velocity vector
-	    var v = vessel.obt_velocity.normalized;
-	    // Unit orbital angular velocity
-	    var h = Vector3d.Cross(r, v).normalized;
-	    // Tangential vector
-	    var t = Vector3d.Cross(h, r).normalized;
-	    // Quaternion of RTN frame
-	    return Quaternion.LookRotation(t, r);
-	}
-
-	public static Quaternion SailFrame (Vessel vessel, float cone, float clock) {
-	    var QRTN = RTNFrame(vessel);
-	    var QCC = Quaternion.Euler(0, 90 - clock, cone);
-	    return QRTN * QCC;
-	}
-	
 	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
 
 	private void DrawControls () {
@@ -324,49 +303,6 @@ namespace SolarSailNavigator {
 	// Dublicate an orbit
 	public static Orbit CloneOrbit(Orbit orbit0) {
 	    return new Orbit(orbit0.inclination, orbit0.eccentricity, orbit0.semiMajorAxis, orbit0.LAN, orbit0.argumentOfPeriapsis, orbit0.meanAnomalyAtEpoch, orbit0.epoch, orbit0.referenceBody);
-	}
-
-	// Propagate an orbit
-	public static Orbit[] PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
-	    Orbit orbit = CloneOrbit(orbit0);
-
-	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
-	    double dTlast = (UTf - UT0) % dT;
-
-	    double UT;
-
-	    var orbits = new Orbit[1 + nsteps];
-	    orbits[0] = CloneOrbit(orbit0);
-	    
-	    for (int i = 0; i < nsteps; i++) {
-		// Last step goes to UTf
-		if (i == nsteps - 1) {
-		    dT = dTlast;
-		    UT = UTf;
-		} else {
-		    UT = UT0 + i * dT;
-		}
-
-		double sunlightFactor = 1.0;
-		if(!inSun(orbit, UT)) {
-		    sunlightFactor = 0.0;
-		}
-
-		Quaternion sailFrame = SailFrame(orbit, cone, clock, UT);
-
-		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
-
-		Vector3d solarForce = CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
-
-		Vector3d solarAccel = solarForce / mass / 1000.0;
-		
-		PerturbOrbit(orbit, solarAccel, UT, dT);
-
-		orbits[1 + i] = CloneOrbit(orbit);
-	    }
-	    
-	    // Return propagated orbit
-	    return orbits;
 	}
     }
 }
