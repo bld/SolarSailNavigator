@@ -20,16 +20,19 @@ namespace SolarSailNavigator {
 	double dT; // Step size
 	GameObject obj; // Game object of line
 
+	// Testing the VectorLine
+	public VectorLine vline;
+
 	// Constructor & calculate
 
 	public PreviewSegment(SolarSailPart sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
 	    
 	    this.UT0 = UT0;
-	    Debug.Log("UT0: " + UT0.ToString());
+	    //Debug.Log("UT0: " + UT0.ToString());
 	    this.UTf = UTf;
-	    Debug.Log("UTf: " + UTf.ToString());
+	    //Debug.Log("UTf: " + UTf.ToString());
 	    dT = TimeWarp.fixedDeltaTime * control.warp;
-	    Debug.Log("dT: " + dT.ToString());
+	    //Debug.Log("dT: " + dT.ToString());
 	    
 	    // Calculate preview orbits
 
@@ -52,6 +55,25 @@ namespace SolarSailNavigator {
 	    line.SetColors(color, color);
 	    line.SetWidth(20000, 20000);
 	    line.SetVertexCount(orbits.Count);
+
+	    // Length of linesPoints must be even
+	    var norbits = orbits.Count;
+	    if (norbits % 2 != 0) {
+		norbits += 1;
+	    }
+	    
+	    // Initialize vectorline
+	    vline = new VectorLine (
+				    lineName : "vline",
+				    linePoints : new UnityEngine.Vector3[norbits],
+				    lineMaterial : MapView.OrbitLinesMaterial,
+				    color : color,
+				    width : 5,
+				    lineType : LineType.Discrete);
+	    vline.vectorObject.renderer.castShadows = false;
+	    vline.vectorObject.renderer.receiveShadows = false;
+	    vline.vectorObject.layer = 10;
+	    	    
 	    // Calculate relative position vectors
 	    relativePoints = new Vector3d[orbits.Count];
 	    for(var i = 0; i < orbits.Count; i++) {
@@ -63,6 +85,7 @@ namespace SolarSailNavigator {
 	// Update segment during renders
 
 	public void Update(Vessel vessel) {
+	    //Debug.Log("Update segment");
 	    if (line != null) {
 		// Enable only on map
 		if (MapView.MapIsEnabled) {
@@ -71,7 +94,16 @@ namespace SolarSailNavigator {
 		    Vector3d rRefUT0 = vessel.orbit.referenceBody.getPositionAtUT(UT0);
 		    for (int i = 0; i < orbits.Count; i++) {
 			line.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUT0 + relativePoints[i]));
+			// Vectorline
+			vline.points3[i] = ScaledSpace.LocalToScaledSpace(rRefUT0 + relativePoints[i]);
 		    }
+		    // If odd number of orbit points, assign final
+		    if (vline.points3.Length % 2 != 0) {
+			vline.points3[vline.points3.Length - 1] = vline.points3[vline.points3.Length - 2];
+		    }
+		    //if (MapView.Draw3DLines) {
+			Vector.DrawLine3D(vline);
+		    //}
 		} else {
 		    line.enabled = false;
 		}
@@ -97,14 +129,20 @@ namespace SolarSailNavigator {
 	// Calculate & draw trajectory prediction
 
 	public void Destroy () {
+	    //Debug.Log("Destroy lines");
 	    // Destroy existing lines
 	    if (segments != null) {
 		foreach(var segment in segments) {
 		    if (segment.line != null) {
 			UnityEngine.Object.Destroy(segment.line);
 		    }
+		    // Destroy vectorline
+		    if (segment.vline != null) {
+			Vector.DestroyLine(ref segment.vline);
+		    }
 		}
 	    }
+
 	    // Destroy existing line
 	    if (linef != null) {
 		UnityEngine.Object.Destroy(linef);
@@ -112,15 +150,10 @@ namespace SolarSailNavigator {
 	}
 	
 	public void Calculate () {
+	    //Debug.Log("Calculate preview");
 	    if (sail.showPreview) {
 		// Destroy existing lines
-		if (segments != null) {
-		    foreach(var segment in segments) {
-			if (segment.line != null) {
-			    UnityEngine.Object.Destroy(segment.line);
-			}
-		    }
-		}
+		Destroy();
 		// New segments array
 		segments = new PreviewSegment[sail.controls.ncontrols];
 		// Beginning time
