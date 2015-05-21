@@ -50,7 +50,6 @@ namespace SolarSailNavigator {
 	    obj.layer = 10; // Map view
 	    line.material = MapView.fetch.orbitLinesMaterial;
 	    line.SetColors(color, color);
-	    line.SetWidth(20000, 20000);
 	    line.SetVertexCount(orbits.Count);
 	    // Calculate relative position vectors
 	    relativePoints = new Vector3d[orbits.Count];
@@ -72,6 +71,7 @@ namespace SolarSailNavigator {
 		    for (int i = 0; i < orbits.Count; i++) {
 			line.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUT0 + relativePoints[i]));
 		    }
+		    line.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
 		} else {
 		    line.enabled = false;
 		}
@@ -154,7 +154,6 @@ namespace SolarSailNavigator {
 		objf.layer = 10; // Map
 		linef.material = MapView.fetch.orbitLinesMaterial;
 		linef.SetColors(sail.controls.colorFinal, sail.controls.colorFinal);
-		linef.SetWidth(20000, 20000);
 		linef.SetVertexCount(360);
 		// 3D points to use in linef
 		linefPoints = new Vector3d[360];
@@ -192,6 +191,7 @@ namespace SolarSailNavigator {
 			for (var i = 0; i < 360; i++) {
 			    linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUTf + linefPoints[i]));
 			}
+			linef.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
 		    } else {
 			linef.enabled = false;
 		    }
