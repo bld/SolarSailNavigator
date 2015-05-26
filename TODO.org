@@ -1,4 +1,4 @@
-* TODO Manual sail navigation [12/22]
+* TODO Manual sail navigation [13/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -18,27 +18,34 @@
 *** DONE Add toggle button to show preview or not
 *** DONE Calculate when controls updated
 ** TODO Add/remove controls anywhere in sequence
-** TODO Other time unit choices [1/4]
-*** DONE Days
-*** TODO Hours
-*** TODO Minutes
-*** TODO Seconds
-** TODO +/-, +10/-10 buttons for time [1/4]
-*** DONE Days
-*** TODO Hours
+** TODO Other time unit choices [2/4]
+*** DONE Days [2/2]
+**** DONE +/-
+**** DONE +/- 10
+*** DONE Hours [1/1]
+**** DONE +/-
 *** TODO Minutes
 *** TODO Seconds
 ** TODO Allow +/-180 deg cone angles
-** TODO Draw fewer segments in preview
+** DONE Draw fewer segments in preview
 *** Condition to sample? Period of orbit0, divide by 360, sample when elapsed time exceeds?
 *** Or... calculate period with each new perturbed orbit
 **** Divide by 360
 **** Check if that much time has passed since last sampling?
 ** DONE Pre-calculate line render points of sail trajectory
-** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine)
-** TODO Select target body [0/2]
-*** TODO Show intersections with target body
-*** TODO Show difference between final orbit elements & target body elements
+** TODO Make preview line width scale to zoom (or fixed screen width ala VectorLine) [1/2]
+*** DONE Scale LineRenderer to MapCamera distance
+*** TODO VectorLine
+** TODO Select target body [6/8]
+*** DONE Draw line to target from closest approach
+*** DONE Show duration from now to closest approach
+*** DONE Show distance at closest approach
+*** DONE Convert distance based on magnitude (m, km, Gm)
+*** DONE Show speed difference at closest approach
+*** DONE Convert speed based on magnitude (m/s, km/s)
+*** TODO Show if distance inside SOI
+*** TODO Show if speed indicates capture?
+**** Is this even possible?
 ** TODO Improve propagation accuracy
 *** Currently multiplies acceleration by time step size and adds to velocity
 *** Could integrate for one time step using Runge Kutta
@@ -46,6 +53,12 @@
 Currently need to manually click "Set to Now"
 ** DONE Make control GUI fields fixed width
 ** TODO Draw mini sails at points along map to show attitude
+** TODO Warp button to execute sequence?
+*** Currently use MechJeb's WarpHelper
+** TODO Internal NextClosestApproach
+*** Currently using MechJeb's
+** TODO Automatically calculate warp based on duration of segment instead of manual selection
+*** To avoid killing KSP by calculating too many time steps
 * TODO Make new solar sail models [0/5]
 ** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
