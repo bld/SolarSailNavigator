@@ -22,8 +22,6 @@ namespace SolarSailNavigator {
 	public string clocks;
 	[KSPField(isPersistant = true)]
 	public string durations;
-	[KSPField(isPersistant = true)]
-	public string iwarps;
 
 	// Preview orbit
 	public Preview preview;
