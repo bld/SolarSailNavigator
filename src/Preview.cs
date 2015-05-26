@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using MuMech;
 
 namespace SolarSailNavigator {
 
@@ -19,7 +20,7 @@ namespace SolarSailNavigator {
 	public double UTf; // Final time of segment
 	double dT; // Step size
 	GameObject obj; // Game object of line
-
+	
 	// Constructor & calculate
 
 	public PreviewSegment(SolarSailPart sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
@@ -87,7 +88,15 @@ namespace SolarSailNavigator {
 	LineRenderer linef; // Final orbit line
 	Vector3d[] linefPoints; // 3d points of final orbit
 	double UTf; // final time of trajectory
-
+	LineRenderer lineT; // Line to target
+	Orbit orbitT; // Target object orbit
+	Orbit orbitf; // Final orbit
+	Vector3d rRelClosest; // Relative position of spacecraft at closest approach to target
+	Vector3d rRelTargetClosest; // Relative position of target at closest approach
+	public double targetT; // Elapsed time to closest approach
+	public double targetD; // Distance to closest approach
+	public double targetV; // Relative speed to target
+	
 	// Constructor
 	
 	public Preview(SolarSailPart sail) {
@@ -110,6 +119,33 @@ namespace SolarSailNavigator {
 		UnityEngine.Object.Destroy(linef);
 	    }
 	}
+
+	void CalculateTargetLine () {
+	    var target = FlightGlobals.fetch.VesselTarget;
+	    if (target != null) {
+		orbitT = FlightGlobals.fetch.VesselTarget.GetOrbit();
+		var UTclosest = orbitf.NextClosestApproachTime(orbitT, orbitf.epoch);
+		targetT = UTclosest - orbitf.epoch;
+		rRelClosest = orbitf.getRelativePositionAtUT(UTclosest).xzy;
+		rRelTargetClosest = orbitT.getRelativePositionAtUT(UTclosest).xzy;
+		targetD = Vector3d.Distance(rRelClosest, rRelTargetClosest);
+		targetV = Vector3d.Distance(orbitf.getOrbitalVelocityAtUT(UTclosest), orbitT.getOrbitalVelocityAtUT(UTclosest));
+		// Destroy line if present
+		if (lineT != null) {
+		    UnityEngine.Object.Destroy(lineT);
+		}
+		// Make target closest approach line
+		var objT = new GameObject("Closest Approach");
+		lineT = objT.AddComponent<LineRenderer>();
+		lineT.useWorldSpace = false;
+		objT.layer = 10; // Map
+		lineT.material = MapView.fetch.orbitLinesMaterial;
+		lineT.SetColors(Color.red, Color.red);
+		lineT.SetVertexCount(2);
+	    }
+	}
+
+	
 	
 	public void Calculate () {
 	    if (sail.showPreview) {
@@ -148,27 +184,30 @@ namespace SolarSailNavigator {
 		    UnityEngine.Object.Destroy(linef);
 		}
 		// Create linerenderer & object
-		GameObject objf = new GameObject("Final orbit");
+		var objf = new GameObject("Final orbit");
 		linef = objf.AddComponent<LineRenderer>();
 		linef.useWorldSpace = false;
 		objf.layer = 10; // Map
 		linef.material = MapView.fetch.orbitLinesMaterial;
 		linef.SetColors(sail.controls.colorFinal, sail.controls.colorFinal);
-		linef.SetVertexCount(360);
+		linef.SetVertexCount(361);
 		// 3D points to use in linef
-		linefPoints = new Vector3d[360];
+		linefPoints = new Vector3d[361];
 		// Final orbit of sail trajectory
-		Orbit orbitf = orbitInitial;
+		orbitf = orbitInitial;
 		// Period of final orbit
 		double TPf = orbitf.period;
 		// Populate points
-		for(var i = 0; i < 360; i++) {
+		for(var i = 0; i <= 360; i++) {
 		    double UTi = this.UTf + i * TPf / 360;
 		    // Relative orbitf position
 		    Vector3d rRelOrbitf = orbitf.getRelativePositionAtUT(UTi).xzy;
 		    // Absolute position
 		    linefPoints[i] = rRelOrbitf;
 		}
+		
+		// Target line
+		CalculateTargetLine();
 	    }
 	}
 	
@@ -188,12 +227,24 @@ namespace SolarSailNavigator {
 			linef.enabled = true;
 			// Position of reference body at end of trajectory
 			Vector3d rRefUTf = vessel.orbit.referenceBody.getPositionAtUT(UTf);
-			for (var i = 0; i < 360; i++) {
+			for (var i = 0; i <= 360; i++) {
 			    linef.SetPosition(i, ScaledSpace.LocalToScaledSpace(rRefUTf + linefPoints[i]));
 			}
 			linef.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
+
+			// Update target line
+			lineT.enabled = true;
+			if (FlightGlobals.fetch.VesselTarget != null) {
+			    lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rRelClosest));
+			    lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rRelTargetClosest));
+			    lineT.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
+			} else {
+			    lineT.enabled = false;
+			}
+			
 		    } else {
 			linef.enabled = false;
+			// lineT.enabled = false;
 		    }
 		}
 	    }
