@@ -16,9 +16,11 @@ namespace SolarSailNavigator {
 	// Duration of steering maneuver
 	public double duration;
 	public string duration_str;
-	// Days
+	// Time
 	double days;
 	string days_str;
+	double hours;
+	string hours_str;
 	// Warp factor
 	public int iwarp; // Index of warpLevels array
 	public double warp; // Warp factor
@@ -35,6 +37,7 @@ namespace SolarSailNavigator {
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
 	public static double SecondsPerMinute = 60.0;
+	public static double HoursPerDay = 6.0;
 	public static double defaultDuration = 10 * SecondsPerDay;
 	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
 	public static int defaultiwarp = 10;
@@ -86,32 +89,30 @@ namespace SolarSailNavigator {
 
 	    // Days
 	    GUILayout.Label(days_str, GUILayout.Width(30));
-
 	    // Increase
 	    GUILayout.BeginVertical();
 	    if (GUILayout.Button("+")) {
 		days++;
 		days_str = days.ToString();
-		duration = SecondsPerDay * days;
+		duration = SecondsPerDay * days + SecondsPerHour * hours;
 		duration_str = duration.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("+10")) {
 		days += 10;
 		days_str = days.ToString();
-		duration = SecondsPerDay * days;
+		duration = SecondsPerDay * days + SecondsPerHour * hours;
 		duration_str = duration.ToString();
 		controls.Update();
 	    }
 	    GUILayout.EndVertical();
-
 	    // Decrease
 	    GUILayout.BeginVertical();
 	    if (GUILayout.Button("-")) {
 		if (days > 0) {
 		    days--;
 		    days_str = days.ToString();
-		    duration = SecondsPerDay * days;
+		    duration = SecondsPerDay * days + SecondsPerHour * hours;
 		    duration_str = duration.ToString();
 		    controls.Update();
 		}
@@ -120,24 +121,35 @@ namespace SolarSailNavigator {
 		if (days >= 10) {
 		    days -= 10;
 		    days_str = days.ToString();
-		    duration = SecondsPerDay * days;
+		    duration = SecondsPerDay * days + SecondsPerHour * hours;
 		    duration_str = duration.ToString();
 		    controls.Update();
 		}
 	    }
 	    GUILayout.EndVertical();
-	}
 
-	// Warp factor controls
-	public void GUIWarp () {
-	    GUILayout.Label(warp.ToString(), GUILayout.Width(45));
+	    // Hours
+	    GUILayout.Label(hours_str, GUILayout.Width(10));
+	    // Increase
 	    if (GUILayout.Button("+")) {
-		iwarp++;
-		if (iwarp >= warpLevels.Length) {
-		    iwarp = 0;
+		hours++;
+		if (hours > HoursPerDay) {
+		    hours = HoursPerDay;
 		}
-		warp = warpLevels[iwarp];
+		hours_str = hours.ToString();
+		duration = SecondsPerDay * days + SecondsPerHour * hours;
+		duration_str = duration.ToString();
 		controls.Update();
+	    }
+	    // Decrease
+	    if (GUILayout.Button("-")) {
+		if (hours > 0) {
+		    hours--;
+		    hours_str = hours.ToString();
+		    duration = SecondsPerDay * days + SecondsPerHour * hours;
+		    duration_str = duration.ToString();
+		    controls.Update();
+		}
 	    }
 	}
 
@@ -159,7 +171,6 @@ namespace SolarSailNavigator {
 	    GUICone();
 	    GUIClock();
 	    GUITime();
-	    GUIWarp();
 	    GUIColor(color);
 
 	    GUILayout.EndHorizontal();
@@ -211,7 +222,9 @@ namespace SolarSailNavigator {
 	    this.duration = duration;
 	    this.days = Math.Floor(duration / SecondsPerDay);
 	    this.days_str = days.ToString();
-	    this.duration = days * SecondsPerDay;
+	    this.hours = Math.Floor(duration % SecondsPerDay / SecondsPerHour);
+	    this.hours_str = this.hours.ToString();
+	    this.duration = days * SecondsPerDay + hours * SecondsPerHour;
 	    duration_str = duration.ToString();
 	    // Warp factor
 	    this.iwarp = iwarp;
@@ -270,8 +283,7 @@ namespace SolarSailNavigator {
 	    // If the sail doesn't have saved controls, return default
 	    if (String.IsNullOrEmpty(sail.cones) ||
 		String.IsNullOrEmpty(sail.clocks) ||
-		String.IsNullOrEmpty(sail.durations) ||
-		String.IsNullOrEmpty(sail.iwarps)) {
+		String.IsNullOrEmpty(sail.durations)) {
 		ncontrols = 1;
 		controls = new SailControl[ncontrols];
 		controls[0] = SailControl.Default(sail, this);
@@ -282,10 +294,9 @@ namespace SolarSailNavigator {
 		var coneStrings = sail.cones.Split(delimiter);
 		var clockStrings = sail.clocks.Split(delimiter);
 		var durationStrings = sail.durations.Split(delimiter);
-		var iwarpStrings = sail.iwarps.Split(delimiter);
 
 		// Find number of controls
-		ncontrols = Math.Min(coneStrings.Length, Math.Min(clockStrings.Length, Math.Min(durationStrings.Length, iwarpStrings.Length)));
+		ncontrols = Math.Min(coneStrings.Length, Math.Min(clockStrings.Length, durationStrings.Length));
 
 		// Initialize controls array
 		controls = new SailControl[ncontrols];
@@ -297,7 +308,7 @@ namespace SolarSailNavigator {
 						  SailControl.ParseSingle(coneStrings[i]),
 						  SailControl.ParseSingle(clockStrings[i]),
 						  SailControl.ParseDouble(durationStrings[i]),
-						  SailControl.ParseInt(iwarpStrings[i]));
+						  SailControl.defaultiwarp);
 		}
 	    }
 	}
@@ -317,10 +328,11 @@ namespace SolarSailNavigator {
 
 	    // Controls
 	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("Cone", GUILayout.Width(75));
-	    GUILayout.Label("Clock", GUILayout.Width(75));
-	    GUILayout.Label("Days", GUILayout.Width(95));
-	    GUILayout.Label("Warp", GUILayout.Width(70));
+	    GUILayout.Label("Cone", GUILayout.Width(80));
+	    GUILayout.Label("Clock", GUILayout.Width(80));
+	    GUILayout.Label("Days", GUILayout.Width(120));
+	    GUILayout.Label("Hours", GUILayout.Width(65));
+	    //GUILayout.Label("Warp", GUILayout.Width(70));
 	    GUILayout.Label("Color", GUILayout.Width(30));
 	    GUILayout.EndHorizontal();
 
@@ -361,10 +373,31 @@ namespace SolarSailNavigator {
 
 	    // Total duration of sequences
 	    GUILayout.Label("Total: " + durationTotal + " sec");
+
+	    // Show total duration to closest approach and distance
+	    if (FlightGlobals.fetch.VesselTarget != null && sail.showPreview) {
+		// Time
+		GUILayout.Label("Closest time: " + Math.Round(sail.preview.targetT).ToString() + " sec");
+		// Distance
+		if (sail.preview.targetD < 1000) { // m
+		    GUILayout.Label("Closest distance: " + Math.Round(sail.preview.targetD).ToString() + " m");
+		} else if (sail.preview.targetD < 1000000) { // km
+		    GUILayout.Label("Closest distance: " + (Math.Round(sail.preview.targetD) / 1000).ToString() + " km");
+		} else { // Gm
+		    GUILayout.Label("Closest distance: " + (Math.Round(sail.preview.targetD) / 1000000).ToString() + " Gm");
+		}
+
+		// Speed
+		if (sail.preview.targetV < 1000) {
+		    GUILayout.Label("Closest speed: " + Math.Round(sail.preview.targetV).ToString() + " m/s");
+		} else {
+		    GUILayout.Label("Closest speed: " + (Math.Round(sail.preview.targetV) / 1000).ToString() + " km/s");
+		}
+	    }
 	    
 	    GUILayout.EndVertical();
 	}
-	
+
 	// Add a control
 	public void Add () {
 	    var newControls = new SailControl[ncontrols + 1];
@@ -414,18 +447,15 @@ namespace SolarSailNavigator {
 	    sail.cones = controls[0].cone_str;
 	    sail.clocks = controls[0].clock_str;
 	    sail.durations = controls[0].duration_str;
-	    sail.iwarps = controls[0].iwarp.ToString();
 	    for (var i = 1; i < ncontrols; i++) {
 		sail.cones += delimiter + controls[i].cone_str;
 		sail.clocks += delimiter + controls[i].clock_str;
 		sail.durations += delimiter + controls[i].duration_str;
-		sail.iwarps += delimiter + controls[i].iwarp.ToString();
 	    }
 	    Debug.Log(sail.UT0.ToString());
 	    Debug.Log(sail.cones);
 	    Debug.Log(sail.clocks);
 	    Debug.Log(sail.durations);
-	    Debug.Log(sail.iwarps);
 
 	    sail.preview.Calculate();
 	}
