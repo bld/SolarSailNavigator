@@ -59,6 +59,7 @@ Currently need to manually click "Set to Now"
 *** Currently using MechJeb's
 ** TODO Automatically calculate warp based on duration of segment instead of manual selection
 *** To avoid killing KSP by calculating too many time steps
+** TODO Make final orbit render work for parabolic/hyberbolic orbits
 * TODO Make new solar sail models [0/5]
 ** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
