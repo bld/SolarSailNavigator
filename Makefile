@@ -33,7 +33,7 @@ package: build ${SSFILES}
 	mkdir -p package/SolarSailNavigator/Plugins
 	cp -r Parts package/SolarSailNavigator/
 	cp build/SolarSailNavigator.dll package/SolarSailNavigator/Plugins/
-	cp License.md README.org TODO.org package/SolarSailNavigator/
+	cp License.md README.org TODO.org CHANGELOG.org package/SolarSailNavigator/
 
 %.tgz:
 	cd package; ${TAR} zcf ../$@ SolarSailNavigator
