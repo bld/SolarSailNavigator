@@ -106,7 +106,7 @@ namespace SolarSailNavigator {
 	// Calculate & draw trajectory prediction
 
 	public void Destroy () {
-	    // Destroy existing lines
+	    // Destroy sail trajectory lines
 	    if (segments != null) {
 		foreach(var segment in segments) {
 		    if (segment.line != null) {
@@ -114,9 +114,13 @@ namespace SolarSailNavigator {
 		    }
 		}
 	    }
-	    // Destroy existing line
+	    // Destroy final line
 	    if (linef != null) {
 		UnityEngine.Object.Destroy(linef);
+	    }
+	    // Destroy target line
+	    if (lineT != null) {
+		UnityEngine.Object.Destroy(lineT);
 	    }
 	}
 
