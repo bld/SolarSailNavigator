@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using MuMech;
 
 namespace SolarSailNavigator {
 
@@ -90,12 +89,21 @@ namespace SolarSailNavigator {
 	double UTf; // final time of trajectory
 	LineRenderer lineT; // Line to target
 	Orbit orbitT; // Target object orbit
-	Orbit orbitf; // Final orbit
-	Vector3d rRelClosest; // Relative position of spacecraft at closest approach to target
-	Vector3d rRelTargetClosest; // Relative position of target at closest approach
+	public Orbit orbitf; // Final orbit
+
+	// Target
+	Vector3d rFinalRel; // Relative position of spacecraft at end of control sequence
+	Vector3d rTargetFinalRel; // Relative position of target at end of control sequence
 	public double targetT; // Elapsed time to closest approach
 	public double targetD; // Distance to closest approach
 	public double targetV; // Relative speed to target
+	public double ApErr; // Error in apoapsis
+	public double PeErr; // Error in periapsis
+	public double TPErr; // Error in orbital period
+	public double IncErr; // Error in inclination
+	public double EccErr; // Error in eccentricity
+	public double LANErr; // Error in longitude of ascending node
+	public double AOPErr; // Error in argument of periapsis
 	
 	// Constructor
 	
@@ -125,31 +133,42 @@ namespace SolarSailNavigator {
 	}
 
 	void CalculateTargetLine () {
+	    // Selected target
 	    var target = FlightGlobals.fetch.VesselTarget;
+	    // If a target is selected...
 	    if (target != null) {
-		orbitT = FlightGlobals.fetch.VesselTarget.GetOrbit();
-		var UTclosest = orbitf.NextClosestApproachTime(orbitT, orbitf.epoch);
-		targetT = UTclosest - orbitf.epoch;
-		rRelClosest = orbitf.getRelativePositionAtUT(UTclosest).xzy;
-		rRelTargetClosest = orbitT.getRelativePositionAtUT(UTclosest).xzy;
-		targetD = Vector3d.Distance(rRelClosest, rRelTargetClosest);
-		targetV = Vector3d.Distance(orbitf.getOrbitalVelocityAtUT(UTclosest), orbitT.getOrbitalVelocityAtUT(UTclosest));
-		// Destroy line if present
+		orbitT = target.GetOrbit(); // Target orbit
+		 // Spacecraft relative position at UTf
+		rFinalRel = orbitf.getRelativePositionAtUT(UTf).xzy;
+		// Target relative position at UTf
+		rTargetFinalRel = orbitT.getRelativePositionAtUT(UTf).xzy;
+		// Distance to target at UTf
+		targetD = Vector3d.Distance(rFinalRel, rTargetFinalRel);
+		// Relative speed to target at UTf
+		targetV = Vector3d.Distance(orbitf.getOrbitalVelocityAtUT(UTf), orbitT.getOrbitalVelocityAtUT(UTf));
+		// Destroy current line if present
 		if (lineT != null) {
 		    UnityEngine.Object.Destroy(lineT);
 		}
-		// Make target closest approach line
-		var objT = new GameObject("Closest Approach");
+		// Make line to target at UTf
+		var objT = new GameObject("Line to target");
 		lineT = objT.AddComponent<LineRenderer>();
 		lineT.useWorldSpace = false;
 		objT.layer = 10; // Map
 		lineT.material = MapView.fetch.orbitLinesMaterial;
 		lineT.SetColors(Color.red, Color.red);
 		lineT.SetVertexCount(2);
+
+		// Target errors
+		ApErr = orbitf.ApR - orbitT.ApR;
+		PeErr = orbitf.PeR - orbitT.PeR;
+		TPErr = orbitf.period - orbitT.period;
+		IncErr = orbitf.inclination - orbitT.inclination;
+		EccErr = orbitf.eccentricity - orbitT.eccentricity;
+		LANErr = orbitf.LAN - orbitT.LAN;
+		AOPErr = orbitf.argumentOfPeriapsis - orbitT.argumentOfPeriapsis;
 	    }
 	}
-
-	
 	
 	public void Calculate () {
 	    if (sail.showPreview) {
@@ -239,8 +258,8 @@ namespace SolarSailNavigator {
 			// Update target line
 			lineT.enabled = true;
 			if (FlightGlobals.fetch.VesselTarget != null) {
-			    lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rRelClosest));
-			    lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rRelTargetClosest));
+			    lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rFinalRel));
+			    lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rTargetFinalRel));
 			    lineT.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
 			} else {
 			    lineT.enabled = false;
