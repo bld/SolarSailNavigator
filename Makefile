@@ -2,7 +2,6 @@
 
 KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
-MECHJEB := ${KSPDIR}/GameData/MechJeb2/Plugins
 SSFILES	:= src/Controls.cs \
 	src/Preview.cs \
 	src/SolarSailNavigator.cs
@@ -25,7 +24,7 @@ build: build/SolarSailNavigator.dll
 build/%.dll: ${SSFILES}
 	mkdir -p build
 	${GMCS} -t:library -lib:"${MANAGED}" -lib:"${MECHJEB}" \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,MechJeb2 \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
 		-out:$@ \
 		${SSFILES}
 
