@@ -8,9 +8,9 @@ Initial Release
 *** The line widths are now scaled to the distance from the camera in map view when drawing the sail trajectory preview, final orbit, and line to target object.
 *** Now, you can specify the hours in an attitude control maneuver, in addition to days. This lets you have finer control over the trajectory.
 *** Warp level has been removed as a control sequence option. It is now set to 100,000. Maybe later this will automatically adjust to short duration control sequences.
-*** The plugin now includes a feature to help build trajectories to rendezvous with other objects. If a target object is selected:
-**** Draw a line to it from the closest point on the final orbit
-**** Show the duration (from the start of the attitude control sequence) until the closest point is reached
-**** Show the distance (at closest approach) between the final orbit and target
-**** Show the relative speed of the sail and target at closest approach
-*** MechJeb2 is now required, because a routine from that plugin is used to calculate the closest approach
+*** The plugin now includes a feature to help rendezvous with other objects. If a target object is selected:
+**** Draw a line between the sail and target at the final time of the maneuver sequence
+**** At the final time, show the difference between the sail and target of the:
+***** Distance at final time
+***** Speed at final time
+***** Orbital elements
