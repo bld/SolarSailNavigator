@@ -312,6 +312,26 @@ namespace SolarSailNavigator {
 		}
 	    }
 	}
+
+	// Convert length in meters to string with bigger units
+	string LengthToString(double lengthm) {
+	    if (Math.Abs(lengthm) < 1000) {
+		return Math.Round(lengthm).ToString() + " m";
+	    } else if (Math.Abs(lengthm) < 1000000000) {
+		return Math.Round(lengthm / 1000, 3).ToString() + " km";
+	    } else {
+		return Math.Round(lengthm / 1000000000, 4).ToString() + " Gm";
+	    }
+	}
+
+	// Convert speed in m/s to string with bigger units
+	string SpeedToString(double speedms) {
+	    if (Math.Abs(speedms) < 1000) {
+		return Math.Round(speedms, 1).ToString() + " m/s";
+	    } else {
+		return Math.Round(speedms / 1000, 3).ToString() + " km/s";
+	    }
+	}
 	
 	// GUI
 	public void GUI() {
@@ -332,7 +352,6 @@ namespace SolarSailNavigator {
 	    GUILayout.Label("Clock", GUILayout.Width(80));
 	    GUILayout.Label("Days", GUILayout.Width(120));
 	    GUILayout.Label("Hours", GUILayout.Width(65));
-	    //GUILayout.Label("Warp", GUILayout.Width(70));
 	    GUILayout.Label("Color", GUILayout.Width(30));
 	    GUILayout.EndHorizontal();
 
@@ -372,27 +391,27 @@ namespace SolarSailNavigator {
 	    GUILayout.EndHorizontal();
 
 	    // Total duration of sequences
-	    GUILayout.Label("Total: " + durationTotal + " sec");
+	    GUILayout.Label("Duration: " + durationTotal + " sec");
 
-	    // Show total duration to closest approach and distance
+	    // Final orbit elements
+	    if (FlightGlobals.fetch.VesselTarget != null && sail.showPreview && sail.preview.orbitf != null) {
+		GUILayout.Label("Final orbit errors:");
+		GUILayout.Label("Apoapsis: " + LengthToString(sail.preview.ApErr));
+		GUILayout.Label("Periapsis: " + LengthToString(sail.preview.PeErr));
+		GUILayout.Label("Orbital Period: " + Math.Round(sail.preview.TPErr, 2) + " sec");
+		GUILayout.Label("Inclination: " + Math.Round(sail.preview.IncErr, 3) + " deg");
+		GUILayout.Label("Eccentricity: " + Math.Round(sail.preview.EccErr, 3));
+		GUILayout.Label("LAN: " + Math.Round(sail.preview.LANErr, 3));
+		GUILayout.Label("AOP: " + Math.Round(sail.preview.AOPErr, 3));
+	    }
+	    
+	    // Show difference with target at end of control sequence
 	    if (FlightGlobals.fetch.VesselTarget != null && sail.showPreview) {
-		// Time
-		GUILayout.Label("Closest time: " + Math.Round(sail.preview.targetT).ToString() + " sec");
 		// Distance
-		if (sail.preview.targetD < 1000) { // m
-		    GUILayout.Label("Closest distance: " + Math.Round(sail.preview.targetD).ToString() + " m");
-		} else if (sail.preview.targetD < 1000000) { // km
-		    GUILayout.Label("Closest distance: " + (Math.Round(sail.preview.targetD) / 1000).ToString() + " km");
-		} else { // Gm
-		    GUILayout.Label("Closest distance: " + (Math.Round(sail.preview.targetD) / 1000000).ToString() + " Gm");
-		}
-
+		GUILayout.Label("Final distance to target: " + LengthToString(sail.preview.targetD));
+		
 		// Speed
-		if (sail.preview.targetV < 1000) {
-		    GUILayout.Label("Closest speed: " + Math.Round(sail.preview.targetV).ToString() + " m/s");
-		} else {
-		    GUILayout.Label("Closest speed: " + (Math.Round(sail.preview.targetV) / 1000).ToString() + " km/s");
-		}
+		GUILayout.Label("Final speed to target: " + SpeedToString(sail.preview.targetV));
 	    }
 	    
 	    GUILayout.EndVertical();
