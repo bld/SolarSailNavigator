@@ -441,6 +441,15 @@ namespace SolarSailNavigator {
 	    GUI.DragWindow();
 	}
 
+	// Controls GUI rectangle
+	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
+
+	// Controls GUI function
+	public void DrawControls () {
+	    if (sail.vessel == FlightGlobals.ActiveVessel)
+		controlWindowPos = GUILayout.Window(10, controlWindowPos, SailControlsGUI, "Sail Controls");
+	}
+	
 	// Add a control
 	public void Add () {
 	    var newControls = new SailControl[ncontrols + 1];
@@ -501,13 +510,6 @@ namespace SolarSailNavigator {
 	    Debug.Log(sail.durations);
 
 	    preview.Calculate();
-	}
-
-	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
-	
-	public void DrawControls () {
-	    if (sail.vessel == FlightGlobals.ActiveVessel)
-		controlWindowPos = GUILayout.Window(10, controlWindowPos, SailControlsGUI, "Sail Controls");
 	}
     }
 }

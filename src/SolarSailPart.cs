@@ -122,7 +122,7 @@ namespace SolarSailNavigator {
 		// Force attitude to sail frame
 		if (IsLocked) {
 		    SailControl control = controls.Lookup(UT);
-		    vessel.SetRotation(SailFrame(vessel.orbit, control.cone, control.clock, UT));
+		    vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, UT));
 		}
 
 		double sunlightFactor = 1.0;
@@ -149,16 +149,8 @@ namespace SolarSailNavigator {
 	    // Update preview orbit if it exists
 	    controls.preview.Update(vessel);
 	}
-		
-	//private Rect controlWindowPos = new Rect(0, 50, 0, 0);
-	
-	/*
-	private void DrawControls () {
-	    if (this.vessel == FlightGlobals.ActiveVessel)
-		controlWindowPos = GUILayout.Window(10, controlWindowPos, controls.SailControlsGUI, "Sail Controls");
-	}
-	*/
 
+	/*
 	// Calculate RTN frame quaternion given an orbit and UT
 	public static Quaternion RTNFrame (Orbit orbit, double UT) {
 	    // Position
@@ -184,6 +176,7 @@ namespace SolarSailNavigator {
 	    var QCC = SailFrameLocal(cone, clock);
 	    return QRTN * QCC;
 	}
+	*/
 
 	// Test if an orbit at UT is in sunlight
 	public static bool inSun(Orbit orbit, double UT) {

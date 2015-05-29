@@ -305,7 +305,7 @@ namespace SolarSailNavigator {
 		    sunlightFactor = 0.0;
 		}
 
-		Quaternion sailFrame = SolarSailPart.SailFrame(orbit, cone, clock, UT);
+		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
 
 		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
 
