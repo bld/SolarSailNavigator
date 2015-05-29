@@ -23,11 +23,6 @@ namespace SolarSailNavigator {
 	[KSPField(isPersistant = true)]
 	public string durations;
 
-	// Preview orbit
-	public Preview preview;
-	protected string previewButtonText = "Show Preview";
-	public bool showPreview = false;
-
 	// Sail controls
 	public SailControls controls;
 	
@@ -66,7 +61,7 @@ namespace SolarSailNavigator {
 	    }
 	    IsEnabled = true;
 	    // Create control window
-	    RenderingManager.AddToPostDrawQueue(3, new Callback(DrawControls));
+	    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 	
 	[KSPEvent(guiActive = true, guiName = "Retract Sail", active = false)]
@@ -78,7 +73,7 @@ namespace SolarSailNavigator {
 	    }
 	    IsEnabled = false;
 	    // Remove control window
-	    RenderingManager.RemoveFromPostDrawQueue(3, new Callback(DrawControls));
+	    RenderingManager.RemoveFromPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 	
 	// Initialization
@@ -89,20 +84,18 @@ namespace SolarSailNavigator {
 		if (animName != null) {
 		    solarSailAnim = part.FindModelAnimators(animName).FirstOrDefault();
 		}
+
+		// Sail controls
+		controls = new SailControls(this);
+		
 		if (IsEnabled) {
 		    solarSailAnim[animName].speed = 1f;
 		    solarSailAnim[animName].normalizedTime = 0f;
 		    solarSailAnim.Blend(animName, 0.1f);
-		    RenderingManager.AddToPostDrawQueue(3, new Callback(DrawControls));
+		    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 		}
 
 		this.part.force_activate();
-
-		// Sail controls
-		controls = new SailControls(this);
-
-		// Orbit preview
-		preview = new Preview(this);
 	    }
 	}
 
@@ -154,43 +147,17 @@ namespace SolarSailNavigator {
 	    count++;
 
 	    // Update preview orbit if it exists
-	    preview.Update(vessel);
+	    controls.preview.Update(vessel);
 	}
 		
-	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
-
+	//private Rect controlWindowPos = new Rect(0, 50, 0, 0);
+	
+	/*
 	private void DrawControls () {
 	    if (this.vessel == FlightGlobals.ActiveVessel)
-		controlWindowPos = GUILayout.Window(10, controlWindowPos, SailControlsGUI, "Sail Controls");
+		controlWindowPos = GUILayout.Window(10, controlWindowPos, controls.SailControlsGUI, "Sail Controls");
 	}
-
-	private void SailControlsGUI (int WindowID) {
-
-	    GUILayout.BeginVertical();
-
-	    // Lock/Unlock attitude
-	    IsLocked = GUILayout.Toggle(IsLocked, "Lock Attitude");
-
-	    // Steering controls
-	    controls.GUI();
-
-	    // Preview orbit
-	    if (GUILayout.Button(previewButtonText)) {
-	    	if (!showPreview) {
-		    showPreview = true;
-		    preview.Calculate();
-		    previewButtonText = "Hide Preview";
-		} else {
-		    showPreview = false;
-		    preview.Destroy();
-		    previewButtonText = "Show Preview";
-		}
-	    }
-
-	    GUILayout.EndVertical();
-	    
-	    GUI.DragWindow();
-	}
+	*/
 
 	// Calculate RTN frame quaternion given an orbit and UT
 	public static Quaternion RTNFrame (Orbit orbit, double UT) {
@@ -267,7 +234,7 @@ namespace SolarSailNavigator {
 		return Vector3d.zero;
 	    }
 	}
-
+	
 	// Perturn an orbit by an acceleration at UT with time step dT
 	public static void PerturbOrbit (Orbit orbit, Vector3d accel, double UT, double dT) {
 
