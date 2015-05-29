@@ -171,7 +171,7 @@ namespace SolarSailNavigator {
 	}
 	
 	public void Calculate () {
-	    if (sail.showPreview) {
+	    if (sail.controls.showPreview) {
 		// Destroy existing lines
 		if (segments != null) {
 		    foreach(var segment in segments) {
@@ -237,7 +237,7 @@ namespace SolarSailNavigator {
 
 	// Update
 	public void Update (Vessel vessel) {
-	    if (sail.showPreview) {
+	    if (sail.controls.showPreview) {
 		if (segments != null) {
 		    foreach(var segment in segments) {
 			segment.Update(vessel);

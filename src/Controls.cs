@@ -247,6 +247,9 @@ namespace SolarSailNavigator {
 	public SailControl sailOff;
 	double durationTotal;
 	public Color colorFinal;
+	public bool showPreview = false;
+	public Preview preview;
+	public string previewButtonText = "Show Preview";
 	
 	// Static fields
 	static Color[] colorMap = { Color.yellow,
@@ -311,6 +314,9 @@ namespace SolarSailNavigator {
 						  SailControl.defaultiwarp);
 		}
 	    }
+
+	    // Preview
+	    preview = new Preview(sail);
 	}
 
 	// Convert length in meters to string with bigger units
@@ -334,8 +340,11 @@ namespace SolarSailNavigator {
 	}
 	
 	// GUI
-	public void GUI() {
+	public void SailControlsGUI(int WindowID) {
 	    GUILayout.BeginVertical();
+
+	    // Lock/Unlock attitude
+	    sail.IsLocked = GUILayout.Toggle(sail.IsLocked, "Lock Attitude");
 
 	    // Set the initial time of the sequence
 	    GUILayout.BeginHorizontal();
@@ -394,27 +403,42 @@ namespace SolarSailNavigator {
 	    GUILayout.Label("Duration: " + durationTotal + " sec");
 
 	    // Final orbit elements
-	    if (FlightGlobals.fetch.VesselTarget != null && sail.showPreview && sail.preview.orbitf != null) {
+	    if (FlightGlobals.fetch.VesselTarget != null && showPreview && preview.orbitf != null) {
 		GUILayout.Label("Final orbit errors:");
-		GUILayout.Label("Apoapsis: " + LengthToString(sail.preview.ApErr));
-		GUILayout.Label("Periapsis: " + LengthToString(sail.preview.PeErr));
-		GUILayout.Label("Orbital Period: " + Math.Round(sail.preview.TPErr, 2) + " sec");
-		GUILayout.Label("Inclination: " + Math.Round(sail.preview.IncErr, 3) + " deg");
-		GUILayout.Label("Eccentricity: " + Math.Round(sail.preview.EccErr, 3));
-		GUILayout.Label("LAN: " + Math.Round(sail.preview.LANErr, 3));
-		GUILayout.Label("AOP: " + Math.Round(sail.preview.AOPErr, 3));
+		GUILayout.Label("Apoapsis: " + LengthToString(preview.ApErr));
+		GUILayout.Label("Periapsis: " + LengthToString(preview.PeErr));
+		GUILayout.Label("Orbital Period: " + Math.Round(preview.TPErr, 2) + " sec");
+		GUILayout.Label("Inclination: " + Math.Round(preview.IncErr, 3) + " deg");
+		GUILayout.Label("Eccentricity: " + Math.Round(preview.EccErr, 3));
+		GUILayout.Label("LAN: " + Math.Round(preview.LANErr, 3));
+		GUILayout.Label("AOP: " + Math.Round(preview.AOPErr, 3));
 	    }
 	    
 	    // Show difference with target at end of control sequence
-	    if (FlightGlobals.fetch.VesselTarget != null && sail.showPreview) {
+	    if (FlightGlobals.fetch.VesselTarget != null && showPreview) {
 		// Distance
-		GUILayout.Label("Final distance to target: " + LengthToString(sail.preview.targetD));
+		GUILayout.Label("Final distance to target: " + LengthToString(preview.targetD));
 		
 		// Speed
-		GUILayout.Label("Final speed to target: " + SpeedToString(sail.preview.targetV));
+		GUILayout.Label("Final speed to target: " + SpeedToString(preview.targetV));
+	    }
+
+	    // Preview orbit
+	    if (GUILayout.Button(previewButtonText)) {
+	    	if (!showPreview) {
+		    showPreview = true;
+		    preview.Calculate();
+		    previewButtonText = "Hide Preview";
+		} else {
+		    showPreview = false;
+		    preview.Destroy();
+		    previewButtonText = "Show Preview";
+		}
 	    }
 	    
 	    GUILayout.EndVertical();
+
+	    GUI.DragWindow();
 	}
 
 	// Add a control
@@ -476,7 +500,14 @@ namespace SolarSailNavigator {
 	    Debug.Log(sail.clocks);
 	    Debug.Log(sail.durations);
 
-	    sail.preview.Calculate();
+	    preview.Calculate();
+	}
+
+	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
+	
+	public void DrawControls () {
+	    if (sail.vessel == FlightGlobals.ActiveVessel)
+		controlWindowPos = GUILayout.Window(10, controlWindowPos, SailControlsGUI, "Sail Controls");
 	}
     }
 }
