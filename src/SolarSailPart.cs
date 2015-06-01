@@ -10,21 +10,6 @@ namespace SolarSailNavigator {
 	// Sail enabled
 	[KSPField(isPersistant = true)]
 	public bool IsEnabled = false;
-	// Attitude locked
-	[KSPField(isPersistant = true)]
-	public bool IsLocked = false;
-	// Controls
-	[KSPField(isPersistant = true)]
-	public double UT0;
-	[KSPField(isPersistant = true)]
-	public string cones;
-	[KSPField(isPersistant = true)]
-	public string clocks;
-	[KSPField(isPersistant = true)]
-	public string durations;
-
-	// Sail controls
-	public SailControls controls;
 	
 	// Persistent False
 	[KSPField]
@@ -60,8 +45,6 @@ namespace SolarSailNavigator {
 		solarSailAnim.Blend(animName, 2f);
 	    }
 	    IsEnabled = true;
-	    // Create control window
-	    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 	
 	[KSPEvent(guiActive = true, guiName = "Retract Sail", active = false)]
@@ -72,8 +55,6 @@ namespace SolarSailNavigator {
 		solarSailAnim.Blend(animName, 2f);
 	    }
 	    IsEnabled = false;
-	    // Remove control window
-	    RenderingManager.RemoveFromPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 	
 	// Initialization
@@ -85,14 +66,11 @@ namespace SolarSailNavigator {
 		    solarSailAnim = part.FindModelAnimators(animName).FirstOrDefault();
 		}
 
-		// Sail controls
-		controls = new SailControls(this);
 		
 		if (IsEnabled) {
 		    solarSailAnim[animName].speed = 1f;
 		    solarSailAnim[animName].normalizedTime = 0f;
 		    solarSailAnim.Blend(animName, 0.1f);
-		    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 		}
 
 		this.part.force_activate();
@@ -119,12 +97,6 @@ namespace SolarSailNavigator {
 		solar_force_d = 0;
 		if (!IsEnabled) { return; }
 		
-		// Force attitude to sail frame
-		if (IsLocked) {
-		    SailControl control = controls.Lookup(UT);
-		    vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, UT));
-		}
-
 		double sunlightFactor = 1.0;
 
 		if (!inSun(vessel.orbit, UT)) {
@@ -146,8 +118,6 @@ namespace SolarSailNavigator {
 	    }
 	    count++;
 
-	    // Update preview orbit if it exists
-	    controls.preview.Update(vessel);
 	}
 
 	// Test if an orbit at UT is in sunlight

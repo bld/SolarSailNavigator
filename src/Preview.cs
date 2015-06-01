@@ -22,7 +22,7 @@ namespace SolarSailNavigator {
 	
 	// Constructor & calculate
 
-	public PreviewSegment(SolarSailPart sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
+	public PreviewSegment(SolarSailControlled sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
 	    
 	    this.UT0 = UT0;
 	    Debug.Log("UT0: " + UT0.ToString());
@@ -83,7 +83,7 @@ namespace SolarSailNavigator {
 	
 	// Fields
 	PreviewSegment[] segments; // Trajectory segments
-	SolarSailPart sail; // Sail this preview is attached to
+	SolarSailControlled sail; // Sail this preview is attached to
 	LineRenderer linef; // Final orbit line
 	Vector3d[] linefPoints; // 3d points of final orbit
 	double UTf; // final time of trajectory
@@ -107,7 +107,7 @@ namespace SolarSailNavigator {
 	
 	// Constructor
 	
-	public Preview(SolarSailPart sail) {
+	public Preview(SolarSailControlled sail) {
 	    this.sail = sail;
 	}
 
@@ -274,7 +274,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Propagate an orbit
-	public static List<Orbit> PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
+	public static List<Orbit> PropagateOrbit (SolarSailControlled sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
 	    Orbit orbit = orbit0.Clone();
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
@@ -301,7 +301,7 @@ namespace SolarSailNavigator {
 		}
 
 		double sunlightFactor = 1.0;
-		if(!SolarSailPart.inSun(orbit, UT)) {
+		if(!SolarSailControlled.inSun(orbit, UT)) {
 		    sunlightFactor = 0.0;
 		}
 
@@ -309,11 +309,11 @@ namespace SolarSailNavigator {
 
 		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
 
-		Vector3d solarForce = SolarSailPart.CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
+		Vector3d solarForce = SolarSailControlled.CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
 
 		Vector3d solarAccel = solarForce / mass / 1000.0;
 		
-		SolarSailPart.PerturbOrbit(orbit, solarAccel, UT, dT);
+		SolarSailControlled.PerturbOrbit(orbit, solarAccel, UT, dT);
 
 		// Increment choose time step
 		dTchoose += dT;

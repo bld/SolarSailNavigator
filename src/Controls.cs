@@ -29,7 +29,7 @@ namespace SolarSailNavigator {
 	// Controls object this control is attached to
 	public SailControls controls;
 	// Sail this controls
-	public SolarSailPart sail;
+	public SolarSailControlled sail;
 
 	// Static fields
 	public static float defaultCone = 90f;
@@ -208,7 +208,7 @@ namespace SolarSailNavigator {
 
 	// Constructor
 
-	public SailControl(SolarSailPart sail, SailControls controls, float cone, float clock, double duration, int iwarp) {
+	public SailControl(SolarSailControlled sail, SailControls controls, float cone, float clock, double duration, int iwarp) {
 	    // Sail
 	    this.sail = sail;
 	    this.cone = cone;
@@ -231,7 +231,7 @@ namespace SolarSailNavigator {
 	    warp = warpLevels[iwarp];
 	}
 
-	public static SailControl Default (SolarSailPart sail, SailControls controls) {
+	public static SailControl Default (SolarSailControlled sail, SailControls controls) {
 	    return new SailControl (sail, controls, defaultCone, defaultClock, defaultDuration, defaultiwarp);
 	}
     }
@@ -242,7 +242,7 @@ namespace SolarSailNavigator {
 
 	public int ncontrols;
 	public SailControl[] controls;
-	public SolarSailPart sail;
+	public SolarSailControlled sail;
 	public double UT0;
 	public SailControl sailOff;
 	double durationTotal;
@@ -266,7 +266,7 @@ namespace SolarSailNavigator {
 	// Constructor
 
 	// Give the sail to which this control is for
-	public SailControls (SolarSailPart sail) {
+	public SailControls (SolarSailControlled sail) {
 
 	    // Assign sail field
 	    this.sail = sail;

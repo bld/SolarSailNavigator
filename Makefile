@@ -3,6 +3,7 @@
 KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 SSFILES	:= src/Extensions.cs \
+	src/SolarSailControlled.cs \
 	src/Controls.cs \
 	src/Preview.cs \
 	src/SolarSailPart.cs \
