@@ -129,3 +129,7 @@ extra CPU. May want a notification when the sequence is completed.
 *** Calculate mass use for reaction thrusters
 *** Save trajectory and mass prediction to persistant variables
 *** Update vessel orbit and mass when returning to them
+* TODO Evaluate Persistent Rotation for use as attitude control
+** Locks current attitude with respect to a planet.
+** Need a way to specify angles and a schedule of future attitude changes
+** May want more reference frame options than to a planet.
