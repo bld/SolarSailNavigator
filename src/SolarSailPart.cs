@@ -208,7 +208,7 @@ namespace SolarSailNavigator {
 		// Transpose Y and Z for Orbit class
 		Vector3d accel_orbit = new Vector3d(accel.x, accel.z, accel.y);
 		Vector3d position = orbit.getRelativePositionAtUT(UT);
-		Orbit orbit2 = CloneOrbit(orbit);
+		Orbit orbit2 = orbit.Clone();
 		orbit2.UpdateFromStateVectors(position, orbit.getOrbitalVelocityAtUT(UT) + accel_orbit * dT, orbit.referenceBody, UT);
 		if (!double.IsNaN(orbit2.inclination) && !double.IsNaN(orbit2.eccentricity) && !double.IsNaN(orbit2.semiMajorAxis) && orbit2.timeToAp > dT) {
 		    orbit.inclination = orbit2.inclination;
@@ -223,11 +223,6 @@ namespace SolarSailNavigator {
 		    orbit.UpdateFromUT(UT);
 		}
 	    }
-	}
-
-	// Dublicate an orbit
-	public static Orbit CloneOrbit(Orbit orbit0) {
-	    return new Orbit(orbit0.inclination, orbit0.eccentricity, orbit0.semiMajorAxis, orbit0.LAN, orbit0.argumentOfPeriapsis, orbit0.meanAnomalyAtEpoch, orbit0.epoch, orbit0.referenceBody);
 	}
     }
 }

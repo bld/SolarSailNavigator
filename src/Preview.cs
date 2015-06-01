@@ -275,7 +275,7 @@ namespace SolarSailNavigator {
 
 	// Propagate an orbit
 	public static List<Orbit> PropagateOrbit (SolarSailPart sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
-	    Orbit orbit = CloneOrbit(orbit0);
+	    Orbit orbit = orbit0.Clone();
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
 	    double dTlast = (UTf - UT0) % dT;
@@ -289,7 +289,7 @@ namespace SolarSailNavigator {
 	    var orbits = new List<Orbit>();
 
 	    // Add initial orbit
-	    orbits.Add(CloneOrbit(orbit0));
+	    orbits.Add(orbit0.Clone());
 	    
 	    for (int i = 0; i < nsteps; i++) {
 		// Last step goes to UTf
@@ -323,20 +323,15 @@ namespace SolarSailNavigator {
 
 		// Decide whether to add orbit to list of orbits to draw
 		if (i == nsteps - 1) { // Always add last orbit
-		    orbits.Add(CloneOrbit(orbit));
+		    orbits.Add(orbit.Clone());
 		} else if (dTchoose >= TP / 360) { // If 1/360th of current period passed, pick
-		    orbits.Add(CloneOrbit(orbit));
+		    orbits.Add(orbit.Clone());
 		    dTchoose = 0.0;
 		}
 	    }
 	    
 	    // Return propagated orbit
 	    return orbits;
-	}
-
-	// Dublicate an orbit
-	public static Orbit CloneOrbit(Orbit orbit0) {
-	    return new Orbit(orbit0.inclination, orbit0.eccentricity, orbit0.semiMajorAxis, orbit0.LAN, orbit0.argumentOfPeriapsis, orbit0.meanAnomalyAtEpoch, orbit0.epoch, orbit0.referenceBody);
 	}
     }
 }
