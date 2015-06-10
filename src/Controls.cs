@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using PersistentThrust;
 
 namespace SolarSailNavigator {
 
