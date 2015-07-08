@@ -129,7 +129,15 @@ extra CPU. May want a notification when the sequence is completed.
 *** Calculate mass use for reaction thrusters
 *** Save trajectory and mass prediction to persistant variables
 *** Update vessel orbit and mass when returning to them
-* TODO Evaluate Persistent Rotation for use as attitude control
+* DONE Evaluate Persistent Rotation for use as attitude control
 ** Locks current attitude with respect to a planet.
 ** Need a way to specify angles and a schedule of future attitude changes
 ** May want more reference frame options than to a planet.
+** Want to specify numbers relative to those reference frames.
+** Possibly, upgrade persistent rotation with these options?
+*** Then, the navigation tool needs to access PersistentRotation to update the attitude.
+* TODO Use multiple continuous thrust systems
+* TODO Use any continuous thrust systems
+* TODO Select which continuous thrust systems to use in different segments
+** By default, use all. Allow deselection/selection of some.
+** E.g. hybrid solar sail / solar electric missions to Jupiter ala IKAROS-2
