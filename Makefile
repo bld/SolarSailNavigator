@@ -28,7 +28,7 @@ build: build/SolarSailNavigator.dll
 build/%.dll: ${SSFILES}
 	mkdir -p build
 	${GMCS} -t:library -lib:"${MANAGED}" -lib:"${PT}" -lib:"${MM}" \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust,ModuleManager.2.6.6 \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust \
 		-out:$@ \
 		${SSFILES}
 
