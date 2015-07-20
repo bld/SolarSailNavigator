@@ -5,7 +5,7 @@ MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 PT	:= ${KSPDIR}/GameData/PersistentThrust/Plugins/
 MM	:= ${KSPDIR}/GameData/
 SSFILES	:= src/SolarSailControlled.cs \
-	src/Controls.cs \
+	src/SailControls.cs \
 	src/Preview.cs \
 	src/Frames.cs
 GMCS	:= gmcs
@@ -28,7 +28,7 @@ build: build/SolarSailNavigator.dll
 build/%.dll: ${SSFILES}
 	mkdir -p build
 	${GMCS} -t:library -lib:"${MANAGED}" -lib:"${PT}" -lib:"${MM}" \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust,ModuleManager.2.6.5 \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust,ModuleManager.2.6.6 \
 		-out:$@ \
 		${SSFILES}
 
