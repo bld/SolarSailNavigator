@@ -5,7 +5,7 @@ using PersistentThrust;
 
 namespace SolarSailNavigator {
 
-    public class SailControl {
+    public class Control {
 
 	// Fields
 	// Cone Angle
@@ -14,6 +14,9 @@ namespace SolarSailNavigator {
 	// Clock angle
 	public float clock;
 	public string clock_str;
+	// Throttle
+	public float throttle;
+	public string throttle_str;
 	// Duration of steering maneuver
 	public double duration;
 	public string duration_str;
@@ -28,13 +31,14 @@ namespace SolarSailNavigator {
 	// Color
 	public Color color;
 	// Controls object this control is attached to
-	public SailControls controls;
-	// Sail this controls
-	public SolarSailControlled sail;
+	public Controls controls;
+	// Engine this controls
+	public PersistentControlled engine;
 
 	// Static fields
 	public static float defaultCone = 90f;
 	public static float defaultClock = 0f;
+	public static float defaultThrottle = 0f;
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
 	public static double SecondsPerMinute = 60.0;
@@ -85,6 +89,27 @@ namespace SolarSailNavigator {
 	    }
 	}
 
+	// Throttle controls
+	public void GUIThrottle () {
+	    GUILayout.Label(throttle_str, GUILayout.Width(30));
+	    if (GUILayout.Button("+")) {
+		throttle = (float)Math.Round(throttle + 0.05f, 2);
+		if (throttle > 1f) {
+		    throttle = 1f;
+		}
+		throttle_str = throttle.ToString();
+		controls.Update();
+	    }
+	    if (GUILayout.Button("-")) {
+		throttle = (float)Math.Round(throttle - 0.05f, 2);
+		if (throttle < 0f) {
+		    throttle = 0f;
+		}
+		throttle_str = throttle.ToString();
+		controls.Update();
+	    }
+	}
+	
 	// Time controls
 	public void GUITime () {
 
@@ -171,6 +196,7 @@ namespace SolarSailNavigator {
 
 	    GUICone();
 	    GUIClock();
+	    GUIThrottle();
 	    GUITime();
 	    GUIColor(color);
 
@@ -209,9 +235,9 @@ namespace SolarSailNavigator {
 
 	// Constructor
 
-	public SailControl(SolarSailControlled sail, SailControls controls, float cone, float clock, double duration, int iwarp) {
-	    // Sail
-	    this.sail = sail;
+	public Control(PersistentControlled engine, Controls controls, float cone, float clock, float throttle, double duration, int iwarp) {
+	    // Engine
+	    this.engine = engine;
 	    this.cone = cone;
 	    // Parent controls object
 	    this.controls = controls;
@@ -219,6 +245,9 @@ namespace SolarSailNavigator {
 	    cone_str = cone.ToString();
 	    this.clock = clock;
 	    clock_str = clock.ToString();
+	    // Throttle
+	    throttle_str = throttle.ToString();
+	    this.throttle = throttle;
 	    // Time
 	    this.duration = duration;
 	    this.days = Math.Floor(duration / SecondsPerDay);
@@ -232,24 +261,24 @@ namespace SolarSailNavigator {
 	    warp = warpLevels[iwarp];
 	}
 
-	public static SailControl Default (SolarSailControlled sail, SailControls controls) {
-	    return new SailControl (sail, controls, defaultCone, defaultClock, defaultDuration, defaultiwarp);
+	public static Control Default (PersistentControlled engine, Controls controls) {
+	    return new Control (engine, controls, defaultCone, defaultClock, defaultThrottle, defaultDuration, defaultiwarp);
 	}
     }
 
-    public class SailControls {
+    public class Controls {
 
 	// Fields
 
 	public int ncontrols;
-	public SailControl[] controls;
-	public SolarSailControlled sail;
+	public Control[] controls;
+	public PersistentControlled engine;
 	public double UT0;
-	public SailControl sailOff;
+	public Control engineOff;
 	double durationTotal;
 	public Color colorFinal;
 	public bool showPreview = false;
-	public SailPreview preview;
+	public Preview preview;
 	public string previewButtonText = "Show Preview";
 	
 	// Static fields
@@ -266,58 +295,61 @@ namespace SolarSailNavigator {
 
 	// Constructor
 
-	// Give the sail to which this control is for
-	public SailControls (SolarSailControlled sail) {
+	// Give the engine to which this control is for
+	public Controls (PersistentControlled engine) {
 
-	    // Assign sail field
-	    this.sail = sail;
-	    Debug.Log(this.sail.ToString());
+	    // Assign engine field
+	    this.engine = engine;
+	    Debug.Log(this.engine.ToString());
 
 	    // Initial time
-	    if (sail.UT0 == 0) {
+	    if (engine.UT0 == 0) {
 		UT0 = Planetarium.GetUniversalTime();
 	    } else {
-		UT0 = sail.UT0;
+		UT0 = engine.UT0;
 	    }
 	    Debug.Log(UT0.ToString());
 
-	    // Off sail control
-	    sailOff = SailControl.Default(sail, this);
+	    // Off engine control
+	    engineOff = Control.Default(engine, this);
 
-	    // If the sail doesn't have saved controls, return default
-	    if (String.IsNullOrEmpty(sail.cones) ||
-		String.IsNullOrEmpty(sail.clocks) ||
-		String.IsNullOrEmpty(sail.durations)) {
+	    // If the engine doesn't have saved controls, return default
+	    if (String.IsNullOrEmpty(engine.cones) ||
+		String.IsNullOrEmpty(engine.clocks) ||
+		String.IsNullOrEmpty(engine.throttles) ||
+		String.IsNullOrEmpty(engine.durations)) {
 		ncontrols = 1;
-		controls = new SailControl[ncontrols];
-		controls[0] = SailControl.Default(sail, this);
+		controls = new Control[ncontrols];
+		controls[0] = Control.Default(engine, this);
 
 	    } else { // Otherwise, parse saved controls
 
 		// Split into arrays
-		var coneStrings = sail.cones.Split(delimiter);
-		var clockStrings = sail.clocks.Split(delimiter);
-		var durationStrings = sail.durations.Split(delimiter);
+		var coneStrings = engine.cones.Split(delimiter);
+		var clockStrings = engine.clocks.Split(delimiter);
+		var throttleStrings = engine.throttles.Split(delimiter);
+		var durationStrings = engine.durations.Split(delimiter);
 
 		// Find number of controls
-		ncontrols = Math.Min(coneStrings.Length, Math.Min(clockStrings.Length, durationStrings.Length));
+		ncontrols = Math.Min(Math.Min(coneStrings.Length, clockStrings.Length), Math.Min(durationStrings.Length, throttleStrings.Length));
 
 		// Initialize controls array
-		controls = new SailControl[ncontrols];
+		controls = new Control[ncontrols];
 
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
-		    controls[i] = new SailControl(sail,
-						  this,
-						  SailControl.ParseSingle(coneStrings[i]),
-						  SailControl.ParseSingle(clockStrings[i]),
-						  SailControl.ParseDouble(durationStrings[i]),
-						  SailControl.defaultiwarp);
+		    controls[i] = new Control(engine,
+					      this,
+					      Control.ParseSingle(coneStrings[i]),
+					      Control.ParseSingle(clockStrings[i]),
+					      Control.ParseSingle(throttleStrings[i]),
+					      Control.ParseDouble(durationStrings[i]),
+					      Control.defaultiwarp);
 		}
 	    }
 
 	    // Preview
-	    preview = new SailPreview(sail);
+	    preview = new Preview(engine);
 	}
 
 	// Convert length in meters to string with bigger units
@@ -341,11 +373,11 @@ namespace SolarSailNavigator {
 	}
 	
 	// GUI
-	public void SailControlsGUI(int WindowID) {
+	public void ControlsGUI(int WindowID) {
 	    GUILayout.BeginVertical();
 
 	    // Lock/Unlock attitude
-	    sail.IsLocked = GUILayout.Toggle(sail.IsLocked, "Lock Attitude");
+	    engine.IsLocked = GUILayout.Toggle(engine.IsLocked, "Lock Attitude");
 
 	    // Set the initial time of the sequence
 	    GUILayout.BeginHorizontal();
@@ -360,6 +392,7 @@ namespace SolarSailNavigator {
 	    GUILayout.BeginHorizontal();
 	    GUILayout.Label("Cone", GUILayout.Width(80));
 	    GUILayout.Label("Clock", GUILayout.Width(80));
+	    GUILayout.Label("Throttle", GUILayout.Width(80));
 	    GUILayout.Label("Days", GUILayout.Width(120));
 	    GUILayout.Label("Hours", GUILayout.Width(65));
 	    GUILayout.Label("Color", GUILayout.Width(30));
@@ -447,17 +480,17 @@ namespace SolarSailNavigator {
 
 	// Controls GUI function
 	public void DrawControls () {
-	    if (sail.vessel == FlightGlobals.ActiveVessel)
-		controlWindowPos = GUILayout.Window(10, controlWindowPos, SailControlsGUI, "Sail Controls");
+	    if (engine.vessel == FlightGlobals.ActiveVessel)
+		controlWindowPos = GUILayout.Window(10, controlWindowPos, ControlsGUI, "Controls");
 	}
 	
 	// Add a control
 	public void Add () {
-	    var newControls = new SailControl[ncontrols + 1];
+	    var newControls = new Control[ncontrols + 1];
 	    for(var i = 0; i < ncontrols; i++) {
 		newControls[i] = controls[i];
 	    }
-	    newControls[ncontrols] = SailControl.Default(sail, this);
+	    newControls[ncontrols] = Control.Default(engine, this);
 	    controls = newControls;
 	    ncontrols++;
 	    colorFinal = colorMap[ncontrols % colorMap.Length];
@@ -467,7 +500,7 @@ namespace SolarSailNavigator {
 	// Remove a control
 	public void Remove () {
 	    if (ncontrols > 1) { // Don't remove last control
-		var newControls = new SailControl[ncontrols - 1];
+		var newControls = new Control[ncontrols - 1];
 		for (var i = 0; i < ncontrols - 1; i++) {
 		    newControls[i] = controls[i];
 		}
@@ -479,7 +512,7 @@ namespace SolarSailNavigator {
 	}
 	
 	// Return control at specified UT
-	public SailControl Lookup (double UT) {
+	public Control Lookup (double UT) {
 	    double deltaUT = UT - UT0; // Time past UT0
 	    double durationSum = 0.0; // Running sum of durations
 	    foreach (var control in controls) {
@@ -488,28 +521,25 @@ namespace SolarSailNavigator {
 		    return control;
 		}
 	    }
-	    // If none found, return "sail off" control
-	    return sailOff;
+	    // If none found, return "engine off" control
+	    return engineOff;
 	}
 
-	// Update the sail's persistant sail control fields
+	// Update the engine's persistant engine control fields
 	public void Update () {
 	    // Initial time
-	    sail.UT0 = UT0;
+	    engine.UT0 = UT0;
 	    // Controls
-	    sail.cones = controls[0].cone_str;
-	    sail.clocks = controls[0].clock_str;
-	    sail.durations = controls[0].duration_str;
+	    engine.cones = controls[0].cone_str;
+	    engine.clocks = controls[0].clock_str;
+	    engine.throttles = controls[0].throttle_str;
+	    engine.durations = controls[0].duration_str;
 	    for (var i = 1; i < ncontrols; i++) {
-		sail.cones += delimiter + controls[i].cone_str;
-		sail.clocks += delimiter + controls[i].clock_str;
-		sail.durations += delimiter + controls[i].duration_str;
+		engine.cones += delimiter + controls[i].cone_str;
+		engine.clocks += delimiter + controls[i].clock_str;
+		engine.throttles += delimiter + controls[i].throttle_str;
+		engine.durations += delimiter + controls[i].duration_str;
 	    }
-	    Debug.Log(sail.UT0.ToString());
-	    Debug.Log(sail.cones);
-	    Debug.Log(sail.clocks);
-	    Debug.Log(sail.durations);
-
 	    preview.Calculate();
 	}
     }

@@ -7,7 +7,7 @@ using PersistentThrust;
 
 namespace SolarSailNavigator {
 
-    public class PreviewSegment {
+    public class SailPreviewSegment {
 
 	// Fields
 	
@@ -20,13 +20,11 @@ namespace SolarSailNavigator {
 	public double UTf; // Final time of segment
 	double dT; // Step size
 	GameObject obj; // Game object of line
-	double m0; // Initial mass
-	double m1; // Final mass
 	
 	// Constructor & calculate
 
-	public PreviewSegment(PersistentControlled engine, Orbit orbitInitial, double UT0, double UTf, Control control, Color color, double m0, double m1) {
-	    Debug.Log("Preview Segment");
+	public SailPreviewSegment(SolarSailControlled sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
+	    
 	    this.UT0 = UT0;
 	    Debug.Log("UT0: " + UT0.ToString());
 	    this.UTf = UTf;
@@ -36,14 +34,9 @@ namespace SolarSailNavigator {
 	    
 	    // Calculate preview orbits
 
-	    orbits = Preview.PropagateOrbit(engine, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.throttle, m0, m1);
+	    orbits = SailPreview.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
 	    orbit0 = orbits[0];
 	    orbitf = orbits[orbits.Count - 1];
-
-	    // Update masses
-	    this.m0 = m0;
-	    this.m1 = m1;
-	    Debug.Log("m0: " + this.m0 + ", m1: " + this.m1);
 	    
 	    // Initialize LineRenderer
 
@@ -52,7 +45,7 @@ namespace SolarSailNavigator {
 		UnityEngine.Object.Destroy(line);
 	    }
 	    // Create new one
-	    obj = new GameObject("Preview segment");
+	    obj = new GameObject("Sail Preview segment");
 	    line = obj.AddComponent<LineRenderer>();
 	    line.useWorldSpace = false;
 	    obj.layer = 10; // Map view
@@ -87,18 +80,18 @@ namespace SolarSailNavigator {
 	}
     }
     
-    public class Preview {
+    public class SailPreview {
 	
 	// Fields
-	PreviewSegment[] segments; // Trajectory segments
-	PersistentControlled engine; // Engine this preview is attached to
+	SailPreviewSegment[] segments; // Trajectory segments
+	SolarSailControlled sail; // Sail this preview is attached to
 	LineRenderer linef; // Final orbit line
 	Vector3d[] linefPoints; // 3d points of final orbit
 	double UTf; // final time of trajectory
 	LineRenderer lineT; // Line to target
 	Orbit orbitT; // Target object orbit
 	public Orbit orbitf; // Final orbit
-	
+
 	// Target
 	Vector3d rFinalRel; // Relative position of spacecraft at end of control sequence
 	Vector3d rTargetFinalRel; // Relative position of target at end of control sequence
@@ -115,14 +108,14 @@ namespace SolarSailNavigator {
 	
 	// Constructor
 	
-	public Preview(PersistentControlled engine) {
-	    this.engine = engine;
+	public SailPreview(SolarSailControlled sail) {
+	    this.sail = sail;
 	}
 
 	// Calculate & draw trajectory prediction
 
 	public void Destroy () {
-	    // Destroy trajectory lines
+	    // Destroy sail trajectory lines
 	    if (segments != null) {
 		foreach(var segment in segments) {
 		    if (segment.line != null) {
@@ -179,8 +172,7 @@ namespace SolarSailNavigator {
 	}
 	
 	public void Calculate () {
-	    Debug.Log("Calculate Preview");
-	    if (engine.controls.showPreview) {
+	    if (sail.controls.showPreview) {
 		// Destroy existing lines
 		if (segments != null) {
 		    foreach(var segment in segments) {
@@ -190,22 +182,16 @@ namespace SolarSailNavigator {
 		    }
 		}
 		// New segments array
-		segments = new PreviewSegment[engine.controls.ncontrols];
+		segments = new SailPreviewSegment[sail.controls.ncontrols];
 		// Beginning time
-		double UT0 = engine.controls.UT0;
-		Orbit orbitInitial = engine.vessel.orbit;
-		// Initial mass per segment
-		double m0i = engine.vessel.GetTotalMass();
+		double UT0 = sail.controls.UT0;
+		Orbit orbitInitial = sail.vessel.orbit;
 		// Calculate each segment
 		for (var i = 0; i < segments.Length; i++) {
-		    // Final segment mass
-		    double m1i = 0.0;
 		    // End time
-		    double UTf = UT0 + engine.controls.controls[i].duration;
+		    double UTf = UT0 + sail.controls.controls[i].duration;
 		    // Calculate segment
-		    segments[i] = new PreviewSegment(engine, orbitInitial, UT0, UTf, engine.controls.controls[i], engine.controls.controls[i].color, m0i, m1i);
-		    // Update initial mass for next segment
-		    m0i = m1i;
+		    segments[i] = new SailPreviewSegment(sail, orbitInitial, UT0, UTf, sail.controls.controls[i], sail.controls.controls[i].color);
 		    // Update initial time
 		    UT0 = UTf;
 		    // Update initial orbit
@@ -227,11 +213,11 @@ namespace SolarSailNavigator {
 		linef.useWorldSpace = false;
 		objf.layer = 10; // Map
 		linef.material = MapView.fetch.orbitLinesMaterial;
-		linef.SetColors(engine.controls.colorFinal, engine.controls.colorFinal);
+		linef.SetColors(sail.controls.colorFinal, sail.controls.colorFinal);
 		linef.SetVertexCount(361);
 		// 3D points to use in linef
 		linefPoints = new Vector3d[361];
-		// Final orbit of trajectory
+		// Final orbit of sail trajectory
 		orbitf = orbitInitial;
 		// Period of final orbit
 		double TPf = orbitf.period;
@@ -252,7 +238,7 @@ namespace SolarSailNavigator {
 
 	// Update
 	public void Update (Vessel vessel) {
-	    if (engine.controls.showPreview) {
+	    if (sail.controls.showPreview) {
 		if (segments != null) {
 		    foreach(var segment in segments) {
 			segment.Update(vessel);
@@ -289,8 +275,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Propagate an orbit
-	public static List<Orbit> PropagateOrbit (PersistentControlled engine, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, float throttle, double m0, double m1) {
-	    Debug.Log("Propagate Orbit");
+	public static List<Orbit> PropagateOrbit (SolarSailControlled sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
 	    Orbit orbit = orbit0.Clone();
 
 	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
@@ -298,11 +283,7 @@ namespace SolarSailNavigator {
 
 	    double UT;
 
-	    double m0i = m0; // Current mass
-
-	    double m1i = 0.0; // Next mass
-	    
-	    // Reseting time step to sample orbits for saving
+	    // Reseting time step to choose orbit for saving
 	    double dTchoose = 0.0;
 
 	    // List of orbits to preview
@@ -320,27 +301,21 @@ namespace SolarSailNavigator {
 		    UT = UT0 + i * dT;
 		}
 
-		// Isp
-		float isp = engine.atmosphereCurve.Evaluate(0);
+		double sunlightFactor = 1.0;
+		if(!SolarSailControlled.inSun(orbit, UT)) {
+		    sunlightFactor = 0.0;
+		}
 
-		// Spacecraft reference frame
 		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
 
-		// Up vector for thrust
-		Vector3d up = sailFrame * new Vector3d(0, 1, 0);
+		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
 
-		// Thrust vector
-		float thrust = throttle * engine.maxThrust;
+		Vector3d solarForce = SolarSailControlled.CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
 
-		// DeltaV vector
-		Vector3d deltaVV = PersistentControlled.CalculateDeltaV(engine, dT, thrust, isp, m0i, up, m1i);
-
-		// Update orbit
-		orbit.Perturb(deltaVV, UT, dT);
-
-		// Update mass
-		m0i = m1i;
+		Vector3d solarAccel = solarForce / mass / 1000.0;
 		
+		orbit.Perturb(solarAccel, UT, dT);
+
 		// Increment choose time step
 		dTchoose += dT;
 
@@ -355,9 +330,6 @@ namespace SolarSailNavigator {
 		    dTchoose = 0.0;
 		}
 	    }
-
-	    // Update final mass
-	    m1 = m1i;
 	    
 	    // Return propagated orbit
 	    return orbits;
