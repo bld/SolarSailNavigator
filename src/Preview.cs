@@ -20,31 +20,109 @@ namespace SolarSailNavigator {
 	public double UTf; // Final time of segment
 	double dT; // Step size
 	GameObject obj; // Game object of line
-	double m0; // Initial mass
-	double m1; // Final mass
+	public double m0; // Initial mass
+	public double m1; // Final mass
 	
 	// Constructor & calculate
 
-	public PreviewSegment(PersistentControlled engine, Orbit orbitInitial, double UT0, double UTf, Control control, Color color, double m0, double m1) {
-	    Debug.Log("Preview Segment");
-	    this.UT0 = UT0;
-	    Debug.Log("UT0: " + UT0.ToString());
-	    this.UTf = UTf;
-	    Debug.Log("UTf: " + UTf.ToString());
-	    dT = TimeWarp.fixedDeltaTime * control.warp;
-	    Debug.Log("dT: " + dT.ToString());
-	    
-	    // Calculate preview orbits
+	public void Propagate(PersistentControlled engine, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, float throttle, double m0in) {
 
-	    orbits = Preview.PropagateOrbit(engine, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.throttle, m0, m1);
+	    // Update segment initial mass
+	    m0 = m0in;
+	    
+	    // Working orbit at each time step
+	    Orbit orbit = orbit0.Clone();
+
+	    // Number of time steps
+	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
+
+	    // Last time step size
+	    double dTlast = (UTf - UT0) % dT;
+
+	    // Current universal time
+	    double UT;
+
+	    // Current mass
+	    double m0i = m0;
+
+	    // Next mass
+	    double m1i = 0.0;
+
+	    // Reseting time step to sample orbits for saving
+	    double dTchoose = 0.0;
+
+	    // List of orbits to preview
+	    orbits = new List<Orbit>();
+
+	    // Add initial orbit
+	    orbits.Add(orbit0.Clone());
+
+	    // Iterate for nsteps
+	    for (int i = 0; i < nsteps; i++) {
+
+		// Last step goes to UTf
+		if (i == nsteps - 1) {
+		    dT = dTlast;
+		    UT = UTf;
+		} else {
+		    UT = UT0 + i * dT;
+		}
+
+		// Isp: Currently vacuum. TODO: calculate at current air pressure
+		float isp = engine.atmosphereCurve.Evaluate(0);
+
+		// Spacecraft reference frame
+		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
+
+		// Up vector for thrust
+		Vector3d up = sailFrame * new Vector3d(0.0, 1.0, 0.0);
+
+		// Thrust vector
+		float thrust = throttle * engine.maxThrust;
+
+		// DeltaV vector
+		double mdot = thrust / (isp * 9.81); // Mass flow rate
+		double dm = mdot * dT; // Change in mass
+		m1i = m0i - dm; // Next mass
+		double deltaV = isp * 9.81 * Math.Log(m0i / m1i); // deltaV
+		Vector3d deltaVV = deltaV * up; // deltaV vector
+
+		// Update orbit
+		orbit.Perturb(deltaVV, UT, dT);
+
+		// Update starting mass
+		m0i = m1i;
+
+		// Increment time step at which to sample orbits
+		dTchoose += dT;
+
+		// Orbit period
+		double TP = orbit.period;
+		
+		// Decide whether to add orbit to list of orbits to draw
+		if (i == nsteps - 1) { // Always add last orbit
+		    orbits.Add(orbit.Clone());
+		} else if (dTchoose >= TP / 360) { // If 1/360th of current period passed, add orbit
+		    orbits.Add(orbit.Clone());
+		    // Reset dTchoose
+		    dTchoose = 0.0;
+		}
+	    }
+
+	    // Update final mass
+	    m1 = m1i;
+	}
+	
+	public PreviewSegment(PersistentControlled engine, Orbit orbitInitial, double UT0, double UTf, Control control, Color color, double m0in) {
+	    this.UT0 = UT0;
+	    this.UTf = UTf;
+	    dT = TimeWarp.fixedDeltaTime * control.warp;
+	    
+	    // Update preview orbits
+	    this.Propagate(engine, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.throttle, m0in);
 	    orbit0 = orbits[0];
 	    orbitf = orbits[orbits.Count - 1];
 
-	    // Update masses
-	    this.m0 = m0;
-	    this.m1 = m1;
-	    Debug.Log("m0: " + this.m0 + ", m1: " + this.m1);
-	    
 	    // Initialize LineRenderer
 
 	    // Remove old line
@@ -179,7 +257,6 @@ namespace SolarSailNavigator {
 	}
 	
 	public void Calculate () {
-	    Debug.Log("Calculate Preview");
 	    if (engine.controls.showPreview) {
 		// Destroy existing lines
 		if (segments != null) {
@@ -198,14 +275,12 @@ namespace SolarSailNavigator {
 		double m0i = engine.vessel.GetTotalMass();
 		// Calculate each segment
 		for (var i = 0; i < segments.Length; i++) {
-		    // Final segment mass
-		    double m1i = 0.0;
 		    // End time
 		    double UTf = UT0 + engine.controls.controls[i].duration;
 		    // Calculate segment
-		    segments[i] = new PreviewSegment(engine, orbitInitial, UT0, UTf, engine.controls.controls[i], engine.controls.controls[i].color, m0i, m1i);
+		    segments[i] = new PreviewSegment(engine, orbitInitial, UT0, UTf, engine.controls.controls[i], engine.controls.controls[i].color, m0i);
 		    // Update initial mass for next segment
-		    m0i = m1i;
+		    m0i = segments[i].m1;
 		    // Update initial time
 		    UT0 = UTf;
 		    // Update initial orbit
@@ -216,7 +291,6 @@ namespace SolarSailNavigator {
 		this.UTf = UT0;
 
 		// Draw one complete final orbit
-
 		// Destroy existing line
 		if (linef != null) {
 		    UnityEngine.Object.Destroy(linef);
@@ -248,7 +322,6 @@ namespace SolarSailNavigator {
 		CalculateTargetLine();
 	    }
 	}
-	
 
 	// Update
 	public void Update (Vessel vessel) {
@@ -271,96 +344,21 @@ namespace SolarSailNavigator {
 			linef.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
 
 			// Update target line
-			lineT.enabled = true;
-			if (FlightGlobals.fetch.VesselTarget != null) {
-			    lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rFinalRel));
-			    lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rTargetFinalRel));
-			    lineT.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
-			} else {
-			    lineT.enabled = false;
+			if (lineT != null) { // If target line exists
+			    if (FlightGlobals.fetch.VesselTarget != null) {
+				lineT.enabled = true;
+				lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rFinalRel));
+				lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rTargetFinalRel));
+				lineT.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
+			    } else {
+				lineT.enabled = false;
+			    }
 			}
-			
 		    } else {
 			linef.enabled = false;
-			// lineT.enabled = false;
 		    }
 		}
 	    }
-	}
-
-	// Propagate an orbit
-	public static List<Orbit> PropagateOrbit (PersistentControlled engine, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, float throttle, double m0, double m1) {
-	    Debug.Log("Propagate Orbit");
-	    Orbit orbit = orbit0.Clone();
-
-	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
-	    double dTlast = (UTf - UT0) % dT;
-
-	    double UT;
-
-	    double m0i = m0; // Current mass
-
-	    double m1i = 0.0; // Next mass
-	    
-	    // Reseting time step to sample orbits for saving
-	    double dTchoose = 0.0;
-
-	    // List of orbits to preview
-	    var orbits = new List<Orbit>();
-
-	    // Add initial orbit
-	    orbits.Add(orbit0.Clone());
-	    
-	    for (int i = 0; i < nsteps; i++) {
-		// Last step goes to UTf
-		if (i == nsteps - 1) {
-		    dT = dTlast;
-		    UT = UTf;
-		} else {
-		    UT = UT0 + i * dT;
-		}
-
-		// Isp
-		float isp = engine.atmosphereCurve.Evaluate(0);
-
-		// Spacecraft reference frame
-		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
-
-		// Up vector for thrust
-		Vector3d up = sailFrame * new Vector3d(0, 1, 0);
-
-		// Thrust vector
-		float thrust = throttle * engine.maxThrust;
-
-		// DeltaV vector
-		Vector3d deltaVV = PersistentControlled.CalculateDeltaV(engine, dT, thrust, isp, m0i, up, m1i);
-
-		// Update orbit
-		orbit.Perturb(deltaVV, UT, dT);
-
-		// Update mass
-		m0i = m1i;
-		
-		// Increment choose time step
-		dTchoose += dT;
-
-		// Orbit period
-		double TP = orbit.period;
-
-		// Decide whether to add orbit to list of orbits to draw
-		if (i == nsteps - 1) { // Always add last orbit
-		    orbits.Add(orbit.Clone());
-		} else if (dTchoose >= TP / 360) { // If 1/360th of current period passed, pick
-		    orbits.Add(orbit.Clone());
-		    dTchoose = 0.0;
-		}
-	    }
-
-	    // Update final mass
-	    m1 = m1i;
-	    
-	    // Return propagated orbit
-	    return orbits;
 	}
     }
 }

@@ -101,7 +101,7 @@ namespace SolarSailNavigator {
 	    base.OnFixedUpdate();
 
 	    // Update preview trajectory if it exists
-	    //controls.preview.Update(vessel);	    
+	    controls.preview.Update(vessel);	    
 	}
     }
 }
