@@ -147,9 +147,9 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Disable/enable sails for a time segment
 ** Throttle already disables/enables engines
 * TODO Test functionality for multiple sails/engines
-* TODO Move PersistentThrust plugin into SolarSailNavigator [1/2]
+* DONE Move PersistentThrust plugin into SolarSailNavigator [2/2]
 ** DONE Put source in sub-folder with KSPI license
-** TODO Update Makefiles
+** DONE Update Makefiles
 * TODO Draw target line when target selected, even if preview not calculated
 * DONE Test that propagation matches prediction for engines
 * TODO Resize window when objects & text removed (e.g. when preview or target deselected)
