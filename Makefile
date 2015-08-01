@@ -77,6 +77,6 @@ install: ptinstall build
 	cp -r Patches "${KSPDIR}"/GameData/SolarSailNavigator/
 
 uninstall: ptuninstall info
-	rm -rf "${KSPDIR"/GameData/SolarSailNavigator/Plugins
+	rm -rf "${KSPDIR}"/GameData/SolarSailNavigator/
 
 .PHONY : all info build package tar.gz zip clean install uninstall

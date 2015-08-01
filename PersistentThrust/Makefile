@@ -57,7 +57,6 @@ install: build
 	cp build/PersistentThrust.dll "${KSPDIR}"/GameData/PersistentThrust/Plugins/
 
 uninstall: info
-	rm -rf "${KSPDIR"/GameData/PersistentThrust/Plugins
-	rm -rf "${KSPDIR"/GameData/PersistentThrust/Parts
+	rm -rf "${KSPDIR}"/GameData/PersistentThrust/
 
 .PHONY : all info build package tar.gz zip clean install uninstall
