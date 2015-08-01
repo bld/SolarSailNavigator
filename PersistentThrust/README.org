@@ -1,0 +1,20 @@
+* PersistentThrust
+A plugin for [[http://www.kerbalspaceprogram.com][Kerbal Space Program]] to allow low thrust propulsion
+systems like ion engines and solar sails to operate during time warp.
+
+** Requirements
+- [[http://forum.kerbalspaceprogram.com/threads/55219-Module-Manager-1-5-6-%28Jan-6%29][ModuleManager]]
+
+** What works
+- Continuous thrust engines and solar sail continue thrusting during realtime and timewarp
+- Continuous thrust engine propellant mass and other resources depleted during timewarp
+- Continuous thrust engine throttle stays set from realtime to timewarp and back
+
+** What doesn't work
+- Continuous thrust engine throttle and sail attitude can't be changed during timewarp
+
+** Navigation
+A companion project is under development to plan and preview low
+thrust trajectories by scheduling attitude and throttle maneuvers. See
+[[http://github.com/bld/SolarSailNavigator][SolarSailNavigator]] for the current version, which supports solar
+sails.
