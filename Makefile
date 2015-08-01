@@ -2,7 +2,7 @@
 
 KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
-PT	:= ${KSPDIR}/GameData/PersistentThrust/Plugins/
+PT	:= PersistentThrust/build/
 MM	:= ${KSPDIR}/GameData/
 SSFILES	:= src/Navigator.cs \
 	src/Controls.cs \
@@ -15,18 +15,33 @@ GMCS	:= gmcs
 TAR	:= tar
 ZIP	:= zip
 
-all: build
+all: 	build
+
+ptbuild:
+	cd PersistentThrust; $(MAKE) build
+
+ptinstall:
+	cd PersistentThrust; $(MAKE) install
+
+ptuninstall:
+	cd PersistentThrust; $(MAKE) uninstall
+
+ptpackage: ptbuild
+	cd PersistentThrust; $(MAKE) package
+
+ptclean:
+	cd PersistentThrust; $(MAKE) clean
 
 info:
 	@echo "== SolarSailNavigator Build Information =="
-	@echo "  gmcs:    ${GMCS}"
-	@echo "  tar:     ${TAR}"
-	@echo "  zip:     ${ZIP}"
+	@echo "  gmcs:     ${GMCS}"
+	@echo "  tar:      ${TAR}"
+	@echo "  zip:      ${ZIP}"
 	@echo "  KSP Data: ${KSPDIR}"
-	@echo "  LTP:     ${LTP}"
+	@echo "  PT:       ${PT}"
 	@echo "================================"
 
-build: build/SolarSailNavigator.dll
+build: ptbuild build/SolarSailNavigator.dll
 
 build/%.dll: ${SSFILES}
 	mkdir -p build
@@ -35,11 +50,12 @@ build/%.dll: ${SSFILES}
 		-out:$@ \
 		${SSFILES}
 
-package: build ${SSFILES}
+package: ptpackage build ${SSFILES}
 	mkdir -p package/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll package/SolarSailNavigator/Plugins/
-	cp -r Patches package/
+	cp -r Patches package/SolarSailNavigator
 	cp License.md README.org TODO.org CHANGELOG.org package/SolarSailNavigator/
+	cp -r PersistentThrust/package/PersistentThrust package/
 
 %.tgz:
 	cd package; ${TAR} zcf ../$@ SolarSailNavigator
@@ -47,20 +63,20 @@ package: build ${SSFILES}
 tgz: package SolarSailNavigator.tgz
 
 %.zip:
-	cd package; ${ZIP} -9 -r ../$@ SolarSailNavigator
+	cd package; ${ZIP} -9 -r ../$@ SolarSailNavigator PersistentThrust
 
 zip: package SolarSailNavigator.zip
 
-clean:
+clean: ptclean
 	@echo "Cleaning up build and package directories..."
 	rm -rf build/ package/
 
-install: build
+install: ptinstall build
 	mkdir -p "${KSPDIR}"/GameData/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll "${KSPDIR}"/GameData/SolarSailNavigator/Plugins/
 	cp -r Patches "${KSPDIR}"/GameData/SolarSailNavigator/
 
-uninstall: info
+uninstall: ptuninstall info
 	rm -rf "${KSPDIR"/GameData/SolarSailNavigator/Plugins
 
 .PHONY : all info build package tar.gz zip clean install uninstall
