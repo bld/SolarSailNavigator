@@ -117,8 +117,8 @@ extra CPU. May want a notification when the sequence is completed.
 *** TODO Inclination
 *** TODO AoP
 *** TODO Blended?
-* TODO Make a low thrust navigation tool for any low thrust propulsion, sail, ion engine, etc [0/2]
-** TODO Propulsion part module
+* TODO Make a low thrust navigation tool for any low thrust propulsion, sail, ion engine, etc [1/2]
+** DONE Propulsion part module
 *** Force model
 *** Realtime propagation
 *** Time warp propagation
@@ -136,8 +136,32 @@ extra CPU. May want a notification when the sequence is completed.
 ** Want to specify numbers relative to those reference frames.
 ** Possibly, upgrade persistent rotation with these options?
 *** Then, the navigation tool needs to access PersistentRotation to update the attitude.
-* TODO Use multiple continuous thrust systems
-* TODO Use any continuous thrust systems
-* TODO Select which continuous thrust systems to use in different segments
-** By default, use all. Allow deselection/selection of some.
-** E.g. hybrid solar sail / solar electric missions to Jupiter ala IKAROS-2
+* DONE Make preview work for persistent thrust engines [5/5]
+** DONE Preview trajectory
+** DONE Final orbit
+** DONE Line to target
+** DONE Orbit element difference with target
+** DONE Find & fix remaining bug of undefined variable
+*** target line object was null
+* TODO Make preview work for multiple sails/engines
+* TODO Disable/enable sails for a time segment
+** Throttle already disables/enables engines
+* TODO Test functionality for multiple sails/engines
+* TODO Move PersistentThrust plugin into SolarSailNavigator [1/2]
+** DONE Put source in sub-folder with KSPI license
+** TODO Update Makefiles
+* TODO Draw target line when target selected, even if preview not calculated
+* DONE Test that propagation matches prediction for engines
+* TODO Resize window when objects & text removed (e.g. when preview or target deselected)
+* TODO Add events when target selected to update targeting lines and information
+* TODO Show mass consumption for flight profile
+* TODO Warn when mass consumption exceeds remaining
+* TODO Warn when future power usage of navigation plan exceeds vessel's generation ability
+* TODO Toggle buttons to show [0/4]
+** TODO Final orbit elements
+** TODO Final orbit elements error with target
+** TODO Final orbit
+** TODO Preview
+* DONE Draw trajectory segment when throttle is 0			:BUG:
+* TODO In-track/cross-track/out-of-plane reference frame for ion engine :FEATURE:
+* TODO Make "Navigation", "Preview", and "Controls" work for both sails and engines :FEATURE:

@@ -46,7 +46,7 @@ namespace SolarSailNavigator {
 	    double m0i = m0;
 
 	    // Next mass
-	    double m1i = 0.0;
+	    double m1i = m0i;
 
 	    // Reseting time step to sample orbits for saving
 	    double dTchoose = 0.0;
@@ -59,7 +59,7 @@ namespace SolarSailNavigator {
 
 	    // Iterate for nsteps
 	    for (int i = 0; i < nsteps; i++) {
-
+		
 		// Last step goes to UTf
 		if (i == nsteps - 1) {
 		    dT = dTlast;
@@ -67,19 +67,19 @@ namespace SolarSailNavigator {
 		} else {
 		    UT = UT0 + i * dT;
 		}
-
+		
 		// Isp: Currently vacuum. TODO: calculate at current air pressure
 		float isp = engine.atmosphereCurve.Evaluate(0);
-
+		
 		// Spacecraft reference frame
 		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
-
+		
 		// Up vector for thrust
 		Vector3d up = sailFrame * new Vector3d(0.0, 1.0, 0.0);
-
+		
 		// Thrust vector
 		float thrust = throttle * engine.maxThrust;
-
+		
 		// DeltaV vector
 		double mdot = thrust / (isp * 9.81); // Mass flow rate
 		double dm = mdot * dT; // Change in mass
@@ -121,7 +121,7 @@ namespace SolarSailNavigator {
 	    // Update preview orbits
 	    this.Propagate(engine, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.throttle, m0in);
 	    orbit0 = orbits[0];
-	    orbitf = orbits[orbits.Count - 1];
+	    orbitf = orbits.Last();
 
 	    // Initialize LineRenderer
 
