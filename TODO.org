@@ -163,5 +163,4 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Final orbit
 ** TODO Preview
 * DONE Draw trajectory segment when throttle is 0			:BUG:
-* TODO In-track/cross-track/out-of-plane reference frame for ion engine :FEATURE:
 * TODO Make "Navigation", "Preview", and "Controls" work for both sails and engines :FEATURE:
