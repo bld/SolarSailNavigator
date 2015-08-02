@@ -50,7 +50,7 @@ build/%.dll: ${SSFILES}
 		-out:$@ \
 		${SSFILES}
 
-package: ptpackage build ${SSFILES}
+package: build ${SSFILES} ptpackage 
 	mkdir -p package/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll package/SolarSailNavigator/Plugins/
 	cp -r Patches package/SolarSailNavigator
@@ -71,7 +71,7 @@ clean: ptclean
 	@echo "Cleaning up build and package directories..."
 	rm -rf build/ package/
 
-install: ptinstall build
+install: build ptinstall
 	mkdir -p "${KSPDIR}"/GameData/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll "${KSPDIR}"/GameData/SolarSailNavigator/Plugins/
 	cp -r Patches "${KSPDIR}"/GameData/SolarSailNavigator/
