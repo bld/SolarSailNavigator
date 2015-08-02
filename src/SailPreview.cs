@@ -23,6 +23,77 @@ namespace SolarSailNavigator {
 	
 	// Constructor & calculate
 
+	public void Propagate(SolarSailControlled sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
+
+	    // Working orbit at each time step
+	    Orbit orbit = orbit0.Clone();
+
+	    // Number of time steps
+	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
+
+	    // Last time step size
+	    double dTlast = (UTf - UT0) % dT;
+
+	    // Current universal time
+	    double UT;
+	    
+	    // Reseting time step to choose orbit for saving
+	    double dTchoose = 0.0;
+	    
+	    // List of orbits to preview
+	    orbits = new List<Orbit>();
+	    
+	    // Add initial orbit
+	    orbits.Add(orbit0.Clone());
+	    
+	    for (int i = 0; i < nsteps; i++) {
+
+		// Last step goes to UTf
+		if (i == nsteps - 1) {
+		    dT = dTlast;
+		    UT = UTf;
+		} else {
+		    UT = UT0 + i * dT;
+		}
+
+		// Sail in sun
+		double sunlightFactor = 1.0;
+		if(!SolarSailControlled.inSun(orbit, UT)) {
+		    sunlightFactor = 0.0;
+		}
+
+		// Spacecraft reference frame
+		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
+
+		// Sail normal vector
+		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
+
+		// Force on sail
+		Vector3d solarForce = SolarSailControlled.CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
+
+		// Sail acceleration
+		Vector3d solarAccel = solarForce / mass / 1000.0;
+		
+		// Update orbit
+		//SolarSailPart.PerturbOrbit(orbit, solarAccel, UT, dT);
+		orbit.Perturb(solarAccel * dT, UT, dT);
+		
+		// Increment choose time step
+		dTchoose += dT;
+
+		// Orbit period
+		double TP = orbit.period;
+
+		// Decide whether to add orbit to list of orbits to draw
+		if (i == nsteps - 1) { // Always add last orbit
+		    orbits.Add(orbit.Clone());
+		} else if (dTchoose >= TP / 360) { // If 1/360th of current period passed, pick
+		    orbits.Add(orbit.Clone());
+		    dTchoose = 0.0;
+		}
+	    }
+	}
+	
 	public SailPreviewSegment(SolarSailControlled sail, Orbit orbitInitial, double UT0, double UTf, SailControl control, Color color) {
 	    
 	    this.UT0 = UT0;
@@ -34,7 +105,7 @@ namespace SolarSailNavigator {
 	    
 	    // Calculate preview orbits
 
-	    orbits = SailPreview.PropagateOrbit(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
+	    Propagate(sail, orbitInitial, UT0, UTf, dT, control.cone, control.clock, sail.vessel.GetTotalMass());
 	    orbit0 = orbits[0];
 	    orbitf = orbits[orbits.Count - 1];
 	    
@@ -257,82 +328,21 @@ namespace SolarSailNavigator {
 			linef.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
 
 			// Update target line
-			lineT.enabled = true;
-			if (FlightGlobals.fetch.VesselTarget != null) {
-			    lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rFinalRel));
-			    lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rTargetFinalRel));
-			    lineT.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
-			} else {
-			    lineT.enabled = false;
-			}
-			
+			if (lineT != null) {
+			    if (FlightGlobals.fetch.VesselTarget != null) {
+				lineT.enabled = true;
+				lineT.SetPosition(0, ScaledSpace.LocalToScaledSpace(rRefUTf + rFinalRel));
+				lineT.SetPosition(1, ScaledSpace.LocalToScaledSpace(rRefUTf + rTargetFinalRel));
+				lineT.SetWidth(0.01f * MapView.MapCamera.Distance, 0.01f * MapView.MapCamera.Distance);
+			    } else {
+				lineT.enabled = false;
+			    }
+			}			
 		    } else {
 			linef.enabled = false;
-			// lineT.enabled = false;
 		    }
 		}
 	    }
-	}
-
-	// Propagate an orbit
-	public static List<Orbit> PropagateOrbit (SolarSailControlled sail, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, double mass) {
-	    Orbit orbit = orbit0.Clone();
-
-	    int nsteps = Convert.ToInt32(Math.Ceiling((UTf - UT0) / dT));
-	    double dTlast = (UTf - UT0) % dT;
-
-	    double UT;
-
-	    // Reseting time step to choose orbit for saving
-	    double dTchoose = 0.0;
-
-	    // List of orbits to preview
-	    var orbits = new List<Orbit>();
-
-	    // Add initial orbit
-	    orbits.Add(orbit0.Clone());
-	    
-	    for (int i = 0; i < nsteps; i++) {
-		// Last step goes to UTf
-		if (i == nsteps - 1) {
-		    dT = dTlast;
-		    UT = UTf;
-		} else {
-		    UT = UT0 + i * dT;
-		}
-
-		double sunlightFactor = 1.0;
-		if(!SolarSailControlled.inSun(orbit, UT)) {
-		    sunlightFactor = 0.0;
-		}
-
-		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, UT);
-
-		Vector3d normal = sailFrame * new Vector3d(0, 1, 0);
-
-		Vector3d solarForce = SolarSailControlled.CalculateSolarForce(sail, orbit, normal, UT) * sunlightFactor;
-
-		Vector3d solarAccel = solarForce / mass / 1000.0;
-		
-		orbit.Perturb(solarAccel, UT, dT);
-
-		// Increment choose time step
-		dTchoose += dT;
-
-		// Orbit period
-		double TP = orbit.period;
-
-		// Decide whether to add orbit to list of orbits to draw
-		if (i == nsteps - 1) { // Always add last orbit
-		    orbits.Add(orbit.Clone());
-		} else if (dTchoose >= TP / 360) { // If 1/360th of current period passed, pick
-		    orbits.Add(orbit.Clone());
-		    dTchoose = 0.0;
-		}
-	    }
-	    
-	    // Return propagated orbit
-	    return orbits;
 	}
     }
 }
