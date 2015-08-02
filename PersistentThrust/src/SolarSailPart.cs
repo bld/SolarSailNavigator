@@ -113,7 +113,7 @@ namespace PersistentThrust {
 		if (!this.vessel.packed) {
 		    vessel.ChangeWorldVelocity(solarAccel * dT);
 		} else {
-		    vessel.orbit.Perturb(solarAccel, UT, dT);
+		    vessel.orbit.Perturb(solarAccel * dT, UT, dT);
 		}
 
 		solar_force_d = solarForce.magnitude;
@@ -170,32 +170,5 @@ namespace PersistentThrust {
 		return Vector3d.zero;
 	    }
 	}
-
-	/*
-	// Perturn an orbit by an acceleration at UT with time step dT
-	public static void PerturbOrbit (Orbit orbit, Vector3d accel, double UT, double dT) {
-
-	    // Return updated orbit if in sun
-	    if (accel.magnitude > 0) {
-		// Transpose Y and Z for Orbit class
-		Vector3d accel_orbit = new Vector3d(accel.x, accel.z, accel.y);
-		Vector3d position = orbit.getRelativePositionAtUT(UT);
-		Orbit orbit2 = orbit.Clone();
-		orbit2.UpdateFromStateVectors(position, orbit.getOrbitalVelocityAtUT(UT) + accel_orbit * dT, orbit.referenceBody, UT);
-		if (!double.IsNaN(orbit2.inclination) && !double.IsNaN(orbit2.eccentricity) && !double.IsNaN(orbit2.semiMajorAxis) && orbit2.timeToAp > dT) {
-		    orbit.inclination = orbit2.inclination;
-		    orbit.eccentricity = orbit2.eccentricity;
-		    orbit.semiMajorAxis = orbit2.semiMajorAxis;
-		    orbit.LAN = orbit2.LAN;
-		    orbit.argumentOfPeriapsis = orbit2.argumentOfPeriapsis;
-		    orbit.meanAnomalyAtEpoch = orbit2.meanAnomalyAtEpoch;
-		    orbit.epoch = orbit2.epoch;
-		    orbit.referenceBody = orbit2.referenceBody;
-		    orbit.Init();
-		    orbit.UpdateFromUT(UT);
-		}
-	    }
-	}
-	*/
     }
 }
