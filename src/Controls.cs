@@ -281,6 +281,7 @@ namespace SolarSailNavigator {
 	public bool showFinal = true;
 	public bool showFinalElements = false;
 	public bool showTargetErr = false;
+	bool updateTargetLine = false; // Indicate if target line needs updating
 	public Preview preview;
 	public string previewButtonText = "Show Preview";
 	
@@ -460,26 +461,31 @@ namespace SolarSailNavigator {
 		GUILayout.BeginHorizontal();
 		if (GUILayout.Toggle(showFinalElements, "Show Final Elements") != showFinalElements) {
 		    showFinalElements = !showFinalElements;
-		    if (showFinalElements) {
-			GUILayout.BeginVertical();
-			GUILayout.Label("ApA: " + LengthToString(preview.orbitf.ApA));
-			GUILayout.Label("PeA: " + LengthToString(preview.orbitf.PeA));
-			GUILayout.Label("TP: " + Math.Round(preview.orbitf.period, 2) + " sec");
-			GUILayout.Label("Inc: " + Math.Round(preview.orbitf.inclination, 2) + " deg");
-			GUILayout.Label("Ecc: " + Math.Round(preview.orbitf.eccentricity, 2));
-			GUILayout.Label("LAN: " + Math.Round(preview.orbitf.LAN, 2) + " deg");
-			GUILayout.Label("AOP: " + Math.Round(preview.orbitf.argumentOfPeriapsis, 2) + " deg");
-			GUILayout.EndVertical();
-		    }
+		}
+		if (showFinalElements) {
+		    GUILayout.BeginVertical();
+		    GUILayout.Label("ApA: " + LengthToString(preview.orbitf.ApA));
+		    GUILayout.Label("PeA: " + LengthToString(preview.orbitf.PeA));
+		    GUILayout.Label("TP: " + Math.Round(preview.orbitf.period, 2) + " sec");
+		    GUILayout.Label("Inc: " + Math.Round(preview.orbitf.inclination, 2) + " deg");
+		    GUILayout.Label("Ecc: " + Math.Round(preview.orbitf.eccentricity, 2));
+		    GUILayout.Label("LAN: " + Math.Round(preview.orbitf.LAN, 2) + " deg");
+		    GUILayout.Label("AOP: " + Math.Round(preview.orbitf.argumentOfPeriapsis, 2) + " deg");
+		    GUILayout.EndVertical();
 		}
 		GUILayout.EndHorizontal();
 	    }
-
+	    
 	    // Target error
+	    // Target line will need updating when target is deselected
+	    if (FlightGlobals.fetch.VesselTarget == null) {
+		updateTargetLine = true;
+	    }
 	    if (FlightGlobals.fetch.VesselTarget != null && showPreview && preview.orbitf != null) {
-		// Calculate target line & errors if target selected but line is null
-		if (FlightGlobals.fetch.VesselTarget != null && preview.lineT == null) {
+		// Calculate target line & errors if target selected & update needed
+		if (FlightGlobals.fetch.VesselTarget != null && updateTargetLine) {
 		    preview.CalculateTargetLine();
+		    updateTargetLine = false;
 		}
 		// GUI to show target errors
 		GUILayout.BeginHorizontal();
