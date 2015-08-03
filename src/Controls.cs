@@ -458,15 +458,12 @@ namespace SolarSailNavigator {
 	    }
 
 	    // Preview orbit
-	    if (GUILayout.Button(previewButtonText)) {
-	    	if (!showPreview) {
-		    showPreview = true;
+	    if (GUILayout.Toggle(showPreview, previewButtonText) != showPreview) {
+		showPreview = !showPreview;
+	    	if (showPreview) {
 		    preview.Calculate();
-		    previewButtonText = "Hide Preview";
 		} else {
-		    showPreview = false;
 		    preview.Destroy();
-		    previewButtonText = "Show Preview";
 		}
 	    }
 	    
