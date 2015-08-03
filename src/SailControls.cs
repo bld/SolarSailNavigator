@@ -252,6 +252,7 @@ namespace SolarSailNavigator {
 	public bool showFinal = true;
 	public bool showFinalElements = false;
 	public bool showTargetErr = false;
+	bool updateTargetLine = false;
 	public SailPreview preview;
 	public string previewButtonText = "Show Preview";
 	
@@ -444,10 +445,15 @@ namespace SolarSailNavigator {
 	    }
 
 	    // Target error
+	    // Target line will need updating when target isn't selected
+	    if (FlightGlobals.fetch.VesselTarget == null) {
+		updateTargetLine = true;
+	    }
 	    if (FlightGlobals.fetch.VesselTarget != null && showPreview && preview.orbitf != null) {
 		// Calculate target line & errors if target selected but line is null
-		if (FlightGlobals.fetch.VesselTarget != null && preview.lineT == null) {
+		if (FlightGlobals.fetch.VesselTarget != null && updateTargetLine) {
 		    preview.CalculateTargetLine();
+		    updateTargetLine = false;
 		}
 		// GUI to show target errors
 		GUILayout.BeginHorizontal();
