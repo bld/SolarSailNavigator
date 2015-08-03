@@ -170,10 +170,10 @@ namespace SolarSailNavigator {
 	// Fields
 	PreviewSegment[] segments; // Trajectory segments
 	PersistentControlled engine; // Engine this preview is attached to
-	LineRenderer linef; // Final orbit line
+	public LineRenderer linef; // Final orbit line
 	Vector3d[] linefPoints; // 3d points of final orbit
 	double UTf; // final time of trajectory
-	LineRenderer lineT; // Line to target
+	public LineRenderer lineT; // Line to target
 	Orbit orbitT; // Target object orbit
 	public Orbit orbitf; // Final orbit
 	
@@ -218,7 +218,7 @@ namespace SolarSailNavigator {
 	    }
 	}
 
-	void CalculateTargetLine () {
+	public void CalculateTargetLine () {
 	    // Selected target
 	    var target = FlightGlobals.fetch.VesselTarget;
 	    // If a target is selected...
@@ -335,7 +335,7 @@ namespace SolarSailNavigator {
 		// Update final orbit line from points
 		if (linef != null) {
 		    if (MapView.MapIsEnabled) {
-			linef.enabled = true;
+			linef.enabled = engine.controls.showFinal;
 			// Position of reference body at end of trajectory
 			Vector3d rRefUTf = vessel.orbit.referenceBody.getPositionAtUT(UTf);
 			for (var i = 0; i <= 360; i++) {
