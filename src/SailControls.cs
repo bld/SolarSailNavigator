@@ -249,6 +249,9 @@ namespace SolarSailNavigator {
 	double durationTotal;
 	public Color colorFinal;
 	public bool showPreview = false;
+	public bool showFinal = true;
+	public bool showFinalElements = false;
+	public bool showTargetErr = false;
 	public SailPreview preview;
 	public string previewButtonText = "Show Preview";
 	
@@ -403,27 +406,6 @@ namespace SolarSailNavigator {
 	    // Total duration of sequences
 	    GUILayout.Label("Duration: " + durationTotal + " sec");
 
-	    // Final orbit elements
-	    if (FlightGlobals.fetch.VesselTarget != null && showPreview && preview.orbitf != null) {
-		GUILayout.Label("Final orbit errors:");
-		GUILayout.Label("Apoapsis: " + LengthToString(preview.ApErr));
-		GUILayout.Label("Periapsis: " + LengthToString(preview.PeErr));
-		GUILayout.Label("Orbital Period: " + Math.Round(preview.TPErr, 2) + " sec");
-		GUILayout.Label("Inclination: " + Math.Round(preview.IncErr, 3) + " deg");
-		GUILayout.Label("Eccentricity: " + Math.Round(preview.EccErr, 3));
-		GUILayout.Label("LAN: " + Math.Round(preview.LANErr, 3));
-		GUILayout.Label("AOP: " + Math.Round(preview.AOPErr, 3));
-	    }
-	    
-	    // Show difference with target at end of control sequence
-	    if (FlightGlobals.fetch.VesselTarget != null && showPreview) {
-		// Distance
-		GUILayout.Label("Final distance to target: " + LengthToString(preview.targetD));
-		
-		// Speed
-		GUILayout.Label("Final speed to target: " + SpeedToString(preview.targetV));
-	    }
-
 	    // Preview orbit
 	    if (GUILayout.Toggle(showPreview, previewButtonText) != showPreview) {
 		showPreview = !showPreview;
@@ -434,6 +416,74 @@ namespace SolarSailNavigator {
 		}
 	    }
 
+	    // If preview turned on
+	    if (showPreview) {
+		// Show final orbit
+		if (GUILayout.Toggle(showFinal, "Show Final Orbit") != showFinal) {
+		    showFinal = !showFinal;
+		    preview.linef.enabled = showFinal;
+		    Debug.Log("linef.enabled: " + preview.linef.enabled);
+		}
+		// Final elements
+		GUILayout.BeginHorizontal();
+		if (GUILayout.Toggle(showFinalElements, "Show Final Elements") != showFinalElements) {
+		    showFinalElements = !showFinalElements;
+		}
+		if (showFinalElements) {
+		    GUILayout.BeginVertical();
+		    GUILayout.Label("ApA: " + LengthToString(preview.orbitf.ApA));
+		    GUILayout.Label("PeA: " + LengthToString(preview.orbitf.PeA));
+		    GUILayout.Label("TP: " + Math.Round(preview.orbitf.period, 2) + " sec");
+		    GUILayout.Label("Inc: " + Math.Round(preview.orbitf.inclination, 2) + " deg");
+		    GUILayout.Label("Ecc: " + Math.Round(preview.orbitf.eccentricity, 2));
+		    GUILayout.Label("LAN: " + Math.Round(preview.orbitf.LAN, 2) + " deg");
+		    GUILayout.Label("AOP: " + Math.Round(preview.orbitf.argumentOfPeriapsis, 2) + " deg");
+		    GUILayout.EndVertical();
+		}
+		GUILayout.EndHorizontal();
+	    }
+
+	    // Target error
+	    if (FlightGlobals.fetch.VesselTarget != null && showPreview && preview.orbitf != null) {
+		// Calculate target line & errors if target selected but line is null
+		if (FlightGlobals.fetch.VesselTarget != null && preview.lineT == null) {
+		    preview.CalculateTargetLine();
+		}
+		// GUI to show target errors
+		GUILayout.BeginHorizontal();
+		if (GUILayout.Toggle(showTargetErr, "Show Target Error") != showTargetErr) {
+		    showTargetErr = !showTargetErr;
+		}
+		if (showTargetErr) {
+		    GUILayout.BeginVertical();
+		    // Distance
+		    GUILayout.Label("Final distance to target: " + LengthToString(preview.targetD));
+		    // Speed
+		    GUILayout.Label("Final speed to target: " + SpeedToString(preview.targetV));
+		    // Orbit elements
+		    GUILayout.Label("Apoapsis: " + LengthToString(preview.ApErr));
+		    GUILayout.Label("Periapsis: " + LengthToString(preview.PeErr));
+		    GUILayout.Label("Orbital Period: " + Math.Round(preview.TPErr, 2) + " sec");
+		    GUILayout.Label("Inclination: " + Math.Round(preview.IncErr, 3) + " deg");
+		    GUILayout.Label("Eccentricity: " + Math.Round(preview.EccErr, 3));
+		    GUILayout.Label("LAN: " + Math.Round(preview.LANErr, 3));
+		    GUILayout.Label("AOP: " + Math.Round(preview.AOPErr, 3));
+		    GUILayout.EndVertical();
+		}
+		GUILayout.EndHorizontal();
+	    }
+
+	    /*
+	    // Show difference with target at end of control sequence
+	    if (FlightGlobals.fetch.VesselTarget != null && showPreview) {
+		// Distance
+		GUILayout.Label("Final distance to target: " + LengthToString(preview.targetD));
+		
+		// Speed
+		GUILayout.Label("Final speed to target: " + SpeedToString(preview.targetV));
+	    }
+	    */
+	    
 	    GUILayout.EndVertical();
 
 	    GUI.DragWindow();
