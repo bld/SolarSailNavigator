@@ -150,7 +150,7 @@ extra CPU. May want a notification when the sequence is completed.
 * DONE Move PersistentThrust plugin into SolarSailNavigator [2/2]
 ** DONE Put source in sub-folder with KSPI license
 ** DONE Update Makefiles
-* TODO Draw target line when target selected, even if preview not calculated
+* DONE Draw target line when target selected, not just when preview first calculated
 * DONE Test that propagation matches prediction for engines
 * TODO Resize window when objects & text removed (e.g. when preview or target deselected)
 * TODO Add events when target selected to update targeting lines and information
