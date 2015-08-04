@@ -14,7 +14,6 @@ systems like ion engines and solar sails to operate during time warp.
 - Continuous thrust engine throttle and sail attitude can't be changed during timewarp
 
 ** Navigation
-A companion project is under development to plan and preview low
-thrust trajectories by scheduling attitude and throttle maneuvers. See
-[[http://github.com/bld/SolarSailNavigator][SolarSailNavigator]] for the current version, which supports solar
-sails.
+A companion project enables planning and previewing continous thrust
+trajectories by scheduling attitude and throttle maneuvers. See
+[[http://github.com/bld/SolarSailNavigator][SolarSailNavigator]] for the current version.
