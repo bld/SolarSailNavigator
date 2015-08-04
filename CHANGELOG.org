@@ -14,3 +14,12 @@ Initial Release
 ***** Distance at final time
 ***** Speed at final time
 ***** Orbital elements
+** v1.0.3
+*** A new plugin called PersistentThrust is now included in the package. It implements the force models of the solar sail and continuous thrust engines.
+*** The navigation plugin now supports both solar sails and continuous thrust engines.
+*** Toggle buttons allow showing the preview, final orbit, final orbit elements, and difference between the final orbit and the target body.
+*** Still unsupported:
+**** Planetary trajectories
+**** Other reference frames for steering
+**** Multiple sails/engines
+**** Propagation of the trajectory while not focused on the vessel
