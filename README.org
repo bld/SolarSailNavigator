@@ -3,31 +3,50 @@
 #+OPTIONS: num:nil
 #+OPTIONS: author:nil
 
-Plot the course of a spacecraft pushed by the pressure of sunlight.
+This is the first release of a solar sail and low thrust engine
+navigation plugin for Kerbal Space Program (KSP,
+http://www.kerbalspaceprogram.com). Plot the course of a spacecraft
+pushed by the pressure of sunlight or a continuous thrust engine
+(e.g. ion engines). Unlike rockets, solar sails and continuous thrust
+engines apply a small amount of thrust throughout the trajectory,
+gradually changing the orbit until reaching their destination. This
+plugin simulates these propulsion systems and helps plan transfer
+trajectories.
 
-This is the first release of a solar sail navigation plugin for Kerbal
-Space Program (KSP, http://www.kerbalspaceprogram.com). It includes a
-solar sail model with animated deployment by Sasquatch Marmalade, and
-a force model by Fractal_UK from the KSP Interstellar mod, which works
-during time warp. See License.md for the KSP Interstellar open source
-license. For the source code, go to:
-https://github.com/bld/SolarSailNavigator
+A sub-module of this project is called PersistentThrust and is
+licensed under the KSP Interstellar open source license. It includes:
+- Solar sail model with animated deployment by Sasquatch Marmalade
+- Force model by Fractal_UK from the KSP Interstellar mod that works
+  during time warp
+- Force model of continuous thrust engines that during time warp
+- Module Manager patch to the stock ion engine that reduces the thrust
+  to realistic levels while keeping power consumption the same
 
-This plugin adds two critical features needed to navigate a sail.
+The main plugin includes the modules SolarSailControlled and
+PersistentControlled, which provide controls to schedule the steering
+and throttle of the vessel, show what the future trajectory will look
+like, and show how close the vessel gets to a target at the end of the
+command schedule.
 
-1. Set the sail attitude to a reference frame that rotates with with
+For the source code, go to: https://github.com/bld/SolarSailNavigator
+
+This plugin adds critical features needed to navigate a solar sail or
+continuous thrust engine spacecraft:
+
+1. Set the vessel attitude to a reference frame that rotates with with
    the vessel as it orbits the sun. Specify two angles to point the
-   sail plus a duration in days. Add as many angle/angle/days
-   maneuvers as you like to make an attitude maneuver schedule. Time
-   warp ahead, and the plugin will set the vessel's
-   attitude. *WARNING:* Not recommended for planet centered orbits
-   yet. The current steering strategy is really geared towards the
-   center of gravity and sunlight being the same.
+   sail, throttle, and duration. Add as many angle/angle/throttle/time
+   maneuvers as you like to make a maneuver schedule. Time warp ahead,
+   and the plugin will set the vessel's attitude and throttle.
+   *WARNING:* Not recommended for planet centered orbits yet. The
+   current steering strategy is really geared towards the center of
+   gravity and sunlight being the same.
 2. Preview the future trajectory and what the final orbit looks like
    in map mode, so you can try to plot a trajectory to a planet or
-   other destination. Warp ahead, and watch the sail follow your
-   planned trajectory. The preview updates automatically as you change
-   the attitude maneuver schedule.
+   other destination. Select a target and see how far off course you
+   will be at the end of the command sequence. Warp ahead, and watch
+   the sail follow your planned trajectory. The preview updates
+   automatically as you change the command schedule.
 
 ** Usage
 
@@ -50,18 +69,21 @@ if you run out. But, that's cheating.
 You can deploy the sail on the launch pad to see how it will
 look. DON'T lock the attidue on the pad, unless you like explosions.
 
-*** Deployment
+*** Part GUI
 
-The sail can be deployed and stowed by right clicking on it. It will
-show how much thrust (Newtons) and acceleration (m/s^2) it experiences
-from sunlight. Once deployed, a "Sail Controls" window will appear.
+Right clicking on the solar sail or ion engine will show thrust,
+acceleration, and resource consumption (ion engine only). The sail has
+a "Deploy Sail" button that will make the sail extend or retract, and
+enable or disable it. A "Show Controls" button will display the
+navigation tool window.
 
-*** Attitude control
+*** Controls
 
 **** Lock Attitude
 There is a "Lock Attitude" toggle button. Clicking this will cause the
-attitude maneuver profile to be executed, forcing the sail to the
-specified attitude. This is needed to hold the attitude during time
+attitude maneuver profile to be executed, forcing the vessel to the
+specified attitude, and setting the throttle (for the ion
+engine). This is needed to hold the attitude and throttle during time
 warp.
 
 **** Start Time
@@ -97,16 +119,15 @@ orbit plane to change the orbit inclination. If the clock angle is 0
 degrees, the cone angle tilts the sail within the orbit plane. At
 +/-90 degrees, the cone angle tilts the sail out of the orbit plane.
 
-**** Days
-This is the number of days to perform the attitude maneuver. Click +/-
-to add/subtract one day, and +10/-10 to add/subtract 10 days.
+**** Throttle
+The throttle (for continuous thrust engines) will set the vessel
+throttle to the specified level from 0.00 to 1.00 in 0.05 increments
+for the duration of the command segment.
 
-**** Warp
-This is the warp factor to use in the calculations. Click "+" to cycle
-through all possible options. *WARNING:* Just leave it at the default
-100000, unless you know what you're doing. This works just fine for
-now long sun-centered orbits. Lowering this value can make the preview
-run way too slow.
+**** Days & Hours
+This is the time to perform the attitude maneuver. Click +/- to
+add/subtract one day, and +10/-10 to add/subtract 10 days. Click +/-
+next to "Hours" fine tune the duration.
 
 **** Color
 This shows the color of this attitude maneuver segment on the
@@ -124,13 +145,30 @@ Total seconds of the entire attitude maneuver sequence.
 
 *** Preview
 The "Show Preview" button makes the plugin calculate and render the
-future trajectory in map mode. The trajectory will be recalculate and
-drawn whenever you change the angles, durations, or number of
-maneuvers. This lets you incrementally change parameters and see the
-effect on the trajectory. Once you've built an attitude maneuver
+future trajectory in map mode. The trajectory will be recalculated and
+drawn whenever you change the angles, throttle, durations, or number
+of maneuvers. This lets you incrementally change parameters and see
+the effect on the trajectory. Once you've built an attitude maneuver
 sequence that puts your final orbit where you want to go, increase the
 time warp and watch the sail follow your trajectory. It will turn the
 sail to 90 degrees and stop sailing once completed.
+
+*** Final Orbit
+Select "Show Final Orbit" to draw the final orbit on the map. Select
+"Show Final Elements" to see the orbit elements of the final orbit.
+
+*** Target
+Select an object as a target in the map, and a line will be drawn
+between the end of your trajectory and the closest approach to the
+target. Select "Show Target Error" to see, in numbers, the distance
+and velocity to the target, and the difference in your final orbit
+elements with the target.
+
+** Required Plugins
+
+*** Module Manager
+Module Manager is required to patch the solar sail and ion engine
+parts to use all the features of this plugin.
 
 ** Helpful Plugins
 
@@ -146,24 +184,39 @@ trajectory, returning to realtime and 90 degrees at the end.
 
 Also see: TODO.org
 
-*** Lines
-Fixed size in game space. Should be fixed screen width like orbit
-lines.
-*** Warp factor
-Really should calculate sensible values without user intervention.
-*** Target
-Need tools to pick a target and show you how far off the sail's final
-orbit is, like the rocket maneuver planning tools in map mode do.
 *** Planet centered sailing
-Sailing around a planet is very different, because gravity and
-sunlight don't come from the same source. The plugin needs some tools
-to help lay out planet-centered trajectories for tasks like:
+Sailing around a planet is very different from the sun, because
+gravity and sunlight don't come from the same source. The plugin needs
+some tools to help lay out planet-centered trajectories for tasks
+like:
 - Sail to escape
 - Sail in from escape and capture
 - Orbit maneuvers around the planet
-*** Smaller time units
-Hours, minutes, and seconds for the duration of attitude maneuver
-segments. Just need a clean interface that isn't too cluttered.
+
+*** Muiltiple sails / engines
+The plugin only generates a preview for a single sail or continuous
+thrust engine. It needs to search the vessel at startup and use all
+active systems. The force model hasn't been tested using multiple
+sails or engines yet.
+
+*** Cone angle range
+Cone angles are limited to +/- 90 degrees, not +/- 180 deg.
+
+*** Other reference frames
+Only the sun-centric solar sailing reference frame of
+radial-tangential-normal is currently supported. Planet centered and
+continous thrust engines need more steering reference frame options.
+
+*** Precise navigation
+Continuous thrust trajectories are difficult to build manually. This
+tool will let you get pretty close with some work by varying angles,
+throttles, time, and perhaps periods where the sail or engine isn't
+thrusting. Chances are, you will get close, but not rendezvous with
+your target. It is recommended to have a secondary high thrust
+propulsion system to make the final orbit adjustments to capture into
+orbit or rendezvous with a target. Future improvements should have a
+"fine tuning" tool to automatically hone in on your target, using your
+manual trajectory as a starting point.
 
 ** Wish List
 
@@ -246,4 +299,4 @@ at 90 degrees and produce a little thrust.
 
 Get this plugin working with the sail to fly larger & smaller
 sails by scaling the surface area (square scale change).
-*** Make the plugin more generic to work with ion engines etc.
+
