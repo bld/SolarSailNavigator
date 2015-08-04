@@ -54,7 +54,7 @@ package: build ${SSFILES} ptpackage
 	mkdir -p package/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll package/SolarSailNavigator/Plugins/
 	cp -r Patches package/SolarSailNavigator
-	cp License.md README.org TODO.org CHANGELOG.org package/SolarSailNavigator/
+	cp LICENSE.txt README.org TODO.org CHANGELOG.org package/SolarSailNavigator/
 	cp -r PersistentThrust/package/PersistentThrust package/
 
 %.tgz:
