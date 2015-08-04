@@ -26,7 +26,8 @@ The main plugin includes the modules SolarSailControlled and
 PersistentControlled, which provide controls to schedule the steering
 and throttle of the vessel, show what the future trajectory will look
 like, and show how close the vessel gets to a target at the end of the
-command schedule.
+command schedule. The navigation system (everything outside
+PersistentThrust) is licensed under the LGPL (see LICENSE.txt)
 
 For the source code, go to: https://github.com/bld/SolarSailNavigator
 
