@@ -173,3 +173,4 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Radio
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
 * TODO Allow manually entering control numbers (angles/times)	    :FEATURE:
+* TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
