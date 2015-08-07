@@ -1,11 +1,12 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using PersistentThrust;
 
 namespace SolarSailNavigator {
 
-    public class PersistentControlled : PersistentEngine {
+    public class Navigator : PartModule {
 
 	// Attitude locked
 	[KSPField(isPersistant = true)]
@@ -27,6 +28,12 @@ namespace SolarSailNavigator {
 	// Persistent engine controls
 	public Controls controls;
 
+	// Engine part modules this controls
+	public List<PersistentEngine> engines;
+
+	// Solar sail part modules this controls
+	public List<SolarSailPart> sails;
+	
 	// Show controls
 	[KSPEvent(guiActive = true, guiName = "Show Controls", active = true)]
 	public void ShowControls() {
@@ -50,6 +57,17 @@ namespace SolarSailNavigator {
 	    
 	    if (state != StartState.None && state != StartState.Editor) {
 
+		// Find sails and persistent engines
+		foreach (Part p in vessel.parts) {
+		    foreach (PartModule pm in p.Modules) {
+			if (pm.ClassName == "SolarSailPart") {
+			    sails.Add((SolarSailPart)pm);
+			} else if (pm.ClassName == "PersistentEngine") {
+			    engines.Add((PersistentEngine)pm);
+			}
+		    }
+		}
+				
 		// Sail controls
 		controls = new Controls(this);
 		
@@ -79,6 +97,7 @@ namespace SolarSailNavigator {
 
 	    // Force attitude to specified frame & hold throttle
 	    if (FlightGlobals.fetch != null && IsLocked) {
+		// Set attitude
 		Control control = controls.Lookup(UT);
 		vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, UT));
 
@@ -90,9 +109,11 @@ namespace SolarSailNavigator {
 		    }
 		    // Warp mode
 		    else {
-			ThrottlePersistent = control.throttle;
-			ThrustPersistent = control.throttle * maxThrust;
-			IspPersistent = atmosphereCurve.Evaluate(0);
+			foreach (var e in engines) {
+			    e.ThrottlePersistent = control.throttle;
+			    e.ThrustPersistent = control.throttle * e.maxThrust;
+			    e.IspPersistent = e.atmosphereCurve.Evaluate(0);
+			}
 		    }
 		}
 	    }

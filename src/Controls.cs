@@ -17,6 +17,9 @@ namespace SolarSailNavigator {
 	// Throttle
 	public float throttle;
 	public string throttle_str;
+	// Sail on
+	//public bool sailOn;
+	//public string sailOn_str;
 	// Duration of steering maneuver
 	public double duration;
 	public string duration_str;
@@ -30,10 +33,10 @@ namespace SolarSailNavigator {
 	public double warp; // Warp factor
 	// Color
 	public Color color;
-	// Controls object this control is attached to
+	// Parent controls object
 	public Controls controls;
-	// Engine this controls
-	public PersistentControlled engine;
+	// Parent navigator object
+	public Navigator navigator;
 
 	// Static fields
 	public static float defaultCone = 90f;
@@ -109,6 +112,17 @@ namespace SolarSailNavigator {
 		controls.Update();
 	    }
 	}
+
+	// Sail on controls
+	/*
+	public void GUISailOn () {
+	    if (GUILayout.Toggle(sailOn, "Sail On") != sailOn) {
+		sailOn = !sailOn;
+		sailOn_str = sailOn.ToString();
+		controls.Update();
+	    }
+	}
+	*/
 	
 	// Time controls
 	public void GUITime () {
@@ -235,9 +249,9 @@ namespace SolarSailNavigator {
 
 	// Constructor
 
-	public Control(PersistentControlled engine, Controls controls, float cone, float clock, float throttle, double duration, int iwarp) {
-	    // Engine
-	    this.engine = engine;
+	public Control(Navigator navigator, Controls controls, float cone, float clock, float throttle, double duration, int iwarp) {
+	    // Navigator
+	    this.navigator = navigator;
 	    this.cone = cone;
 	    // Parent controls object
 	    this.controls = controls;
@@ -261,8 +275,8 @@ namespace SolarSailNavigator {
 	    warp = warpLevels[iwarp];
 	}
 
-	public static Control Default (PersistentControlled engine, Controls controls) {
-	    return new Control (engine, controls, defaultCone, defaultClock, defaultThrottle, defaultDuration, defaultiwarp);
+	public static Control Default (Navigator navigator, Controls controls) {
+	    return new Control (navigator, controls, defaultCone, defaultClock, defaultThrottle, defaultDuration, defaultiwarp);
 	}
     }
 
@@ -272,9 +286,9 @@ namespace SolarSailNavigator {
 
 	public int ncontrols;
 	public Control[] controls;
-	public PersistentControlled engine;
+	public Navigator navigator;
 	public double UT0;
-	public Control engineOff;
+	public Control navigatorOff;
 	double durationTotal;
 	public Color colorFinal;
 	public bool showPreview = false;
@@ -299,40 +313,40 @@ namespace SolarSailNavigator {
 
 	// Constructor
 
-	// Give the engine to which this control is for
-	public Controls (PersistentControlled engine) {
+	// Give the navigator to which this control is for
+	public Controls (Navigator navigator) {
 
-	    // Assign engine field
-	    this.engine = engine;
-	    Debug.Log(this.engine.ToString());
+	    // Assign navigator field
+	    this.navigator = navigator;
+	    Debug.Log(this.navigator.ToString());
 
 	    // Initial time
-	    if (engine.UT0 == 0) {
+	    if (navigator.UT0 == 0) {
 		UT0 = Planetarium.GetUniversalTime();
 	    } else {
-		UT0 = engine.UT0;
+		UT0 = navigator.UT0;
 	    }
 	    Debug.Log(UT0.ToString());
 
-	    // Off engine control
-	    engineOff = Control.Default(engine, this);
+	    // Off navigator control
+	    navigatorOff = Control.Default(navigator, this);
 
-	    // If the engine doesn't have saved controls, return default
-	    if (String.IsNullOrEmpty(engine.cones) ||
-		String.IsNullOrEmpty(engine.clocks) ||
-		String.IsNullOrEmpty(engine.throttles) ||
-		String.IsNullOrEmpty(engine.durations)) {
+	    // If the navigator doesn't have saved controls, return default
+	    if (String.IsNullOrEmpty(navigator.cones) ||
+		String.IsNullOrEmpty(navigator.clocks) ||
+		String.IsNullOrEmpty(navigator.throttles) ||
+		String.IsNullOrEmpty(navigator.durations)) {
 		ncontrols = 1;
 		controls = new Control[ncontrols];
-		controls[0] = Control.Default(engine, this);
+		controls[0] = Control.Default(navigator, this);
 
 	    } else { // Otherwise, parse saved controls
 
 		// Split into arrays
-		var coneStrings = engine.cones.Split(delimiter);
-		var clockStrings = engine.clocks.Split(delimiter);
-		var throttleStrings = engine.throttles.Split(delimiter);
-		var durationStrings = engine.durations.Split(delimiter);
+		var coneStrings = navigator.cones.Split(delimiter);
+		var clockStrings = navigator.clocks.Split(delimiter);
+		var throttleStrings = navigator.throttles.Split(delimiter);
+		var durationStrings = navigator.durations.Split(delimiter);
 
 		// Find number of controls
 		ncontrols = Math.Min(Math.Min(coneStrings.Length, clockStrings.Length), Math.Min(durationStrings.Length, throttleStrings.Length));
@@ -342,7 +356,7 @@ namespace SolarSailNavigator {
 
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
-		    controls[i] = new Control(engine,
+		    controls[i] = new Control(navigator,
 					      this,
 					      Control.ParseSingle(coneStrings[i]),
 					      Control.ParseSingle(clockStrings[i]),
@@ -353,7 +367,7 @@ namespace SolarSailNavigator {
 	    }
 
 	    // Preview
-	    preview = new Preview(engine);
+	    preview = new Preview(navigator);
 	}
 
 	// Convert length in meters to string with bigger units
@@ -381,7 +395,7 @@ namespace SolarSailNavigator {
 	    GUILayout.BeginVertical();
 
 	    // Lock/Unlock attitude
-	    engine.IsLocked = GUILayout.Toggle(engine.IsLocked, "Lock Attitude");
+	    navigator.IsLocked = GUILayout.Toggle(navigator.IsLocked, "Lock Attitude");
 
 	    // Set the initial time of the sequence
 	    GUILayout.BeginHorizontal();
@@ -533,7 +547,7 @@ namespace SolarSailNavigator {
 
 	// Controls GUI function
 	public void DrawControls () {
-	    if (engine.vessel == FlightGlobals.ActiveVessel)
+	    if (navigator.vessel == FlightGlobals.ActiveVessel)
 		controlWindowPos = GUILayout.Window(10, controlWindowPos, ControlsGUI, "Controls");
 	}
 	
@@ -543,7 +557,7 @@ namespace SolarSailNavigator {
 	    for(var i = 0; i < ncontrols; i++) {
 		newControls[i] = controls[i];
 	    }
-	    newControls[ncontrols] = Control.Default(engine, this);
+	    newControls[ncontrols] = Control.Default(navigator, this);
 	    controls = newControls;
 	    ncontrols++;
 	    colorFinal = colorMap[ncontrols % colorMap.Length];
@@ -574,24 +588,24 @@ namespace SolarSailNavigator {
 		    return control;
 		}
 	    }
-	    // If none found, return "engine off" control
-	    return engineOff;
+	    // If none found, return "navigator off" control
+	    return navigatorOff;
 	}
 
-	// Update the engine's persistant engine control fields
+	// Update the navigator's control fields
 	public void Update () {
 	    // Initial time
-	    engine.UT0 = UT0;
+	    navigator.UT0 = UT0;
 	    // Controls
-	    engine.cones = controls[0].cone_str;
-	    engine.clocks = controls[0].clock_str;
-	    engine.throttles = controls[0].throttle_str;
-	    engine.durations = controls[0].duration_str;
+	    navigator.cones = controls[0].cone_str;
+	    navigator.clocks = controls[0].clock_str;
+	    navigator.throttles = controls[0].throttle_str;
+	    navigator.durations = controls[0].duration_str;
 	    for (var i = 1; i < ncontrols; i++) {
-		engine.cones += delimiter + controls[i].cone_str;
-		engine.clocks += delimiter + controls[i].clock_str;
-		engine.throttles += delimiter + controls[i].throttle_str;
-		engine.durations += delimiter + controls[i].duration_str;
+		navigator.cones += delimiter + controls[i].cone_str;
+		navigator.clocks += delimiter + controls[i].clock_str;
+		navigator.throttles += delimiter + controls[i].throttle_str;
+		navigator.durations += delimiter + controls[i].duration_str;
 	    }
 	    preview.Calculate();
 	}
