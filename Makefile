@@ -7,9 +7,6 @@ MM	:= ${KSPDIR}/GameData/
 SSFILES	:= src/Navigator.cs \
 	src/Controls.cs \
 	src/Preview.cs \
-	src/SolarSailControlled.cs \
-	src/SailControls.cs \
-	src/SailPreview.cs \
 	src/Frames.cs
 GMCS	:= gmcs
 TAR	:= tar
@@ -53,8 +50,8 @@ build/%.dll: ${SSFILES}
 package: build ${SSFILES} ptpackage 
 	mkdir -p package/GameData/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll package/GameData/SolarSailNavigator/Plugins/
-	cp -r Patches package/GameData/SolarSailNavigator
 	cp LICENSE.txt README.org TODO.org CHANGELOG.org package/GameData/SolarSailNavigator/
+	cp -r Parts package/GameData/SolarSailNavigator/
 	cp -r PersistentThrust/package/PersistentThrust package/GameData/
 
 %.tgz:
@@ -73,8 +70,8 @@ clean: ptclean
 
 install: build ptinstall
 	mkdir -p "${KSPDIR}"/GameData/SolarSailNavigator/Plugins
+	cp -r Parts "${KSPDIR}"/GameData/SolarSailNavigator/
 	cp build/SolarSailNavigator.dll "${KSPDIR}"/GameData/SolarSailNavigator/Plugins/
-	cp -r Patches "${KSPDIR}"/GameData/SolarSailNavigator/
 
 uninstall: ptuninstall info
 	rm -rf "${KSPDIR}"/GameData/SolarSailNavigator/
