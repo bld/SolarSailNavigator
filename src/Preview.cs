@@ -112,13 +112,13 @@ namespace SolarSailNavigator {
 		    }
 
 		    // Local orientation of sail
-		    Quaternion Qsl = s.transform.localRotation;
+		    //Quaternion Qsl = s.transform.localRotation;
 
 		    // World orientation of sail
-		    Quaternion Qsw = sailFrame * Qsl;
+		    //Quaternion Qsw = sailFrame * Qsl;
 
 		    // Normal vector
-		    Vector3d n = Qsw * new Vector3d(0.0, 1.0, 0.0);
+		    Vector3d n = sailFrame * new Vector3d(0.0, 1.0, 0.0);
 
 		    // Force on sail
 		    Vector3d solarForce = SolarSailPart.CalculateSolarForce(s, orbit, n, UT) * sunlightFactor;
