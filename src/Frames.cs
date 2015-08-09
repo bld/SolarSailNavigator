@@ -19,17 +19,37 @@ namespace SolarSailNavigator {
 	    // QRTN
 	    return Quaternion.LookRotation(t, r);
 	}
-
-	// Sail frame in local (RTN) coordinates
-	public static Quaternion SailFrameLocal (float cone, float clock) {
-	    return Quaternion.Euler(0, 90 - clock, cone);
-	}
 	
+	public static Quaternion SailFrameLocal (float cone, float clock, float flatspin) {
+	    // Unit vectors (in Unity coordinate system)
+	    var r = new Vector3d(0, -1, 0); // radial
+	    //var t = new Vector3d(0, 0, 1); // tangential
+	    var n = new Vector3d(1, 0, 0); // orbit normal
+
+	    // Clock angle rotation
+	    var Qclock = Quaternion.AngleAxis(clock, r);
+	    var rclock = Qclock * r;
+	    //var tclock = Qclock * t;
+	    var nclock = Qclock * n;
+
+	    // Cone angle rotation
+	    var Qcone = Quaternion.AngleAxis(cone, nclock);
+	    var rcone = Qcone * rclock;
+	    //var tcone = Qcone * tclock;
+	    //var ncone = Qcone * nclock;
+	    
+	    // Flatspin rotation
+	    var Qfs = Quaternion.AngleAxis(flatspin, rcone);
+
+	    // Total quaternion
+	    return Qfs * Qcone * Qclock;
+	}
+
 	// Sail frame given an orbit, angles, and UT
-	public static Quaternion SailFrame (Orbit orbit, float cone, float clock, double UT) {
+	public static Quaternion SailFrame (Orbit orbit, float cone, float clock, float flatspin, double UT) {
 	    var QRTN = RTNFrame(orbit, UT);
-	    var QCC = SailFrameLocal(cone, clock);
-	    return QRTN * QCC;
+	    var QSL = SailFrameLocal(cone, clock, flatspin);
+	    return QRTN * QSL;
 	}
     }
 }

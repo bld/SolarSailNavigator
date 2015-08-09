@@ -21,6 +21,8 @@ namespace SolarSailNavigator {
 	[KSPField(isPersistant = true)]
 	public string clocks;
 	[KSPField(isPersistant = true)]
+	public string flatspins;
+	[KSPField(isPersistant = true)]
 	public string durations;
 	[KSPField(isPersistant = true)]
 	public string throttles;
@@ -99,7 +101,7 @@ namespace SolarSailNavigator {
 	    if (FlightGlobals.fetch != null && IsLocked) {
 		// Set attitude
 		Control control = controls.Lookup(UT);
-		vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, UT));
+		vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, control.flatspin, UT));
 
 		// Set throttle
 		if (isEnabled) {
