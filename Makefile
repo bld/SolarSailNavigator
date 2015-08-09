@@ -51,7 +51,7 @@ package: build ${SSFILES} ptpackage
 	mkdir -p package/GameData/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll package/GameData/SolarSailNavigator/Plugins/
 	cp LICENSE.txt README.org TODO.org CHANGELOG.org package/GameData/SolarSailNavigator/
-	cp -r Parts package/GameData/SolarSailNavigator/
+	cp -r Patches package/GameData/SolarSailNavigator/
 	cp -r PersistentThrust/package/PersistentThrust package/GameData/
 
 %.tgz:
@@ -70,7 +70,7 @@ clean: ptclean
 
 install: build ptinstall
 	mkdir -p "${KSPDIR}"/GameData/SolarSailNavigator/Plugins
-	cp -r Parts "${KSPDIR}"/GameData/SolarSailNavigator/
+	cp -r Patches "${KSPDIR}"/GameData/SolarSailNavigator/
 	cp build/SolarSailNavigator.dll "${KSPDIR}"/GameData/SolarSailNavigator/Plugins/
 
 uninstall: ptuninstall info
