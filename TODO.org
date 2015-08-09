@@ -174,9 +174,10 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Allow manually entering control numbers (angles/times)	    :FEATURE:
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
 * TODO Only allow showing of controls when sails and engines are found. :BUG:
-* TODO Patch pods with the navigator module [2/3] 		    :FEATURE:
+* TODO Patch pods with the navigator module [2/4] 		    :FEATURE:
 ** DONE Octo2
-** TODO Octo
 ** DONE RCS-001S
-* TODO Add flatspin control					:FEATURE:BUG:
+** TODO Octo
+** TODO Others
+* DONE Add flatspin control					:FEATURE:BUG:
   Solar panels mounted in a particular way may not get any sunlight during maneuvers
