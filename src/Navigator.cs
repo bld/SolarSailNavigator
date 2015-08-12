@@ -27,6 +27,9 @@ namespace SolarSailNavigator {
 	[KSPField(isPersistant = true)]
 	public string throttles;
 
+	// Are there any persistent engines or sails?
+	bool anyPersistent;
+	
 	// Persistent engine controls
 	public Controls controls;
 
@@ -70,12 +73,21 @@ namespace SolarSailNavigator {
 		    }
 		}
 				
-		// Sail controls
-		controls = new Controls(this);
-		
-		// Draw controls
-		if (IsControlled) {
-		    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
+		if (sails.Count > 0 || engines.Count > 0) {
+		    // Persistent propulsion found
+		    anyPersistent = true;
+		    
+		    // Sail controls
+		    controls = new Controls(this);
+		    
+		    // Draw controls
+		    if (IsControlled) {
+			RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
+		    }
+		} else {
+		    anyPersistent = false;
+		    Events["ShowControls"].active = false;
+		    Events["HideControls"].active = false;
 		}
 	    }
 	}
@@ -87,34 +99,39 @@ namespace SolarSailNavigator {
 	    base.OnUpdate();
 	    
 	    // Sail deployment GUI
-	    Events["ShowControls"].active = !IsControlled;
-	    Events["HideControls"].active = IsControlled;
+	    if (anyPersistent) {
+		Events["ShowControls"].active = !IsControlled;
+		Events["HideControls"].active = IsControlled;
+	    }
 	}
 
 	// Physics update
 	public override void OnFixedUpdate() {
 
-	    // Universal time
-	    double UT = Planetarium.GetUniversalTime();
-
-	    // Force attitude to specified frame & hold throttle
-	    if (FlightGlobals.fetch != null && IsLocked) {
-		// Set attitude
-		Control control = controls.Lookup(UT);
-		vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, control.flatspin, UT));
-
-		// Set throttle
-		if (isEnabled) {
-		    // Realtime mode
-		    if (!vessel.packed) {
-			vessel.ctrlState.mainThrottle = control.throttle;
-		    }
-		    // Warp mode
-		    else {
-			foreach (var e in engines) {
-			    e.ThrottlePersistent = control.throttle;
-			    e.ThrustPersistent = control.throttle * e.maxThrust;
-			    e.IspPersistent = e.atmosphereCurve.Evaluate(0);
+	    if (anyPersistent) {
+		
+		// Universal time
+		double UT = Planetarium.GetUniversalTime();
+		
+		// Force attitude to specified frame & hold throttle
+		if (FlightGlobals.fetch != null && IsLocked) {
+		    // Set attitude
+		    Control control = controls.Lookup(UT);
+		    vessel.SetRotation(Frames.SailFrame(vessel.orbit, control.cone, control.clock, control.flatspin, UT));
+		    
+		    // Set throttle
+		    if (isEnabled) {
+			// Realtime mode
+			if (!vessel.packed) {
+			    vessel.ctrlState.mainThrottle = control.throttle;
+			}
+			// Warp mode
+			else {
+			    foreach (var e in engines) {
+				e.ThrottlePersistent = control.throttle;
+				e.ThrustPersistent = control.throttle * e.maxThrust;
+				e.IspPersistent = e.atmosphereCurve.Evaluate(0);
+			    }
 			}
 		    }
 		}
@@ -124,7 +141,9 @@ namespace SolarSailNavigator {
 	    base.OnFixedUpdate();
 
 	    // Update preview trajectory if it exists
-	    controls.preview.Update(vessel);	    
+	    if (anyPersistent) {
+		controls.preview.Update(vessel);
+	    }
 	}
     }
 }
