@@ -76,4 +76,4 @@ install: build ptinstall
 uninstall: ptuninstall info
 	rm -rf "${KSPDIR}"/GameData/SolarSailNavigator/
 
-.PHONY : all info build package tar.gz zip clean install uninstall
+.PHONY : all info ptbuild build ptpackage package tar.gz zip ptclean clean ptinstall install ptuninstall uninstall
