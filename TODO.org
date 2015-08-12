@@ -166,9 +166,9 @@ extra CPU. May want a notification when the sequence is completed.
 ** DONE Final orbit
 ** DONE Preview
 * DONE Draw trajectory segment when throttle is 0			:BUG:
-* TODO Make "Navigation", "Preview", and "Controls" work for both sails and engines :FEATURE:
+* DONE Make "Navigation", "Preview", and "Controls" work for both sails and engines :FEATURE:
 * TODO Show time remaining of sequence (startTime - currentTime + duration) :FEATURE:
-* TODO Put navigator into a part that queries the vessel for persistent thrust parts :FEATURE:
+* DONE Put navigator into a part that queries the vessel for persistent thrust parts :FEATURE:
 * TODO Require navigation instruments [0/3]			   :WISHLIST:
 ** TODO Sun sensor (for sail)
 ** TODO Star tracker
@@ -177,14 +177,13 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Allow manually entering control numbers (angles/times)	    :FEATURE:
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
 * DONE Only allow showing of controls when sails and engines are found. :BUG:
-* TODO Patch pods with the navigator module [2/4] 		    :FEATURE:
+* TODO Patch pods with the navigator module [2/3] 		    :FEATURE:
 ** DONE Octo2
 ** DONE RCS-001S
-** TODO Octo
 ** TODO Others
 * DONE Add flatspin control					:FEATURE:BUG:
   Solar panels mounted in a particular way may not get any sunlight during maneuvers
-* TODO In preview, only calculate thrust of engines that aren't shutdown :BUG:
+* DONE In preview, only calculate thrust of engines that aren't shutdown :BUG:
 * TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/3] :FEATURE:
 ** TODO Create Frame class
 ** TODO Use Frame class parameters in Controls instead of hard coded values
@@ -194,4 +193,4 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Make TweakScale work with parts [0/2]
 ** TODO Solar sail
 ** TODO Ion engine
-
+* TODO Add "Sail On" control setting to deploy / retract all sails on the vessel for that segment :FEATURE:

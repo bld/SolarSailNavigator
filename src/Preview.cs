@@ -77,31 +77,35 @@ namespace SolarSailNavigator {
 		// Iterate over engines
 		foreach (var e in navigator.engines) {
 
-		    // Local orientation of engine
-		    //Quaternion Qel = e.transform.localRotation;
-		    
-		    // World orientation of engine
-		    //Quaternion Qew = sailFrame * Qel;
-		    
-		    // Up vector for thrust
-		    //Vector3d newup = Qew * new Vector3d(0.0, 1.0, 0.0);
-		    //Debug.Log("new up vector: " + newup.ToString());
-		    Vector3d up = sailFrame * new Vector3d(0.0, 1.0, 0.0);
-		    		    
-		    // Isp: Currently vacuum. TODO: calculate at current air pressure
-		    float isp = e.atmosphereCurve.Evaluate(0);
-		    
-		    // Thrust vector
-		    float thrust = throttle * e.maxThrust;
-		
-		    // DeltaV vector
-		    double mdot = thrust / (isp * 9.81); // Mass flow rate
-		    double dm = mdot * dT; // Change in mass
-		    dms += dm;
-		    double deltaV = isp * 9.81 * Math.Log(m0i / (m0i - dm)); // deltaV
-		    deltaVV += deltaV * up; // Increment deltaV vector
-		}
+		    // Only count thrust of engines that are not shut down in preview
+		    if (e.getIgnitionState) {
 
+			// Local orientation of engine
+			//Quaternion Qel = e.transform.localRotation;
+			
+			// World orientation of engine
+			//Quaternion Qew = sailFrame * Qel;
+			
+			// Up vector for thrust
+			//Vector3d newup = Qew * new Vector3d(0.0, 1.0, 0.0);
+			//Debug.Log("new up vector: " + newup.ToString());
+			Vector3d up = sailFrame * new Vector3d(0.0, 1.0, 0.0);
+			
+			// Isp: Currently vacuum. TODO: calculate at current air pressure
+			float isp = e.atmosphereCurve.Evaluate(0);
+			
+			// Thrust vector
+			float thrust = throttle * e.maxThrust;
+			
+			// DeltaV vector
+			double mdot = thrust / (isp * 9.81); // Mass flow rate
+			double dm = mdot * dT; // Change in mass
+			dms += dm;
+			double deltaV = isp * 9.81 * Math.Log(m0i / (m0i - dm)); // deltaV
+			deltaVV += deltaV * up; // Increment deltaV vector
+		    }
+		}
+		
 		// Iterate over sails
 		foreach (var s in navigator.sails) {
 
