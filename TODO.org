@@ -80,7 +80,7 @@ Currently need to manually click "Set to Now"
 ** Gimbaled boom to shift CM
 ** Realistic moments of inertia (i.e. BIG)
 ** IKAROS style thin film reflective control devices
-* TODO Automatic navigation
+* TODO Automatic navigation					    :FEATURE:
 ** Using manual navigation as initial guess, perform local optimization (e.g. gradient) to calculate cones/clocks/durations
 ** Orbital rendezvous
 *** Select target
@@ -89,7 +89,7 @@ Currently need to manually click "Set to Now"
 *** Allow execution of steering strategy
 ** Locally optimal steering strategies
 *** Maximize rate of change of one orbit element or combination of elements
-* TODO Sails on Rails [0/2]
+* TODO Sails on Rails [0/2]					    :FEATURE:
 ** Problem
 As currently designed KSP seems to run Kepler orbits when a spacecraft
 is not active.  Is there a way to keep the sail propagator running in
@@ -105,7 +105,7 @@ extra CPU. May want a notification when the sequence is completed.
 ** DONE sail EOM
 ** DONE sail EOM propagation
 ** DONE SailFrame
-* TODO Planet centered sailing [0/7]
+* TODO Planet centered sailing control laws [0/7] 		    :FEATURE:
   Orbit element control laws. See:
 *** http://strathprints.strath.ac.uk/6255/
 *** http://strathprints.strath.ac.uk/6252/
@@ -142,7 +142,10 @@ extra CPU. May want a notification when the sequence is completed.
 ** DONE Orbit element difference with target
 ** DONE Find & fix remaining bug of undefined variable
 *** target line object was null
-* TODO Make preview work for multiple sails/engines
+* TODO Make preview work for multiple sails/engines [0/3]	    :FEATURE:
+** TODO Engines
+** TODO Sails
+** TODO Sails and engines
 * TODO Disable/enable sails for a time segment
 ** Throttle already disables/enables engines
 * TODO Test functionality for multiple sails/engines
@@ -173,7 +176,7 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
 * TODO Allow manually entering control numbers (angles/times)	    :FEATURE:
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
-* TODO Only allow showing of controls when sails and engines are found. :BUG:
+* DONE Only allow showing of controls when sails and engines are found. :BUG:
 * TODO Patch pods with the navigator module [2/4] 		    :FEATURE:
 ** DONE Octo2
 ** DONE RCS-001S
@@ -181,3 +184,14 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Others
 * DONE Add flatspin control					:FEATURE:BUG:
   Solar panels mounted in a particular way may not get any sunlight during maneuvers
+* TODO In preview, only calculate thrust of engines that aren't shutdown :BUG:
+* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/3] :FEATURE:
+** TODO Create Frame class
+** TODO Use Frame class parameters in Controls instead of hard coded values
+** TODO Allow selection from a list of frames available
+* TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :FEATURE:WISHLIST:
+* TODO Preview should detect if another body's SOI will be entered on the current trajectory :BUG:
+* TODO Make TweakScale work with parts [0/2]
+** TODO Solar sail
+** TODO Ion engine
+
