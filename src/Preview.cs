@@ -25,7 +25,7 @@ namespace SolarSailNavigator {
 	
 	// Constructor & calculate
 
-	public void Propagate(Navigator navigator, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, float flatspin, float throttle, double m0in) {
+	public void Propagate(Navigator navigator, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, float flatspin, float throttle, bool sailon, double m0in) {
 
 	    // Update segment initial mass
 	    m0 = m0in;
@@ -107,31 +107,33 @@ namespace SolarSailNavigator {
 		}
 		
 		// Iterate over sails
-		foreach (var s in navigator.sails) {
-
-		    // Check if sail in sun
-		    double sunlightFactor = 1.0;
-		    if (!SolarSailPart.inSun(orbit, UT)) {
-			sunlightFactor = 0.0;
+		if (sailon) {
+		    foreach (var s in navigator.sails) {
+			
+			// Check if sail in sun
+			double sunlightFactor = 1.0;
+			if (!SolarSailPart.inSun(orbit, UT)) {
+			    sunlightFactor = 0.0;
+			}
+			
+			// Local orientation of sail
+			//Quaternion Qsl = s.transform.localRotation;
+			
+			// World orientation of sail
+			//Quaternion Qsw = sailFrame * Qsl;
+			
+			// Normal vector
+			Vector3d n = sailFrame * new Vector3d(0.0, 1.0, 0.0);
+			
+			// Force on sail
+			Vector3d solarForce = SolarSailPart.CalculateSolarForce(s, orbit, n, UT) * sunlightFactor;
+			
+			// Sail acceleration
+			Vector3d solarAccel = solarForce / m0i / 1000.0;
+			
+			// Update deltaVV
+			deltaVV += solarAccel * dT;
 		    }
-
-		    // Local orientation of sail
-		    //Quaternion Qsl = s.transform.localRotation;
-
-		    // World orientation of sail
-		    //Quaternion Qsw = sailFrame * Qsl;
-
-		    // Normal vector
-		    Vector3d n = sailFrame * new Vector3d(0.0, 1.0, 0.0);
-
-		    // Force on sail
-		    Vector3d solarForce = SolarSailPart.CalculateSolarForce(s, orbit, n, UT) * sunlightFactor;
-
-		    // Sail acceleration
-		    Vector3d solarAccel = solarForce / m0i / 1000.0;
-
-		    // Update deltaVV
-		    deltaVV += solarAccel * dT;
 		}
 
 		// Update starting mass for next time step
@@ -168,7 +170,7 @@ namespace SolarSailNavigator {
 	    dT = TimeWarp.fixedDeltaTime * control.warp;
 	    
 	    // Update preview orbits
-	    this.Propagate(navigator, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.flatspin, control.throttle, m0in);
+	    this.Propagate(navigator, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.flatspin, control.throttle, control.sailon, m0in);
 	    orbit0 = orbits[0];
 	    orbitf = orbits.Last();
 

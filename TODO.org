@@ -193,4 +193,9 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Make TweakScale work with parts [0/2]
 ** TODO Solar sail
 ** TODO Ion engine
-* TODO Add "Sail On" control setting to deploy / retract all sails on the vessel for that segment :FEATURE:
+* DONE Add "Sail On" control setting to deploy / retract all sails on the vessel for that segment [3/3] :FEATURE:
+** DONE Add controls to Control and Navigator objects
+** DONE Make work during realtime and warp sailing
+** DONE Make work in preview calculation
+* TODO Recalculate target line & error when new target selected		:BUG:
+* TODO Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:

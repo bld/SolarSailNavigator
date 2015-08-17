@@ -26,6 +26,8 @@ namespace SolarSailNavigator {
 	public string durations;
 	[KSPField(isPersistant = true)]
 	public string throttles;
+	[KSPField(isPersistant = true)]
+	public string sailons;
 
 	// Are there any persistent engines or sails?
 	bool anyPersistent;
@@ -131,6 +133,19 @@ namespace SolarSailNavigator {
 				e.ThrottlePersistent = control.throttle;
 				e.ThrustPersistent = control.throttle * e.maxThrust;
 				e.IspPersistent = e.atmosphereCurve.Evaluate(0);
+			    }
+			}
+		    }
+
+		    // Are sails in use?
+		    foreach (var s in sails) {
+			// Control's "sailon" changes relative to sail's "IsEnabled"
+			if (control.sailon != s.IsEnabled) {
+			    if (control.sailon) { // Sail on
+				s.DeploySail();
+			    }
+			    else { // Sail not on
+				s.RetractSail();
 			    }
 			}
 		    }

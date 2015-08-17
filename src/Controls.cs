@@ -21,8 +21,8 @@ namespace SolarSailNavigator {
 	public float throttle;
 	public string throttle_str;
 	// Sail on
-	//public bool sailOn;
-	//public string sailOn_str;
+	public bool sailon;
+	public string sailon_str;
 	// Duration of steering maneuver
 	public double duration;
 	public string duration_str;
@@ -46,6 +46,7 @@ namespace SolarSailNavigator {
 	public static float defaultClock = 0f;
 	public static float defaultFlatspin = 0f;
 	public static float defaultThrottle = 0f;
+	public static bool defaultSailon = true;
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
 	public static double SecondsPerMinute = 60.0;
@@ -119,6 +120,10 @@ namespace SolarSailNavigator {
 
 	// Throttle controls
 	public void GUIThrottle () {
+	    GUILayout.BeginVertical();
+
+	    // Throttle controls
+	    GUILayout.BeginHorizontal();
 	    GUILayout.Label(throttle_str, GUILayout.Width(30));
 	    if (GUILayout.Button("+")) {
 		throttle = (float)Math.Round(throttle + 0.05f, 2);
@@ -136,19 +141,18 @@ namespace SolarSailNavigator {
 		throttle_str = throttle.ToString();
 		controls.Update();
 	    }
-	}
+	    GUILayout.EndHorizontal();
 
-	// Sail on controls
-	/*
-	public void GUISailOn () {
-	    if (GUILayout.Toggle(sailOn, "Sail On") != sailOn) {
-		sailOn = !sailOn;
-		sailOn_str = sailOn.ToString();
+	    // Turn sail on/off for this segment
+	    if (GUILayout.Toggle(sailon, "Use Sails") != sailon) {
+		sailon = !sailon;
+		sailon_str = sailon.ToString();
 		controls.Update();
 	    }
+
+	    GUILayout.EndVertical();
 	}
-	*/
-	
+
 	// Time controls
 	public void GUITime () {
 
@@ -273,9 +277,19 @@ namespace SolarSailNavigator {
 	    }
 	}
 
+	// Parse a string to a bool
+	public static bool ParseBool (string str) {
+	    bool tmp;
+	    if (Boolean.TryParse(str, out tmp)) {
+		return tmp;
+	    } else {
+		return false;
+	    }
+	}
+	
 	// Constructor
 
-	public Control(Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, double duration, int iwarp) {
+	public Control(Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, bool sailon, double duration, int iwarp) {
 	    // Navigator
 	    this.navigator = navigator;
 	    // Parent controls object
@@ -290,6 +304,9 @@ namespace SolarSailNavigator {
 	    // Throttle
 	    throttle_str = throttle.ToString();
 	    this.throttle = throttle;
+	    // Sail on
+	    sailon_str = sailon.ToString();
+	    this.sailon = sailon;
 	    // Time
 	    this.duration = duration;
 	    this.days = Math.Floor(duration / SecondsPerDay);
@@ -304,7 +321,7 @@ namespace SolarSailNavigator {
 	}
 
 	public static Control Default (Navigator navigator, Controls controls) {
-	    return new Control (navigator, controls, defaultCone, defaultClock, defaultFlatspin, defaultThrottle, defaultDuration, defaultiwarp);
+	    return new Control(navigator, controls, defaultCone, defaultClock, defaultFlatspin, defaultThrottle, defaultSailon, defaultDuration, defaultiwarp);
 	}
     }
 
@@ -364,6 +381,7 @@ namespace SolarSailNavigator {
 		String.IsNullOrEmpty(navigator.clocks) ||
 		String.IsNullOrEmpty(navigator.flatspins) ||
 		String.IsNullOrEmpty(navigator.throttles) ||
+		String.IsNullOrEmpty(navigator.sailons) ||
 		String.IsNullOrEmpty(navigator.durations)) {
 		ncontrols = 1;
 		controls = new Control[ncontrols];
@@ -377,9 +395,10 @@ namespace SolarSailNavigator {
 		var flatspinStrings = navigator.flatspins.Split(delimiter);
 		var throttleStrings = navigator.throttles.Split(delimiter);
 		var durationStrings = navigator.durations.Split(delimiter);
+		var sailonStrings = navigator.sailons.Split(delimiter);
 
 		// Find number of controls
-		ncontrols = Math.Min(Math.Min(coneStrings.Length, clockStrings.Length), Math.Min(durationStrings.Length, Math.Min(flatspinStrings.Length, throttleStrings.Length)));
+		ncontrols = Math.Min(Math.Min(coneStrings.Length, clockStrings.Length), Math.Min(durationStrings.Length, Math.Min(flatspinStrings.Length, Math.Min(throttleStrings.Length, sailonStrings.Length))));
 
 		// Initialize controls array
 		controls = new Control[ncontrols];
@@ -392,6 +411,7 @@ namespace SolarSailNavigator {
 					      Control.ParseSingle(clockStrings[i]),
 					      Control.ParseSingle(flatspinStrings[i]),
 					      Control.ParseSingle(throttleStrings[i]),
+					      Control.ParseBool(sailonStrings[i]),
 					      Control.ParseDouble(durationStrings[i]),
 					      Control.defaultiwarp);
 		}
@@ -633,12 +653,14 @@ namespace SolarSailNavigator {
 	    navigator.clocks = controls[0].clock_str;
 	    navigator.flatspins = controls[0].flatspin_str;
 	    navigator.throttles = controls[0].throttle_str;
+	    navigator.sailons = controls[0].sailon_str;
 	    navigator.durations = controls[0].duration_str;
 	    for (var i = 1; i < ncontrols; i++) {
 		navigator.cones += delimiter + controls[i].cone_str;
 		navigator.clocks += delimiter + controls[i].clock_str;
 		navigator.flatspins += delimiter + controls[i].flatspin_str;
 		navigator.throttles += delimiter + controls[i].throttle_str;
+		navigator.sailons += delimiter + controls[i].sailon_str;
 		navigator.durations += delimiter + controls[i].duration_str;
 	    }
 	    preview.Calculate();
