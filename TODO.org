@@ -54,6 +54,14 @@
 ** DONE Add controls to Control and Navigator objects
 ** DONE Make work during realtime and warp sailing
 ** DONE Make work in preview calculation
+* DONE Test preview for multiple sails/engines [3/3]		    :FEATURE:
+** DONE Engines
+** DONE Sails
+** DONE Sails and engines
+* DONE Test realtime and timewarp functionality for multiple sails & engines [3/3] :FEATURE:
+** DONE Sails
+** DONE Engines
+** DONE Sails and engines
 * TODO Manual sail navigation [15/25]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -167,14 +175,6 @@ the background to allow command profiles to complete? This would use
 extra CPU. May want a notification when the sequence is completed.
 ** TODO Save preview trajectory to persistant variables
 ** TODO Set orbit state to that in the preview when you return to the spacecraft
-* TODO Test preview for multiple sails/engines [0/3]		    :FEATURE:
-** TODO Engines
-** TODO Sails
-** TODO Sails and engines
-* TODO Test realtime and timewarp functionality for multiple sails & engines [0/4] :FEATURE:
-** TODO Sails
-** TODO Engines
-** TODO Sails and engines
 * TODO Resize window when objects & text removed (e.g. when preview or target deselected)
 * TODO Show mass consumption for flight profile			    :FEATURE:
 * TODO Show mass consumption remaining				    :FEATURE:
@@ -203,3 +203,4 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Ion engine
 * TODO Recalculate target line & error when new target selected		:BUG:
 * TODO Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
+* TODO Chooser to select which sails and engines to use in this time segment :FEATURE:WISHLIST:
