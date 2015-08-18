@@ -62,6 +62,8 @@
 ** DONE Sails
 ** DONE Engines
 ** DONE Sails and engines
+* DONE Patch pods with the navigator module [2/3]		    :FEATURE:
+Patched all command pods
 * TODO Manual sail navigation [15/25]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -188,10 +190,6 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
 * TODO Allow manually entering control numbers (angles/times)	    :FEATURE:
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
-* TODO Patch pods with the navigator module [2/3] 		    :FEATURE:
-** DONE Octo2
-** DONE RCS-001S
-** TODO Others
 * TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/3] :FEATURE:
 ** TODO Create Frame class
 ** TODO Use Frame class parameters in Controls instead of hard coded values
