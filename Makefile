@@ -50,7 +50,7 @@ build/%.dll: ${SSFILES}
 package: build ${SSFILES} ptpackage 
 	mkdir -p package/GameData/SolarSailNavigator/Plugins
 	cp build/SolarSailNavigator.dll package/GameData/SolarSailNavigator/Plugins/
-	cp LICENSE.txt README.org TODO.org CHANGELOG.org package/GameData/SolarSailNavigator/
+	cp LICENSE.txt README.org TODO.org CHANGELOG.org ISSUES.org package/GameData/SolarSailNavigator/
 	cp -r Patches package/GameData/SolarSailNavigator/
 	cp -r PersistentThrust/package/PersistentThrust package/GameData/
 
