@@ -23,3 +23,8 @@ Initial Release
 **** Other reference frames for steering
 **** Multiple sails/engines
 **** Propagation of the trajectory while not focused on the vessel
+** v1.0.4
+*** Navigation controls now attached to a part on the spacecraft, instead of the propulsion system, and controls all continuous thrust parts on the vessel.
+*** Realtime, timewarp, and navigation preview tested to work for multiple sails and persistent thrust engines.
+*** "Use Sail" control added to retract or deploy the sail for specified command segments.
+*** 3rd control angle "Flatspin" added to rotate spacecraft about its thrust axis to keep parts (e.g. solar panels) aligned as needed.
