@@ -42,14 +42,14 @@ namespace SolarSailNavigator {
 	public List<SolarSailPart> sails;
 	
 	// Show controls
-	[KSPEvent(guiActive = true, guiName = "Show Controls", active = true)]
+	[KSPEvent(guiActive = true, guiName = "Show Navigator Controls", active = true)]
 	public void ShowControls() {
 	    IsControlled = true;
 	    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 
 	// Hide controls
-	[KSPEvent(guiActive = true, guiName = "Hide Controls", active = false)]
+	[KSPEvent(guiActive = true, guiName = "Hide Navigator Controls", active = false)]
 	public void HideControls() {
 	    // Remove control window
 	    IsControlled = false;
