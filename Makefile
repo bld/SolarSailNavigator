@@ -48,11 +48,17 @@ build/%.dll: ${SSFILES}
 		${SSFILES}
 
 package: build ${SSFILES} ptpackage 
-	mkdir -p package/GameData/SolarSailNavigator/Plugins
-	cp build/SolarSailNavigator.dll package/GameData/SolarSailNavigator/Plugins/
-	cp LICENSE.txt README.org TODO.org CHANGELOG.org ISSUES.org package/GameData/SolarSailNavigator/
-	cp -r Patches package/GameData/SolarSailNavigator/
-	cp -r PersistentThrust/package/PersistentThrust package/GameData/
+	mkdir -p package/SolarSailNavigator/Plugins
+	cp build/SolarSailNavigator.dll package/SolarSailNavigator/Plugins/
+	cp LICENSE.txt README.org TODO.org CHANGELOG.org ISSUES.org package/SolarSailNavigator/
+	cp -r Patches package/SolarSailNavigator/
+	cp -r PersistentThrust/package/PersistentThrust package/SolarSailNavigator
+	cp -r package/SolarSailNavigator/PersistentThrust/Plugins package/SolarSailNavigator
+	rm -r package/SolarSailNavigator/PersistentThrust/Plugins
+	cp -r package/SolarSailNavigator/PersistentThrust/Parts package/SolarSailNavigator
+	rm -r package/SolarSailNavigator/PersistentThrust/Parts
+	cp -r package/SolarSailNavigator/PersistentThrust/Patches package/SolarSailNavigator
+	rm -r package/SolarSailNavigator/PersistentThrust/Patches
 
 %.tgz:
 	cd package; ${TAR} zcf ../$@ GameData
@@ -60,7 +66,7 @@ package: build ${SSFILES} ptpackage
 tgz: package SolarSailNavigator.tgz
 
 %.zip:
-	cd package; ${ZIP} -9 -r ../$@ GameData
+	cd package; ${ZIP} -9 -r ../$@ SolarSailNavigator
 
 zip: package SolarSailNavigator.zip
 
