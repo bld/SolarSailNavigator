@@ -74,10 +74,8 @@ clean: ptclean
 	@echo "Cleaning up build and package directories..."
 	rm -rf build/ package/
 
-install: build ptinstall
-	mkdir -p "${KSPDIR}"/GameData/SolarSailNavigator/Plugins
-	cp -r Patches "${KSPDIR}"/GameData/SolarSailNavigator/
-	cp build/SolarSailNavigator.dll "${KSPDIR}"/GameData/SolarSailNavigator/Plugins/
+install: package
+	cp -r package/SolarSailNavigator "${KSPDIR}"/GameData/
 
 uninstall: ptuninstall info
 	rm -rf "${KSPDIR}"/GameData/SolarSailNavigator/
