@@ -60,16 +60,16 @@ namespace SolarSailNavigator {
 	    GUILayout.Label(cone_str, GUILayout.Width(30));
 	    if (GUILayout.Button("+")) {
 		cone += 5;
-		if (cone > 90) {
-		    cone = cone - 180;
+		if (cone > 180) {
+		    cone = cone - 360;
 		}
 		cone_str = cone.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
 		cone -= 5;
-		if (cone < -90) {
-		    cone = cone + 180;
+		if (cone < -180) {
+		    cone = cone + 360;
 		}
 		cone_str = cone.ToString();
 		controls.Update();

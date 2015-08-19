@@ -64,7 +64,7 @@
 ** DONE Sails and engines
 * DONE Patch pods with the navigator module [2/3]		    :FEATURE:
 Patched all command pods
-* TODO Manual sail navigation [15/25]
+* TODO Manual sail navigation [16/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -92,7 +92,7 @@ Patched all command pods
 **** DONE +/-
 *** TODO Minutes
 *** TODO Seconds
-** TODO Allow +/-180 deg cone angles
+** DONE Allow +/-180 deg cone angles
 ** DONE Draw fewer segments in preview
 *** Condition to sample? Period of orbit0, divide by 360, sample when elapsed time exceeds?
 *** Or... calculate period with each new perturbed orbit
