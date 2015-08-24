@@ -198,7 +198,7 @@ namespace SolarSailNavigator {
 
 	// Update segment during renders
 
-	public void Update(Vessel vessel) {
+	public void Update (Vessel vessel) {
 	    if (line != null) {
 		// Enable only on map
 		if (MapView.MapIsEnabled) {
