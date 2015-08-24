@@ -64,7 +64,7 @@
 ** DONE Sails and engines
 * DONE Patch pods with the navigator module [2/3]		    :FEATURE:
 Patched all command pods
-* TODO Manual sail navigation [16/24]
+* TODO Manual sail navigation [17/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
 ** DONE Collect intermediate points
@@ -83,7 +83,11 @@ Patched all command pods
 ** DONE Update preview when controls updated [2/2]
 *** DONE Add toggle button to show preview or not
 *** DONE Calculate when controls updated
-** TODO Add/remove controls anywhere in sequence
+** DONE Add/remove controls anywhere in sequence [4/4]
+*** DONE Turn "controls" parameter of Controls class into a List<Control>
+*** DONE INS/DEL buttons on each GUILine
+*** DONE INS/DEL buttons deletes or inserts a new Control in the Controls.controls list at that point
+*** DONE "Add" button at end
 ** TODO Other time unit choices [2/4]
 *** DONE Days [2/2]
 **** DONE +/-
@@ -196,9 +200,11 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Allow selection from a list of frames available
 * TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :FEATURE:WISHLIST:
 * TODO Preview should detect if another body's SOI will be entered on the current trajectory :BUG:
-* TODO Make TweakScale work with parts [0/2]
+* TODO Make TweakScale work with parts [0/2]			    :FEATURE:
 ** TODO Solar sail
 ** TODO Ion engine
 * TODO Recalculate target line & error when new target selected		:BUG:
 * TODO Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
 * TODO Chooser to select which sails and engines to use in this time segment :FEATURE:WISHLIST:
+* TODO Trajectory not redrawn with new segment when "Add" button clicked :BUG:
+* TODO Show/Hide control button on screen instead of in control module :FEATURE:WISHLIST:

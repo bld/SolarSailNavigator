@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using PersistentThrust;
@@ -234,7 +236,7 @@ namespace SolarSailNavigator {
 	}
 	
 	// GUI line
-	public void GUILine (Color color) {
+	public void GUILine (Color color, int i) {
 	    GUILayout.BeginHorizontal();
 
 	    GUICone();
@@ -244,6 +246,10 @@ namespace SolarSailNavigator {
 	    GUITime();
 	    GUIColor(color);
 
+	    // Add/Remove buttons
+	    if (GUILayout.Button("INS")) { controls.Add(i); };
+	    if (GUILayout.Button("DEL")) { controls.Remove(i); };
+ 
 	    GUILayout.EndHorizontal();
 	}
 	
@@ -330,7 +336,7 @@ namespace SolarSailNavigator {
 	// Fields
 
 	public int ncontrols;
-	public Control[] controls;
+	public List<Control> controls;
 	public Navigator navigator;
 	public double UT0;
 	public Control navigatorOff;
@@ -384,8 +390,8 @@ namespace SolarSailNavigator {
 		String.IsNullOrEmpty(navigator.sailons) ||
 		String.IsNullOrEmpty(navigator.durations)) {
 		ncontrols = 1;
-		controls = new Control[ncontrols];
-		controls[0] = Control.Default(navigator, this);
+		controls = new List<Control>();
+		controls.Add(Control.Default(navigator, this));
 
 	    } else { // Otherwise, parse saved controls
 
@@ -401,19 +407,19 @@ namespace SolarSailNavigator {
 		ncontrols = Math.Min(Math.Min(coneStrings.Length, clockStrings.Length), Math.Min(durationStrings.Length, Math.Min(flatspinStrings.Length, Math.Min(throttleStrings.Length, sailonStrings.Length))));
 
 		// Initialize controls array
-		controls = new Control[ncontrols];
+		controls = new List<Control>();
 
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
-		    controls[i] = new Control(navigator,
-					      this,
-					      Control.ParseSingle(coneStrings[i]),
-					      Control.ParseSingle(clockStrings[i]),
-					      Control.ParseSingle(flatspinStrings[i]),
-					      Control.ParseSingle(throttleStrings[i]),
-					      Control.ParseBool(sailonStrings[i]),
-					      Control.ParseDouble(durationStrings[i]),
-					      Control.defaultiwarp);
+		    controls.Add(new Control(navigator,
+					     this,
+					     Control.ParseSingle(coneStrings[i]),
+					     Control.ParseSingle(clockStrings[i]),
+					     Control.ParseSingle(flatspinStrings[i]),
+					     Control.ParseSingle(throttleStrings[i]),
+					     Control.ParseBool(sailonStrings[i]),
+					     Control.ParseDouble(durationStrings[i]),
+					     Control.defaultiwarp));
 		}
 	    }
 
@@ -466,14 +472,18 @@ namespace SolarSailNavigator {
 	    GUILayout.Label("Days", GUILayout.Width(120));
 	    GUILayout.Label("Hours", GUILayout.Width(65));
 	    GUILayout.Label("Color", GUILayout.Width(30));
+	    GUILayout.Label("", GUILayout.Width(80));
 	    GUILayout.EndHorizontal();
 
 	    int icolor = 0;
 	    durationTotal = 0.0;
-	    foreach(var control in controls) {
+	    //foreach(var control in controls) {
+	    for (var i = 0; i < ncontrols; i++) {
 
+		var control = controls[i];
+		
 		// Draw individual GUIs
-		control.GUILine(colorMap[icolor]);
+		control.GUILine(colorMap[icolor], i);
 		
 		// Update total duration
 		durationTotal += control.duration;
@@ -484,24 +494,12 @@ namespace SolarSailNavigator {
 		    icolor = 0;
 		}
 	    }
-	    
-	    // Add/remove control segments
-	    GUILayout.BeginHorizontal();
-	    if (GUILayout.Button("Add")) { Add(); };
-	    if (GUILayout.Button("Remove")) { Remove(); };
-	    GUILayout.EndHorizontal();
 
+	    // Add a control to end
+	    if (GUILayout.Button("Add")) { Add(controls.Count); };
+	    
 	    // Final orbit color
 	    colorFinal = colorMap[icolor];
-	    var cstyle = new GUIStyle();
-	    var ctx = new Texture2D(1, 1);
-	    cstyle.normal.background = ctx;
-	    ctx.SetPixel(1,1,colorFinal);
-	    ctx.Apply();
-	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("Final orbit color: ");
-	    GUILayout.Label(" ", cstyle);
-	    GUILayout.EndHorizontal();
 
 	    // Total duration of sequences
 	    GUILayout.Label("Duration: " + durationTotal + " sec");
@@ -519,10 +517,25 @@ namespace SolarSailNavigator {
 	    // If preview turned on
 	    if (showPreview) {
 		// Show final orbit
+		GUILayout.BeginHorizontal();
 		if (GUILayout.Toggle(showFinal, "Show Final Orbit") != showFinal) {
 		    showFinal = !showFinal;
 		    preview.linef.enabled = showFinal;
+
 		}
+		// Final orbit color
+		if (showFinal) {
+		    //colorFinal = colorMap[icolor];
+		    var cstyle = new GUIStyle();
+		    var ctx = new Texture2D(1, 1);
+		    cstyle.normal.background = ctx;
+		    ctx.SetPixel(1,1,colorFinal);
+		    ctx.Apply();
+		    GUILayout.Label("Final orbit color: ");
+		    GUILayout.Label(" ", cstyle);
+		}
+		GUILayout.EndHorizontal();
+
 		// Final elements
 		GUILayout.BeginHorizontal();
 		if (GUILayout.Toggle(showFinalElements, "Show Final Elements") != showFinalElements) {
@@ -604,27 +617,18 @@ namespace SolarSailNavigator {
 	}
 	
 	// Add a control
-	public void Add () {
-	    var newControls = new Control[ncontrols + 1];
-	    for(var i = 0; i < ncontrols; i++) {
-		newControls[i] = controls[i];
-	    }
-	    newControls[ncontrols] = Control.Default(navigator, this);
-	    controls = newControls;
-	    ncontrols++;
+	public void Add (int i) {
+	    controls.Insert(i, Control.Default(navigator, this));
+	    ncontrols = controls.Count;
 	    colorFinal = colorMap[ncontrols % colorMap.Length];
 	    Update();
 	}
 	
 	// Remove a control
-	public void Remove () {
+	public void Remove (int i) {
 	    if (ncontrols > 1) { // Don't remove last control
-		var newControls = new Control[ncontrols - 1];
-		for (var i = 0; i < ncontrols - 1; i++) {
-		    newControls[i] = controls[i];
-		}
-		controls = newControls;
-		ncontrols--;
+		controls.RemoveAt(i);
+		ncontrols = controls.Count;
 		colorFinal = colorMap[ncontrols % colorMap.Length];
 		Update();
 	    }
