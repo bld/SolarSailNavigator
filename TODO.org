@@ -192,7 +192,10 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Star tracker
 ** TODO Radio
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
-* TODO Allow manually entering control numbers (angles/times)	    :FEATURE:
+* TODO Allow manually entering control numbers (angles/times) [0/3] :FEATURE:
+** TODO Angles
+** TODO Throttle
+** TODO Times
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
 * TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/3] :FEATURE:
 ** TODO Create Frame class
