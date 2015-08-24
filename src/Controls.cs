@@ -56,23 +56,36 @@ namespace SolarSailNavigator {
 	public static double defaultDuration = 10 * SecondsPerDay;
 	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
 	public static int defaultiwarp = 10;
+
+	// Normalize angles between -180 and 180 degrees
+	public float normalizeAngle (float angle) {
+	    if (angle < -180 || angle > 180) {
+		return (angle + 180.0f) % 360.0f - 180.0f;
+	    } else {
+		return angle;
+	    }
+	}
 	
 	// Cone controls
 	public void GUICone () {
-	    GUILayout.Label(cone_str, GUILayout.Width(30));
-	    if (GUILayout.Button("+")) {
-		cone += 5;
-		if (cone > 180) {
-		    cone = cone - 360;
+	    // Text field
+	    string new_str = GUILayout.TextField(cone_str, GUILayout.Width(30));
+	    if (new_str != cone_str) {
+		cone_str = new_str;
+		float parsedValue;
+		if (Single.TryParse(cone_str, out parsedValue)) {
+		    cone = normalizeAngle(parsedValue);
+		    controls.Update();
 		}
+	    }
+	    // +/- buttons
+	    if (GUILayout.Button("+")) {
+		cone = normalizeAngle(cone + 5);
 		cone_str = cone.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
-		cone -= 5;
-		if (cone < -180) {
-		    cone = cone + 360;
-		}
+		cone = normalizeAngle(cone - 5);
 		cone_str = cone.ToString();
 		controls.Update();
 	    }
@@ -80,20 +93,24 @@ namespace SolarSailNavigator {
 
 	// Clock controls
 	public void GUIClock () {
-	    GUILayout.Label(clock_str, GUILayout.Width(30));
-	    if (GUILayout.Button("+")) {
-		clock += 5;
-		if (clock > 180) {
-		    clock = clock - 360;
+	    // Text field
+	    string new_str = GUILayout.TextField(clock_str, GUILayout.Width(30));
+	    if (new_str != clock_str) {
+		clock_str = new_str;
+		float parsedValue;
+		if (Single.TryParse(clock_str, out parsedValue)) {
+		    clock = normalizeAngle(parsedValue);
+		    controls.Update();
 		}
+	    }
+	    // +/- buttons
+	    if (GUILayout.Button("+")) {
+		clock = normalizeAngle(clock + 5);
 		clock_str = clock.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
-		clock -= 5;
-		if (clock < -180) {
-		    clock = 360 + clock;
-		}
+		clock = normalizeAngle(clock - 5);
 		clock_str = clock.ToString();
 		controls.Update();
 	    }
@@ -101,20 +118,24 @@ namespace SolarSailNavigator {
 
 	// Flatspin controls
 	public void GUIFlatspin () {
-	    GUILayout.Label(flatspin_str, GUILayout.Width(30));
-	    if (GUILayout.Button("+")) {
-		flatspin += 5;
-		if (flatspin > 180) {
-		    flatspin = flatspin - 360;
+	    // Text field
+	    string new_str = GUILayout.TextField(flatspin_str, GUILayout.Width(30));
+	    if (new_str != flatspin_str) {
+		flatspin_str = new_str;
+		float parsedValue;
+		if (Single.TryParse(flatspin_str, out parsedValue)) {
+		    flatspin = normalizeAngle(parsedValue);
+		    controls.Update();
 		}
+	    }
+	    // +/- buttons
+	    if (GUILayout.Button("+")) {
+		flatspin = normalizeAngle(flatspin + 5);
 		flatspin_str = flatspin.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
-		flatspin -= 5;
-		if (flatspin < -180) {
-		    flatspin = 360 + flatspin;
-		}
+		flatspin = normalizeAngle(flatspin - 5);
 		flatspin_str = flatspin.ToString();
 		controls.Update();
 	    }
@@ -653,19 +674,19 @@ namespace SolarSailNavigator {
 	    // Initial time
 	    navigator.UT0 = UT0;
 	    // Controls
-	    navigator.cones = controls[0].cone_str;
-	    navigator.clocks = controls[0].clock_str;
-	    navigator.flatspins = controls[0].flatspin_str;
-	    navigator.throttles = controls[0].throttle_str;
-	    navigator.sailons = controls[0].sailon_str;
-	    navigator.durations = controls[0].duration_str;
+	    navigator.cones = controls[0].cone.ToString();
+	    navigator.clocks = controls[0].clock.ToString();
+	    navigator.flatspins = controls[0].flatspin.ToString();
+	    navigator.throttles = controls[0].throttle.ToString();
+	    navigator.sailons = controls[0].sailon.ToString();
+	    navigator.durations = controls[0].duration.ToString();
 	    for (var i = 1; i < ncontrols; i++) {
-		navigator.cones += delimiter + controls[i].cone_str;
-		navigator.clocks += delimiter + controls[i].clock_str;
-		navigator.flatspins += delimiter + controls[i].flatspin_str;
-		navigator.throttles += delimiter + controls[i].throttle_str;
-		navigator.sailons += delimiter + controls[i].sailon_str;
-		navigator.durations += delimiter + controls[i].duration_str;
+		navigator.cones += delimiter + controls[i].cone.ToString();
+		navigator.clocks += delimiter + controls[i].clock.ToString();
+		navigator.flatspins += delimiter + controls[i].flatspin.ToString();
+		navigator.throttles += delimiter + controls[i].throttle.ToString();
+		navigator.sailons += delimiter + controls[i].sailon.ToString();
+		navigator.durations += delimiter + controls[i].duration.ToString();
 	    }
 	    preview.Calculate();
 	}
