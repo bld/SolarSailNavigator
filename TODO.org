@@ -64,6 +64,22 @@
 ** DONE Sails and engines
 * DONE Patch pods with the navigator module [2/3]		    :FEATURE:
 Patched all command pods
+* DONE If engine enabled and operational but not staged, OnFixedUpdate() doesn't run :BUG:
+Add to PersistentEngine:
+[KSPField(isPersistant = true)]
+bool IsForceActivated;
+
+public override void OnUpdate()
+{
+      // exisiting code
+
+      if (!IsForceActivated && isEnabled && isOperational)
+      {
+             IsForceActivated = true;
+             part.force_activate();
+      }
+}
+* DONE Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
 * TODO Manual sail navigation [17/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -210,7 +226,18 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Solar sail
 ** TODO Ion engine
 * TODO Recalculate target line & error when new target selected		:BUG:
-* DONE Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
 * TODO Chooser to select which sails and engines to use in this time segment :FEATURE:WISHLIST:
 * TODO Trajectory not redrawn with new segment when "Add" button clicked :BUG:
-* TODO Show/Hide control button on screen instead of in control module :FEATURE:WISHLIST:
+Toggle "Show Preview" to redraw
+* TODO Toolbar to Show/Hide controls instead of in control module :FEATURE:WISHLIST:
+* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [0/2] :BUG:
+** TODO Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
+** TODO Make it work
+* TODO With solar electric ion engine spacecraft, batteries deplete in high timewarp, even though the panels generate enough ElectricCharge [1/2] :BUG:
+** DONE Temporarily bypass by turning off resource request and depletion
+** TODO Fix
+* TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
+Default Flatspin for all control sequences?
+* TODO Navigator default settings [0/1] 			    :FEATURE:
+** TODO Reference frame and angles
+* TODO ThrustPersistent should use engine's finalThrust to be correct 	:BUG:
