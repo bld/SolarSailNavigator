@@ -10,6 +10,8 @@ namespace SolarSailNavigator {
     public class Control {
 
 	// Fields
+	// Reference frame
+	public Frame frame;
 	// Cone Angle
 	public float cone;
 	public string cone_str;
@@ -316,11 +318,13 @@ namespace SolarSailNavigator {
 	
 	// Constructor
 
-	public Control(Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, bool sailon, double duration, int iwarp) {
+	public Control(Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, bool sailon, double duration, int iwarp, string frame) {
 	    // Navigator
 	    this.navigator = navigator;
 	    // Parent controls object
 	    this.controls = controls;
+	    // Reference frame for control angles
+	    this.frame = Frame.Frames["RTN"];
 	    // Angles
 	    this.cone = cone;
 	    cone_str = cone.ToString();
@@ -348,7 +352,7 @@ namespace SolarSailNavigator {
 	}
 
 	public static Control Default (Navigator navigator, Controls controls) {
-	    return new Control(navigator, controls, defaultCone, defaultClock, defaultFlatspin, defaultThrottle, defaultSailon, defaultDuration, defaultiwarp);
+	    return new Control(navigator, controls, defaultCone, defaultClock, defaultFlatspin, defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, "RTN");
 	}
     }
 
@@ -440,7 +444,8 @@ namespace SolarSailNavigator {
 					     Control.ParseSingle(throttleStrings[i]),
 					     Control.ParseBool(sailonStrings[i]),
 					     Control.ParseDouble(durationStrings[i]),
-					     Control.defaultiwarp));
+					     Control.defaultiwarp,
+					     "RTN"));
 		}
 	    }
 

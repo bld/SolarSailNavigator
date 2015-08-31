@@ -16,18 +16,27 @@ namespace SolarSailNavigator {
 	public bool IsControlled = false;
 	[KSPField(isPersistant = true)]
 	public double UT0;
-	[KSPField(isPersistant = true)]
+	// Control parameters by segment
+	[KSPField(isPersistant = true)] // Cone angles
 	public string cones;
-	[KSPField(isPersistant = true)]
+	[KSPField(isPersistant = true)] // Clock angles
 	public string clocks;
-	[KSPField(isPersistant = true)]
+	[KSPField(isPersistant = true)] // Flatspin angles
 	public string flatspins;
-	[KSPField(isPersistant = true)]
+	[KSPField(isPersistant = true)] // Duration in seconds
 	public string durations;
-	[KSPField(isPersistant = true)]
+	[KSPField(isPersistant = true)] // Throttle
 	public string throttles;
-	[KSPField(isPersistant = true)]
+	[KSPField(isPersistant = true)] // Is sail on?
 	public string sailons;
+	[KSPField(isPersistant = true)] // Steering frame
+	public string frames;
+	[KSPField(isPersistant = true)] // angles[0]
+	public string angles0;
+	[KSPField(isPersistant = true)] // angles[1]
+	public string angles1;
+	[KSPField(isPersistant = true)] // angles[2]
+	public string angles2;
 
 	// Are there any persistent engines or sails?
 	bool anyPersistent;

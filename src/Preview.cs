@@ -25,8 +25,16 @@ namespace SolarSailNavigator {
 	
 	// Constructor & calculate
 
-	public void Propagate(Navigator navigator, Orbit orbit0, double UT0, double UTf, double dT, float cone, float clock, float flatspin, float throttle, bool sailon, double m0in) {
+	public void Propagate(Navigator navigator, Orbit orbit0, double UT0, double UTf, double dT, Control control, double m0in) {
 
+	    // Control parameters
+	    var cone = control.cone;
+	    var clock = control.clock;
+	    var flatspin = control.flatspin;
+	    var throttle = control.throttle;
+	    var sailon = control.sailon;
+	    var frame = control.frame;
+	    
 	    // Update segment initial mass
 	    m0 = m0in;
 	    
@@ -66,7 +74,9 @@ namespace SolarSailNavigator {
 		}
 		
 		// Spacecraft reference frame
-		Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, flatspin, UT);
+		//Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, flatspin, UT);
+		var angles = new float[] {cone, clock, flatspin};
+		Quaternion sailFrame = frame.qfn(orbit, UT, angles);
 
 		// Total deltaV vector
 		Vector3d deltaVV = new Vector3d(0.0, 0.0, 0.0);
@@ -170,7 +180,7 @@ namespace SolarSailNavigator {
 	    dT = TimeWarp.fixedDeltaTime * control.warp;
 	    
 	    // Update preview orbits
-	    this.Propagate(navigator, orbitInitial, UT0, UTf, dT, control.cone, control.clock, control.flatspin, control.throttle, control.sailon, m0in);
+	    this.Propagate(navigator, orbitInitial, UT0, UTf, dT, control, m0in);
 	    orbit0 = orbits[0];
 	    orbitf = orbits.Last();
 
