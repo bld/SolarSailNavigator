@@ -142,9 +142,14 @@ namespace PersistentThrust {
 		    // if not transitioning from warp to real
 		    // Update values to use during timewarp
 		    if (!warpToReal) {
+			// Update thrust calculation
+			this.CalculateThrust();
+			// Get Isp
 			IspPersistent = realIsp;
+			// Get throttle
 			ThrottlePersistent = vessel.ctrlState.mainThrottle;
-			ThrustPersistent = this.CalculateThrust();
+			// Get final thrust
+			ThrustPersistent = this.finalThrust;
 			// Update displayed propellant use
 			PropellantUse = (prop.currentAmount / dT).ToString("E3") + " U/s";
 			// Update non-propulsive resources
@@ -185,18 +190,21 @@ namespace PersistentThrust {
 		    ResourceUse = "";
 		    foreach (var p in propOther) {
 			var demandOther = demandOut * p.ratio / prop.ratio;
-			// TODO Fix request for resources at high timewarp
+			// TODO Fix resource depletion at high timewarp
+			/*
 			var demandOutOther = part.RequestResource(p.id, demandOther);
 			// Depleted if any resource 
 			if (demandOther > 0 && demandOutOther == 0) {
-			    // TODO Fix request for resources at high timewarp
-			    //depleted = true;
+			    depleted = true;
 			}
+			*/
 			// Update displayed resource use
 			if (ResourceUse != String.Empty) {
 			    ResourceUse += "|";
 			}
-			ResourceUse += (demandOutOther / dT).ToString("E3");
+			// ResourceUse += (demandOutOther / dT).ToString("E3");
+			// Temporarily show demandOther, not demandOutOther
+			ResourceUse += (demandOther / dT).ToString("E3");
 		    }
 		    ResourceUse += " U/s";
 		    
