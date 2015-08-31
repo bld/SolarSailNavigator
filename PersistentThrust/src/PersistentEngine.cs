@@ -6,6 +6,10 @@ namespace PersistentThrust {
 
     public class PersistentEngine : ModuleEnginesFX {
 
+	// Flag to activate force if it isn't to allow overriding stage activation
+	[KSPField(isPersistant = true)]
+	bool IsForceActivated;
+	
 	// GUI display values
 	// Thrust
 	[KSPField(guiActive = true, guiName = "Thrust")]
@@ -67,6 +71,13 @@ namespace PersistentThrust {
 	    Thrust = Utils.FormatThrust(thrust_d);
 	    Isp = Math.Round(isp_d, 2).ToString() + " s";
 	    Throttle = Math.Round(throttle_d * 100).ToString() + "%";
+
+	    // Activate force if engine is enabled and operational
+	    if (!IsForceActivated && isEnabled && isOperational)
+	    {
+		IsForceActivated = true;
+		part.force_activate();
+	    }
 	}
 
 	// Initialization
@@ -174,10 +185,12 @@ namespace PersistentThrust {
 		    ResourceUse = "";
 		    foreach (var p in propOther) {
 			var demandOther = demandOut * p.ratio / prop.ratio;
+			// TODO Fix request for resources at high timewarp
 			var demandOutOther = part.RequestResource(p.id, demandOther);
 			// Depleted if any resource 
 			if (demandOther > 0 && demandOutOther == 0) {
-			    depleted = true;
+			    // TODO Fix request for resources at high timewarp
+			    //depleted = true;
 			}
 			// Update displayed resource use
 			if (ResourceUse != String.Empty) {
