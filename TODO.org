@@ -197,8 +197,11 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Throttle
 ** TODO Times
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
-* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/3] :FEATURE:
+* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/4] :FEATURE:
 ** TODO Create Frame class
+*** Names of Euler angles
+*** Angles
+*** Function of orbit, UT, and angles to generate spacecraft quaternion
 ** TODO Use Frame class parameters in Controls instead of hard coded values
 ** TODO Allow selection from a list of frames available
 * TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :FEATURE:WISHLIST:
@@ -207,7 +210,7 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Solar sail
 ** TODO Ion engine
 * TODO Recalculate target line & error when new target selected		:BUG:
-* TODO Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
+* DONE Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
 * TODO Chooser to select which sails and engines to use in this time segment :FEATURE:WISHLIST:
 * TODO Trajectory not redrawn with new segment when "Add" button clicked :BUG:
 * TODO Show/Hide control button on screen instead of in control module :FEATURE:WISHLIST:
