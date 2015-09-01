@@ -162,7 +162,10 @@ namespace PersistentThrust {
 			}
 			ResourceUse += " U/s";
 		    }
-		} else { // Timewarp mode: perturb orbit using thrust
+		}
+		// Timewarp mode: perturb orbit using thrust
+		else if (part.vessel.situation != Vessel.Situations.SUB_ORBITAL)
+		{
 		    warpToReal = true; // Set to true for transition to realtime
 		    double UT = Planetarium.GetUniversalTime(); // Universal time
 		    double m0 = this.vessel.GetTotalMass(); // Current mass
@@ -222,6 +225,13 @@ namespace PersistentThrust {
 			// Return to realtime mode
 			TimeWarp.SetRate(0, true);
 		    }
+		}
+		// Otherwise suborbital - set throttle to 0 and show error message.
+		// TODO fix persistent thrust orbit perturbation on suborbital trajectory.
+		else if (vessel.ctrlState.mainThrottle > 0)
+		{
+		    vessel.ctrlState.mainThrottle = 0;
+		    ScreenMessages.PostScreenMessage("Cannot accelerate and timewarp durring sub orbital spaceflight!", 5.0f, ScreenMessageStyle.UPPER_CENTER);
 		}
 
 		// Update display numbers
