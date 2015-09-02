@@ -147,9 +147,21 @@ namespace SolarSailNavigator {
 	public void GUIThrottle () {
 	    GUILayout.BeginVertical();
 
-	    // Throttle controls
+	    // Throttle control
+	    // Text field
 	    GUILayout.BeginHorizontal();
-	    GUILayout.Label(throttle_str, GUILayout.Width(30));
+	    string new_str = GUILayout.TextField(throttle_str, GUILayout.Width(30));
+	    if (new_str != throttle_str) {
+		throttle_str = new_str;
+		float parsedValue;
+		if (Single.TryParse(throttle_str, out parsedValue)) {
+		    if (parsedValue >= 0 || parsedValue <= 1) {
+			throttle = parsedValue;
+			controls.Update();
+		    }
+		}
+	    }
+	    // +/- buttons
 	    if (GUILayout.Button("+")) {
 		throttle = (float)Math.Round(throttle + 0.05f, 2);
 		if (throttle > 1f) {
@@ -324,7 +336,7 @@ namespace SolarSailNavigator {
 	    // Parent controls object
 	    this.controls = controls;
 	    // Reference frame for control angles
-	    this.frame = Frame.Frames["RTN"];
+	    this.frame = Frame.Frames[frame];
 	    // Angles
 	    this.cone = cone;
 	    cone_str = cone.ToString();
