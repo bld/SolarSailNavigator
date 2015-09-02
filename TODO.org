@@ -80,6 +80,7 @@ public override void OnUpdate()
       }
 }
 * DONE Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
+* DONE ThrustPersistent should use engine's finalThrust to be correct	:BUG:
 * TODO Manual sail navigation [17/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -207,19 +208,7 @@ extra CPU. May want a notification when the sequence is completed.
 ** TODO Sun sensor (for sail)
 ** TODO Star tracker
 ** TODO Radio
-* TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
-* TODO Allow manually entering control numbers (angles/times) [1/3] :FEATURE:
-** DONE Angles
-** TODO Throttle
-** TODO Times
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
-* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [0/4] :FEATURE:
-** TODO Create Frame class
-*** Names of Euler angles
-*** Angles
-*** Function of orbit, UT, and angles to generate spacecraft quaternion
-** TODO Use Frame class parameters in Controls instead of hard coded values
-** TODO Allow selection from a list of frames available
 * TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :FEATURE:WISHLIST:
 * TODO Preview should detect if another body's SOI will be entered on the current trajectory :BUG:
 * TODO Make TweakScale work with parts [0/2]			    :FEATURE:
@@ -240,4 +229,16 @@ Toggle "Show Preview" to redraw
 Default Flatspin for all control sequences?
 * TODO Navigator default settings [0/1] 			    :FEATURE:
 ** TODO Reference frame and angles
-* TODO ThrustPersistent should use engine's finalThrust to be correct 	:BUG:
+* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [1/4] :FEATURE:
+** DONE Create Frame class
+*** Names of Euler angles
+*** Angles
+*** Function of orbit, UT, and angles to generate spacecraft quaternion
+** TODO Use Frame class parameters in Controls instead of hard coded values
+** TODO GUIAngle instead of cone/clock/flatspin
+** TODO Allow selection from a list of frames available
+* TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
+* TODO Allow manually entering control numbers (angles/times) [2/3] :FEATURE:
+** DONE Angles
+** DONE Throttle
+** TODO Times
