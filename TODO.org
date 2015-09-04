@@ -81,6 +81,10 @@ public override void OnUpdate()
 }
 * DONE Pass "Control" object instead of individual parameters to Preview.Propagate :FEATURE:
 * DONE ThrustPersistent should use engine's finalThrust to be correct	:BUG:
+* DONE Move PersistentThrust to its own module [3/3]		    :FEATURE:
+** DONE Move PersistentThrust
+** DONE Update SolarSailNavigator to use PersistentThrust in new location
+** DONE Move TODO items for PersistentThrust out of SolarSailNavigator
 * TODO Manual sail navigation [17/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -150,26 +154,7 @@ Currently need to manually click "Set to Now"
 ** TODO Check if orbit.E < 0, and render for orbit period
 ** TODO Check if orbit.E >= 0, and calculate time to SOI departure for render time
 *** Is that orbit.UTsoi?
-* TODO Make new solar sail models [0/5]
-** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
-*** 4 triangular panels with billowed shape
-*** Wrinkled looking surface
-** TODO Sunjammer
-*** 4 triangular panels with stripe net and billow in between
-** TODO Steering vanes
-*** Vanes at boom tips that rotate to face sun with ~20 deg cant for stability
-** TODO Halley Rendezvous square sail
-*** Big, billowed sail with masts and stays
-** TODO IKAROS
-*** Animated rotation
-**** Scale rotation speed to sensible amount during time warp
-*** Animate change in reflective control device color as it performs attitude maneuvers
 * TODO Make sail deployment a staged event that can only happen once :WISHLIST:
-* TODO Realistic sail attitude control				   :WISHLIST:
-** Vanes to cause solar torque about CM
-** Gimbaled boom to shift CM
-** Realistic moments of inertia (i.e. BIG)
-** IKAROS style thin film reflective control devices
 * TODO Automatic navigation					    :FEATURE:
 ** Using manual navigation as initial guess, perform local optimization (e.g. gradient) to calculate cones/clocks/durations
 ** Orbital rendezvous
@@ -211,20 +196,11 @@ extra CPU. May want a notification when the sequence is completed.
 * TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
 * TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :FEATURE:WISHLIST:
 * TODO Preview should detect if another body's SOI will be entered on the current trajectory :BUG:
-* TODO Make TweakScale work with parts [0/2]			    :FEATURE:
-** TODO Solar sail
-** TODO Ion engine
 * TODO Recalculate target line & error when new target selected		:BUG:
 * TODO Chooser to select which sails and engines to use in this time segment :FEATURE:WISHLIST:
 * TODO Trajectory not redrawn with new segment when "Add" button clicked :BUG:
 Toggle "Show Preview" to redraw
 * TODO Toolbar to Show/Hide controls instead of in control module :FEATURE:WISHLIST:
-* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [0/2] :BUG:
-** TODO Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
-** TODO Make it work
-* TODO With solar electric ion engine spacecraft, batteries deplete in high timewarp, even though the panels generate enough ElectricCharge [1/2] :BUG:
-** DONE Temporarily bypass by turning off resource request and depletion
-** TODO Fix
 * TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
 Default Flatspin for all control sequences?
 * TODO Navigator default settings [0/1] 			    :FEATURE:
@@ -242,3 +218,4 @@ Default Flatspin for all control sequences?
 ** DONE Angles
 ** DONE Throttle
 ** TODO Times
+* TODO Use multiple deltaV propellants					:BUG:
