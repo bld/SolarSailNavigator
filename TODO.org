@@ -85,6 +85,7 @@ public override void OnUpdate()
 ** DONE Move PersistentThrust
 ** DONE Update SolarSailNavigator to use PersistentThrust in new location
 ** DONE Move TODO items for PersistentThrust out of SolarSailNavigator
+* DONE Limit throttle to 1 (100%)					:BUG:
 * TODO Manual sail navigation [17/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -218,4 +219,3 @@ Default Flatspin for all control sequences?
 ** DONE Angles
 ** DONE Throttle
 ** TODO Times
-* TODO Use multiple deltaV propellants					:BUG:

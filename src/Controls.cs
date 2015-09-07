@@ -155,7 +155,7 @@ namespace SolarSailNavigator {
 		throttle_str = new_str;
 		float parsedValue;
 		if (Single.TryParse(throttle_str, out parsedValue)) {
-		    if (parsedValue >= 0 || parsedValue <= 1) {
+		    if (parsedValue >= 0 && parsedValue <= 1) {
 			throttle = parsedValue;
 			controls.Update();
 		    }
