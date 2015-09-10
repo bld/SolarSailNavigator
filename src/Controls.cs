@@ -46,20 +46,20 @@ namespace SolarSailNavigator {
 	public Navigator navigator;
 
 	// Static fields
-	public static float defaultCone = 90f;
-	public static float defaultClock = 0f;
-	public static float defaultFlatspin = 0f;
+	// Defaults
 	public static float defaultThrottle = 0f;
 	public static bool defaultSailon = true;
+	public static string defaultFrame = "RTN";
+	public static double defaultDuration = 10 * SecondsPerDay;
+	public static int defaultiwarp = 10; // Warp level index
+	// Time Conversion
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
 	public static double SecondsPerMinute = 60.0;
 	public static double HoursPerDay = 6.0;
-	public static double defaultDuration = 10 * SecondsPerDay;
 	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
-	public static int defaultiwarp = 10;
 
-	// New mod function
+	// Modulous function (instead of % operator, which is remainder)
 	float Mod (float a, float b) {
 	    return a - b * (float)Math.Floor(a / b);
 	}
@@ -74,8 +74,13 @@ namespace SolarSailNavigator {
 	}
 
 	// Angle controls
-	public void GUIAngle (ref float angle, ref string angle_str) {
+	public void GUIAngle (ref float angle, ref string angle_str, string name) {
 	    // Text field
+	    GUILayout.BeginVertical();
+	    // Name of angle over top
+	    GUILayout.Label(name, GUILayout.Width(80));
+	    GUILayout.BeginHorizontal();
+	    // Text field & buttons below
 	    string new_str = GUILayout.TextField(angle_str, GUILayout.Width(30));
 	    if (new_str != angle_str) {
 		angle_str = new_str;
@@ -96,6 +101,9 @@ namespace SolarSailNavigator {
 		angle_str = angle.ToString();
 		controls.Update();
 	    }
+	    // End GUI
+	    GUILayout.EndHorizontal();
+	    GUILayout.EndVertical();
 	}
 
 	// Throttle controls
@@ -208,7 +216,7 @@ namespace SolarSailNavigator {
 		hours_str = new_hours_str;
 		int parsedHours;
 		if (Int32.TryParse(hours_str, out parsedHours)) {
-		    if (parsedHours >= 0 && parsedHours <= 6) {
+		    if (parsedHours >= 0 && parsedHours <= HoursPerDay) {
 			hours = (double)parsedHours;
 			duration = SecondsPerDay * days + SecondsPerHour * hours;
 			controls.Update();
@@ -246,16 +254,19 @@ namespace SolarSailNavigator {
 	    cstyle.normal.background = ctx;
 	    ctx.SetPixel(1,1,color);
 	    ctx.Apply();
-	    GUILayout.Label(" ", cstyle, GUILayout.Width(30));
+	    GUILayout.Label(" ", cstyle, GUILayout.Width(30), GUILayout.Height(30));
 	}
 	
 	// GUI line
 	public void GUILine (Color color, int i) {
+	    // Vertical space
+	    GUILayout.Space(5);
+
 	    GUILayout.BeginHorizontal();
 	    
-	    GUIAngle(ref cone, ref cone_str);
-	    GUIAngle(ref clock, ref clock_str);
-	    GUIAngle(ref flatspin, ref flatspin_str);
+	    GUIAngle(ref cone, ref cone_str, frame.names[0]);
+	    GUIAngle(ref clock, ref clock_str, frame.names[1]);
+	    GUIAngle(ref flatspin, ref flatspin_str, frame.names[2]);
 	    GUIThrottle();
 	    GUITime();
 	    GUIColor(color);
@@ -265,6 +276,9 @@ namespace SolarSailNavigator {
 	    if (GUILayout.Button("DEL")) { controls.Remove(i); };
  
 	    GUILayout.EndHorizontal();
+
+	    // Vertical space
+	    GUILayout.Space(5);
 	}
 	
 	// Parse a string to a single
@@ -343,8 +357,8 @@ namespace SolarSailNavigator {
 	}
 
 	public static Control Default (Navigator navigator, Controls controls) {
-	    var frame = Frame.Frames["RTN"];
-	    return new Control(navigator, controls, frame.defaults[0], frame.defaults[1], frame.defaults[2], defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, "RTN");
+	    var frame = Frame.Frames[defaultFrame];
+	    return new Control(navigator, controls, frame.defaults[0], frame.defaults[1], frame.defaults[2], defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, defaultFrame);
 	}
     }
 
@@ -483,9 +497,9 @@ namespace SolarSailNavigator {
 
 	    // Controls
 	    GUILayout.BeginHorizontal();
-	    GUILayout.Label("Cone", GUILayout.Width(80));
-	    GUILayout.Label("Clock", GUILayout.Width(80));
-	    GUILayout.Label("Flatspin", GUILayout.Width(80));
+	    GUILayout.Label("Angle 1", GUILayout.Width(80));
+	    GUILayout.Label("Angle 2", GUILayout.Width(80));
+	    GUILayout.Label("Angle 3", GUILayout.Width(80));
 	    GUILayout.Label("Throttle", GUILayout.Width(80));
 	    GUILayout.Label("Days", GUILayout.Width(120));
 	    GUILayout.Label("Hours", GUILayout.Width(65));
@@ -502,7 +516,7 @@ namespace SolarSailNavigator {
 		
 		// Draw individual GUIs
 		control.GUILine(colorMap[icolor], i);
-		
+
 		// Update total duration
 		durationTotal += control.duration;
 
