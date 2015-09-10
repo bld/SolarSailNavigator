@@ -152,7 +152,7 @@ namespace SolarSailNavigator {
 		// Update 
 
 		// Update orbit
-		orbit.Perturb(deltaVV, UT, dT);
+		orbit.Perturb(deltaVV, UT);
 
 		// Increment time step at which to sample orbits
 		dTchoose += dT;
