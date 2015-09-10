@@ -86,6 +86,11 @@ public override void OnUpdate()
 ** DONE Update SolarSailNavigator to use PersistentThrust in new location
 ** DONE Move TODO items for PersistentThrust out of SolarSailNavigator
 * DONE Limit throttle to 1 (100%)					:BUG:
+* TODO Require navigation instruments [0/3]			   :WISHLIST:
+** TODO Sun sensor (for sail)
+** TODO Star tracker
+** TODO Radio
+* TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :WISHLIST:
 * TODO Manual sail navigation [17/24]
 ** DONE Propagate trajectory XX days ahead at current attitude
 ** DONE Draw start and end points
@@ -156,7 +161,7 @@ Currently need to manually click "Set to Now"
 ** TODO Check if orbit.E >= 0, and calculate time to SOI departure for render time
 *** Is that orbit.UTsoi?
 * TODO Make sail deployment a staged event that can only happen once :WISHLIST:
-* TODO Automatic navigation					    :FEATURE:
+* TODO Automatic navigation				   :FEATURE:WISHLIST:
 ** Using manual navigation as initial guess, perform local optimization (e.g. gradient) to calculate cones/clocks/durations
 ** Orbital rendezvous
 *** Select target
@@ -176,36 +181,32 @@ Currently need to manually click "Set to Now"
 *** TODO Inclination
 *** TODO AoP
 *** TODO Blended?
-* TODO Sails on Rails [0/2]					    :FEATURE:
+* TODO Sails on Rails					   :FEATURE:WISHLIST:
 ** Problem
-As currently designed KSP seems to run Kepler orbits when a spacecraft
-is not active.  Is there a way to keep the sail propagator running in
-the background to allow command profiles to complete? This would use
-extra CPU. May want a notification when the sequence is completed.
-** TODO Save preview trajectory to persistant variables
-** TODO Set orbit state to that in the preview when you return to the spacecraft
-* TODO Resize window when objects & text removed (e.g. when preview or target deselected)
+When you leave one spacecraft and go elsewhere, KSP updates the
+position and velocity based on the Kepler orbit of the spacecraft. We
+need to update the orbit, position, and velocity of a persistent
+thrust spacecraft with active navigator control based on the predicted
+trajectory.
+* TODO Resize window when objects & text removed (e.g. when preview or target deselected) :FEATURE:
 * TODO Show mass consumption for flight profile			    :FEATURE:
 * TODO Show mass consumption remaining				    :FEATURE:
 * TODO Warn when mass consumption exceeds remaining		    :FEATURE:
 * TODO Warn when future power usage of navigation plan exceeds vessel's generation ability :FEATURE:
 * TODO Show time remaining of sequence (startTime - currentTime + duration) :FEATURE:
-* TODO Require navigation instruments [0/3]			   :WISHLIST:
-** TODO Sun sensor (for sail)
-** TODO Star tracker
-** TODO Radio
-* TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. :BUG:
-* TODO Allow staging events in command sequence to e.g. separate a sail and run an ion engine :FEATURE:WISHLIST:
-* TODO Preview should detect if another body's SOI will be entered on the current trajectory :BUG:
+* TODO In preview, use alignment of sails and engines - don't just assume they are aligned in the correct direction with the "up" vector. [0/2] :BUG:
+** TODO Examine part.transform.up vector and compare to calculated thrust vector
+** TODO Use as thrust direction vector
+* TODO Preview doesn't detect if another body's SOI will be entered on the current trajectory [0/2] :BUG:
+** TODO Detect SOI intersection
+** TODO Propagate trajectory around body's SOI?
 * TODO Recalculate target line & error when new target selected		:BUG:
 * TODO Chooser to select which sails and engines to use in this time segment :FEATURE:WISHLIST:
 * TODO Trajectory not redrawn with new segment when "Add" button clicked :BUG:
 Toggle "Show Preview" to redraw
-* TODO Toolbar to Show/Hide controls instead of in control module :FEATURE:WISHLIST:
-* TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
-Default Flatspin for all control sequences?
-* TODO Navigator default settings [0/1] 			    :FEATURE:
-** TODO Reference frame and angles
+* TODO Toolbar to Show/Hide controls instead of right-clicking on control module :FEATURE:WISHLIST:
+* TODO Final orbit line can obscure trajectory line 			:BUG:
+* TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
 * TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [1/4] :FEATURE:
 ** DONE Create Frame class
 *** Names of Euler angles
@@ -214,8 +215,15 @@ Default Flatspin for all control sequences?
 ** TODO Use Frame class parameters in Controls instead of hard coded values
 ** TODO GUIAngle instead of cone/clock/flatspin
 ** TODO Allow selection from a list of frames available
-* TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
+* TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
+Default Flatspin for all control sequences?
+* TODO Navigator default settings [0/1] 			    :FEATURE:
+** TODO Reference frame and angles
 * TODO Allow manually entering control numbers (angles/times) [2/3] :FEATURE:
 ** DONE Angles
 ** DONE Throttle
 ** TODO Times
+* TODO Use methods in PersistentEngine to calculate mass & deltaV   :FEATURE:
+* TODO "Add" or "INS" buttons should copy values from last (Add) or selected (INS) control [0/2] :FEATURE:
+** TODO When "Add" clicked, copy values from last control
+** TODO When "INS" clicked, copy valued from the corresponding control
