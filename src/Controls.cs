@@ -72,78 +72,28 @@ namespace SolarSailNavigator {
 		return angle;
 	    }
 	}
-	
-	// Cone controls
-	public void GUICone () {
-	    // Text field
-	    string new_str = GUILayout.TextField(cone_str, GUILayout.Width(30));
-	    if (new_str != cone_str) {
-		cone_str = new_str;
-		float parsedValue;
-		if (Single.TryParse(cone_str, out parsedValue)) {
-		    cone = normalizeAngle(parsedValue);
-		    controls.Update();
-		}
-	    }
-	    // +/- buttons
-	    if (GUILayout.Button("+")) {
-		cone = normalizeAngle(cone + 5);
-		cone_str = cone.ToString();
-		controls.Update();
-	    }
-	    if (GUILayout.Button("-")) {
-		cone = normalizeAngle(cone - 5);
-		cone_str = cone.ToString();
-		controls.Update();
-	    }
-	}
 
-	// Clock controls
-	public void GUIClock () {
+	// Angle controls
+	public void GUIAngle (ref float angle, ref string angle_str) {
 	    // Text field
-	    string new_str = GUILayout.TextField(clock_str, GUILayout.Width(30));
-	    if (new_str != clock_str) {
-		clock_str = new_str;
+	    string new_str = GUILayout.TextField(angle_str, GUILayout.Width(30));
+	    if (new_str != angle_str) {
+		angle_str = new_str;
 		float parsedValue;
-		if (Single.TryParse(clock_str, out parsedValue)) {
-		    clock = normalizeAngle(parsedValue);
+		if (Single.TryParse(angle_str, out parsedValue)) {
+		    angle = normalizeAngle(parsedValue);
 		    controls.Update();
 		}
 	    }
 	    // +/- buttons
 	    if (GUILayout.Button("+")) {
-		clock = normalizeAngle(clock + 5);
-		clock_str = clock.ToString();
+		angle = normalizeAngle(angle + 5);
+		angle_str = angle.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
-		clock = normalizeAngle(clock - 5);
-		clock_str = clock.ToString();
-		controls.Update();
-	    }
-	}
-
-	// Flatspin controls
-	public void GUIFlatspin () {
-	    // Text field
-	    string new_str = GUILayout.TextField(flatspin_str, GUILayout.Width(30));
-	    if (new_str != flatspin_str) {
-		flatspin_str = new_str;
-		float parsedValue;
-		if (Single.TryParse(flatspin_str, out parsedValue)) {
-		    flatspin = normalizeAngle(parsedValue);
-		    controls.Update();
-		}
-	    }
-	    // +/- buttons
-	    if (GUILayout.Button("+")) {
-		flatspin = normalizeAngle(flatspin + 5);
-		flatspin_str = flatspin.ToString();
-		controls.Update();
-	    }
-	    if (GUILayout.Button("-")) {
-		flatspin = normalizeAngle(flatspin - 5);
-		flatspin_str = flatspin.ToString();
+		angle = normalizeAngle(angle - 5);
+		angle_str = angle.ToString();
 		controls.Update();
 	    }
 	}
@@ -199,7 +149,19 @@ namespace SolarSailNavigator {
 	public void GUITime () {
 
 	    // Days
-	    GUILayout.Label(days_str, GUILayout.Width(30));
+	    // Text field
+	    string new_days_str = GUILayout.TextField(days_str, GUILayout.Width(30));
+	    if (new_days_str != days_str) {
+		days_str = new_days_str;
+		int parsedDays;
+		if (Int32.TryParse(days_str, out parsedDays)) {
+		    if (parsedDays >= 0) {
+			days = (double)parsedDays;
+			duration = SecondsPerDay * days + SecondsPerHour * hours;
+			controls.Update();
+		    }
+		}
+	    }
 	    // Increase
 	    GUILayout.BeginVertical();
 	    if (GUILayout.Button("+")) {
@@ -240,7 +202,19 @@ namespace SolarSailNavigator {
 	    GUILayout.EndVertical();
 
 	    // Hours
-	    GUILayout.Label(hours_str, GUILayout.Width(10));
+	    // Text field
+	    string new_hours_str = GUILayout.TextField(hours_str, GUILayout.Width(30));
+	    if (new_hours_str != hours_str) {
+		hours_str = new_hours_str;
+		int parsedHours;
+		if (Int32.TryParse(hours_str, out parsedHours)) {
+		    if (parsedHours >= 0 && parsedHours <= 6) {
+			hours = (double)parsedHours;
+			duration = SecondsPerDay * days + SecondsPerHour * hours;
+			controls.Update();
+		    }
+		}
+	    }
 	    // Increase
 	    if (GUILayout.Button("+")) {
 		hours++;
@@ -278,10 +252,10 @@ namespace SolarSailNavigator {
 	// GUI line
 	public void GUILine (Color color, int i) {
 	    GUILayout.BeginHorizontal();
-
-	    GUICone();
-	    GUIClock();
-	    GUIFlatspin();
+	    
+	    GUIAngle(ref cone, ref cone_str);
+	    GUIAngle(ref clock, ref clock_str);
+	    GUIAngle(ref flatspin, ref flatspin_str);
 	    GUIThrottle();
 	    GUITime();
 	    GUIColor(color);
