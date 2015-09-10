@@ -59,10 +59,15 @@ namespace SolarSailNavigator {
 	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
 	public static int defaultiwarp = 10;
 
+	// New mod function
+	float Mod (float a, float b) {
+	    return a - b * (float)Math.Floor(a / b);
+	}
+	
 	// Normalize angles between -180 and 180 degrees
 	public float normalizeAngle (float angle) {
 	    if (angle < -180 || angle > 180) {
-		return (angle + 180.0f) % 360.0f - 180.0f;
+		return Mod((angle + 180.0f), 360.0f) - 180.0f;
 	    } else {
 		return angle;
 	    }
@@ -330,7 +335,7 @@ namespace SolarSailNavigator {
 	
 	// Constructor
 
-	public Control(Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, bool sailon, double duration, int iwarp, string frame) {
+	public Control (Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, bool sailon, double duration, int iwarp, string frame) {
 	    // Navigator
 	    this.navigator = navigator;
 	    // Parent controls object
@@ -364,7 +369,8 @@ namespace SolarSailNavigator {
 	}
 
 	public static Control Default (Navigator navigator, Controls controls) {
-	    return new Control(navigator, controls, defaultCone, defaultClock, defaultFlatspin, defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, "RTN");
+	    var frame = Frame.Frames["RTN"];
+	    return new Control(navigator, controls, frame.defaults[0], frame.defaults[1], frame.defaults[2], defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, "RTN");
 	}
     }
 
