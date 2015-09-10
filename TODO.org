@@ -238,4 +238,3 @@ Default Flatspin for all control sequences?
 * TODO "Add" or "INS" buttons should copy values from last (Add) or selected (INS) control [0/2] :FEATURE:
 ** TODO When "Add" clicked, copy values from last control
 ** TODO When "INS" clicked, copy valued from the corresponding control
-

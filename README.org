@@ -3,7 +3,7 @@
 #+OPTIONS: num:nil
 #+OPTIONS: author:nil
 
-This is the first release of a solar sail and low thrust engine
+This is a developmental release of a solar sail and low thrust engine
 navigation plugin for Kerbal Space Program (KSP,
 http://www.kerbalspaceprogram.com). Plot the course of a spacecraft
 pushed by the pressure of sunlight or a continuous thrust engine
@@ -51,7 +51,6 @@ continuous thrust engine spacecraft:
 3. Use multiple solar sails and persistent thrust engines. Use the
    "Use Sail" toggle to retract or deploy a sail for a segment. Set
    the throttle to 0 to disable any engines.
-
 ** Usage
 *** Tutorial
 See: https://github.com/bld/SolarSailNavigator/wiki/Tutorials
@@ -159,6 +158,9 @@ elements with the target.
 *** Module Manager
 Module Manager is required to patch the ion engine part to use all the
 features of this plugin, and adjust the thrust to realistic levels.
+*** PersistentThrust
+PersistentThrust is now its own separate module, which the navigator
+uses to calculate the preview trajectory.
 ** Helpful Plugins
 *** MechJeb
 The Mechanical Jeb plugin (http://mechjeb.com) includes a tool called

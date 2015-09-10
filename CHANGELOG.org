@@ -1,9 +1,24 @@
 * SolarSailNavigator Changelog
-** v1.0.0
-Initial Release
-** v1.0.1
-*** Small bug fix of v1.0.0-alpha. The trajectory propagation now samples the propagated orbits into the list to draw as a preview, instead of grabbing all. The criteria to sample one is to check if 1/360th of the current orbital period has passed since the last orbit was sampled.
-*** Also, some of the preview-specific code has been pulled out of the sail module and put in the preview. This is in preparation for making a separate module to control & calculate the preview vs. the low thrust force model.
+** v1.0.5
+*** PersistentThrust now a separate module: https://github.com/bld/PersistentThrust
+*** Internal changes underway to eventually allow other reference frames for steering
+*** Type in control angles, throttle, days, and hours
+*** Fixed bug so that angles now limited to +/- 180 degrees
+*** Fixed bug so that throttle now limited to 0-100%
+** v1.0.4
+*** Navigation controls now attached to a part on the spacecraft, instead of the propulsion system, and controls all continuous thrust parts on the vessel.
+*** Realtime, timewarp, and navigation preview tested to work for multiple sails and persistent thrust engines.
+*** "Use Sail" control added to retract or deploy the sail for specified command segments.
+*** 3rd control angle "Flatspin" added to rotate spacecraft about its thrust axis to keep parts (e.g. solar panels) aligned as needed.
+** v1.0.3
+*** A new plugin called PersistentThrust is now included in the package. It implements the force models of the solar sail and continuous thrust engines.
+*** The navigation plugin now supports both solar sails and continuous thrust engines.
+*** Toggle buttons allow showing the preview, final orbit, final orbit elements, and difference between the final orbit and the target body.
+*** Still unsupported:
+**** Planetary trajectories
+**** Other reference frames for steering
+**** Multiple sails/engines
+**** Propagation of the trajectory while not focused on the vessel
 ** v1.0.2
 *** The line widths are now scaled to the distance from the camera in map view when drawing the sail trajectory preview, final orbit, and line to target object.
 *** Now, you can specify the hours in an attitude control maneuver, in addition to days. This lets you have finer control over the trajectory.
@@ -14,17 +29,8 @@ Initial Release
 ***** Distance at final time
 ***** Speed at final time
 ***** Orbital elements
-** v1.0.3
-*** A new plugin called PersistentThrust is now included in the package. It implements the force models of the solar sail and continuous thrust engines.
-*** The navigation plugin now supports both solar sails and continuous thrust engines.
-*** Toggle buttons allow showing the preview, final orbit, final orbit elements, and difference between the final orbit and the target body.
-*** Still unsupported:
-**** Planetary trajectories
-**** Other reference frames for steering
-**** Multiple sails/engines
-**** Propagation of the trajectory while not focused on the vessel
-** v1.0.4
-*** Navigation controls now attached to a part on the spacecraft, instead of the propulsion system, and controls all continuous thrust parts on the vessel.
-*** Realtime, timewarp, and navigation preview tested to work for multiple sails and persistent thrust engines.
-*** "Use Sail" control added to retract or deploy the sail for specified command segments.
-*** 3rd control angle "Flatspin" added to rotate spacecraft about its thrust axis to keep parts (e.g. solar panels) aligned as needed.
+** v1.0.1
+*** Small bug fix of v1.0.0-alpha. The trajectory propagation now samples the propagated orbits into the list to draw as a preview, instead of grabbing all. The criteria to sample one is to check if 1/360th of the current orbital period has passed since the last orbit was sampled.
+*** Also, some of the preview-specific code has been pulled out of the sail module and put in the preview. This is in preparation for making a separate module to control & calculate the preview vs. the low thrust force model.
+** v1.0.0
+Initial Release
