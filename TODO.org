@@ -86,6 +86,8 @@ public override void OnUpdate()
 ** DONE Update SolarSailNavigator to use PersistentThrust in new location
 ** DONE Move TODO items for PersistentThrust out of SolarSailNavigator
 * DONE Limit throttle to 1 (100%)					:BUG:
+* DONE Space needed between GUILines to distinguish lines 		:BUG:
+* DONE Color too high & small. Should be centered with other GUILine elements. :BUG:
 * TODO Require navigation instruments [0/3]			   :WISHLIST:
 ** TODO Sun sensor (for sail)
 ** TODO Star tracker
@@ -181,13 +183,16 @@ Currently need to manually click "Set to Now"
 *** TODO Inclination
 *** TODO AoP
 *** TODO Blended?
-* TODO Sails on Rails					   :FEATURE:WISHLIST:
+* TODO Sails on Rails [0/3] 				   :FEATURE:WISHLIST:
 ** Problem
 When you leave one spacecraft and go elsewhere, KSP updates the
 position and velocity based on the Kepler orbit of the spacecraft. We
 need to update the orbit, position, and velocity of a persistent
 thrust spacecraft with active navigator control based on the predicted
 trajectory.
+** TODO Update orbit/pos/vel from Navigator preview?
+** TODO Propagate orbit outside of spacecraft focus?
+** TODO Show preview on map outside of spacecraft focus?
 * TODO Resize window when objects & text removed (e.g. when preview or target deselected) :FEATURE:
 * TODO Show mass consumption for flight profile			    :FEATURE:
 * TODO Show mass consumption remaining				    :FEATURE:
@@ -207,23 +212,30 @@ Toggle "Show Preview" to redraw
 * TODO Toolbar to Show/Hide controls instead of right-clicking on control module :FEATURE:WISHLIST:
 * TODO Final orbit line can obscure trajectory line 			:BUG:
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
-* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [1/4] :FEATURE:
+* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [2/9] :FEATURE:
 ** DONE Create Frame class
 *** Names of Euler angles
 *** Angles
 *** Function of orbit, UT, and angles to generate spacecraft quaternion
 ** TODO Use Frame class parameters in Controls instead of hard coded values
-** TODO GUIAngle instead of cone/clock/flatspin
+** TODO Persistent values in Navigator for generic "angles" instead of cone/clock/flatspin
+** TODO Persistent values in Navigator for "frames"
+** TODO Load & save to "angles" and "frames"
+** TODO "Control" constructor should use "angles"
+** TODO "Control" object should have "angles" instead of cone/clock/flatspin
+** DONE GUIAngle instead of GUICone/Clock/Clatspin
 ** TODO Allow selection from a list of frames available
 * TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
 Default Flatspin for all control sequences?
 * TODO Navigator default settings [0/1] 			    :FEATURE:
 ** TODO Reference frame and angles
-* TODO Allow manually entering control numbers (angles/times) [2/3] :FEATURE:
+* TODO Allow manually entering control numbers (angles/times) [3/4] :FEATURE:
 ** DONE Angles
 ** DONE Throttle
-** TODO Times
+** DONE Times
+** TODO Parse time string (e.g. 200d3h23s)
 * TODO Use methods in PersistentEngine to calculate mass & deltaV   :FEATURE:
 * TODO "Add" or "INS" buttons should copy values from last (Add) or selected (INS) control [0/2] :FEATURE:
 ** TODO When "Add" clicked, copy values from last control
 ** TODO When "INS" clicked, copy valued from the corresponding control
+
