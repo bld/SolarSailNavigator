@@ -323,7 +323,7 @@ namespace SolarSailNavigator {
 	
 	// Constructor
 
-	public Control (Navigator navigator, Controls controls, float cone, float clock, float flatspin, float throttle, bool sailon, double duration, int iwarp, string frame) {
+	public Control (Navigator navigator, Controls controls, float [] angles, float throttle, bool sailon, double duration, int iwarp, string frame) {
 	    // Navigator
 	    this.navigator = navigator;
 	    // Parent controls object
@@ -331,12 +331,12 @@ namespace SolarSailNavigator {
 	    // Reference frame for control angles
 	    this.frame = Frame.Frames[frame];
 	    // Angles
-	    this.cone = cone;
-	    cone_str = cone.ToString();
-	    this.clock = clock;
-	    clock_str = clock.ToString();
-	    this.flatspin = flatspin;
-	    flatspin_str = flatspin.ToString();
+	    this.cone = angles[0];
+	    cone_str = angles[0].ToString();
+	    this.clock = angles[1];
+	    clock_str = angles[1].ToString();
+	    this.flatspin = angles[2];
+	    flatspin_str = angles[2].ToString();
 	    // Throttle
 	    throttle_str = throttle.ToString();
 	    this.throttle = throttle;
@@ -358,7 +358,7 @@ namespace SolarSailNavigator {
 
 	public static Control Default (Navigator navigator, Controls controls) {
 	    var frame = Frame.Frames[defaultFrame];
-	    return new Control(navigator, controls, frame.defaults[0], frame.defaults[1], frame.defaults[2], defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, defaultFrame);
+	    return new Control(navigator, controls, frame.defaults, defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, defaultFrame);
 	}
     }
 
@@ -442,11 +442,12 @@ namespace SolarSailNavigator {
 
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
+		    var angles = new float [] { Control.ParseSingle(coneStrings[i]),
+						Control.ParseSingle(clockStrings[i]),
+						Control.ParseSingle(flatspinStrings[i]) };
 		    controls.Add(new Control(navigator,
 					     this,
-					     Control.ParseSingle(coneStrings[i]),
-					     Control.ParseSingle(clockStrings[i]),
-					     Control.ParseSingle(flatspinStrings[i]),
+					     angles,
 					     Control.ParseSingle(throttleStrings[i]),
 					     Control.ParseBool(sailonStrings[i]),
 					     Control.ParseDouble(durationStrings[i]),
