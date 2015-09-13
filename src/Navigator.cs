@@ -19,12 +19,12 @@ namespace SolarSailNavigator {
 	// Control parameters by segment
 	[KSPField(isPersistant = true)] // Steering frame
 	public string frames;
-	[KSPField(isPersistant = true)] // Cone angles
-	public string cones;
-	[KSPField(isPersistant = true)] // Clock angles
-	public string clocks;
-	[KSPField(isPersistant = true)] // Flatspin angles
-	public string flatspins;
+	[KSPField(isPersistant = true)] // Euler angles 0
+	public string angle0s;
+	[KSPField(isPersistant = true)] // Euler angles 1
+	public string angle1s;
+	[KSPField(isPersistant = true)] // Euler angles 2
+	public string angle2s;
 	[KSPField(isPersistant = true)] // Duration in seconds
 	public string durations;
 	[KSPField(isPersistant = true)] // Throttle
@@ -122,7 +122,7 @@ namespace SolarSailNavigator {
 		if (FlightGlobals.fetch != null && IsLocked) {
 		    // Set attitude
 		    Control control = controls.Lookup(UT);
-		    var angles = new float [] { control.cone, control.clock, control.flatspin };
+		    var angles = new float [] { control.angle0, control.angle1, control.angle2 };
 		    vessel.SetRotation(control.frame.qfn(vessel.orbit, UT, angles));
 		    
 		    // Set throttle

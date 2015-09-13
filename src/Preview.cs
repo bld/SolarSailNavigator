@@ -28,9 +28,9 @@ namespace SolarSailNavigator {
 	public void Propagate(Navigator navigator, Orbit orbit0, double UT0, double UTf, double dT, Control control, double m0in) {
 
 	    // Control parameters
-	    var cone = control.cone;
-	    var clock = control.clock;
-	    var flatspin = control.flatspin;
+	    var angle0 = control.angle0;
+	    var angle1 = control.angle1;
+	    var angle2 = control.angle2;
 	    var throttle = control.throttle;
 	    var sailon = control.sailon;
 	    var frame = control.frame;
@@ -74,8 +74,8 @@ namespace SolarSailNavigator {
 		}
 		
 		// Spacecraft reference frame
-		//Quaternion sailFrame = Frames.SailFrame(orbit, cone, clock, flatspin, UT);
-		var angles = new float[] {cone, clock, flatspin};
+		//Quaternion sailFrame = Frames.SailFrame(orbit, angle0, angle1, angle2, UT);
+		var angles = new float[] {angle0, angle1, angle2};
 		Quaternion sailFrame = frame.qfn(orbit, UT, angles);
 
 		// Total deltaV vector

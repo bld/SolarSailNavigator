@@ -12,15 +12,15 @@ namespace SolarSailNavigator {
 	// Fields
 	// Reference frame
 	public Frame frame;
-	// Cone Angle
-	public float cone;
-	public string cone_str;
-	// Clock angle
-	public float clock;
-	public string clock_str;
-	// Flatspin angle
-	public float flatspin;
-	public string flatspin_str;
+	// Angle0 Angle
+	public float angle0;
+	public string angle0_str;
+	// Angle1 angle
+	public float angle1;
+	public string angle1_str;
+	// Angle2 angle
+	public float angle2;
+	public string angle2_str;
 	// Throttle
 	public float throttle;
 	public string throttle_str;
@@ -264,9 +264,9 @@ namespace SolarSailNavigator {
 
 	    GUILayout.BeginHorizontal();
 	    
-	    GUIAngle(ref cone, ref cone_str, frame.names[0]);
-	    GUIAngle(ref clock, ref clock_str, frame.names[1]);
-	    GUIAngle(ref flatspin, ref flatspin_str, frame.names[2]);
+	    GUIAngle(ref angle0, ref angle0_str, frame.names[0]);
+	    GUIAngle(ref angle1, ref angle1_str, frame.names[1]);
+	    GUIAngle(ref angle2, ref angle2_str, frame.names[2]);
 	    GUIThrottle();
 	    GUITime();
 	    GUIColor(color);
@@ -331,12 +331,12 @@ namespace SolarSailNavigator {
 	    // Reference frame for control angles
 	    this.frame = Frame.Frames[frame];
 	    // Angles
-	    this.cone = angles[0];
-	    cone_str = angles[0].ToString();
-	    this.clock = angles[1];
-	    clock_str = angles[1].ToString();
-	    this.flatspin = angles[2];
-	    flatspin_str = angles[2].ToString();
+	    this.angle0 = angles[0];
+	    angle0_str = angles[0].ToString();
+	    this.angle1 = angles[1];
+	    angle1_str = angles[1].ToString();
+	    this.angle2 = angles[2];
+	    angle2_str = angles[2].ToString();
 	    // Throttle
 	    throttle_str = throttle.ToString();
 	    this.throttle = throttle;
@@ -415,9 +415,9 @@ namespace SolarSailNavigator {
 
 	    // If the navigator doesn't have saved controls, return default
 	    if (String.IsNullOrEmpty(navigator.frames) ||
-		String.IsNullOrEmpty(navigator.cones) ||
-		String.IsNullOrEmpty(navigator.clocks) ||
-		String.IsNullOrEmpty(navigator.flatspins) ||
+		String.IsNullOrEmpty(navigator.angle0s) ||
+		String.IsNullOrEmpty(navigator.angle1s) ||
+		String.IsNullOrEmpty(navigator.angle2s) ||
 		String.IsNullOrEmpty(navigator.throttles) ||
 		String.IsNullOrEmpty(navigator.sailons) ||
 		String.IsNullOrEmpty(navigator.durations)) {
@@ -429,9 +429,9 @@ namespace SolarSailNavigator {
 
 		// Split into arrays
 		var frameStrings = navigator.frames.Split(delimiter);
-		var coneStrings = navigator.cones.Split(delimiter);
-		var clockStrings = navigator.clocks.Split(delimiter);
-		var flatspinStrings = navigator.flatspins.Split(delimiter);
+		var angle0Strings = navigator.angle0s.Split(delimiter);
+		var angle1Strings = navigator.angle1s.Split(delimiter);
+		var angle2Strings = navigator.angle2s.Split(delimiter);
 		var throttleStrings = navigator.throttles.Split(delimiter);
 		var durationStrings = navigator.durations.Split(delimiter);
 		var sailonStrings = navigator.sailons.Split(delimiter);
@@ -439,9 +439,9 @@ namespace SolarSailNavigator {
 		// Find number of controls
 		ncontrols =
 		    Math.Min(frameStrings.Length,
-			     Math.Min(coneStrings.Length,
-				      Math.Min(clockStrings.Length,
-					       Math.Min(flatspinStrings.Length,
+			     Math.Min(angle0Strings.Length,
+				      Math.Min(angle1Strings.Length,
+					       Math.Min(angle2Strings.Length,
 							Math.Min(throttleStrings.Length,
 								 Math.Min(durationStrings.Length,
 									  sailonStrings.Length))))));
@@ -451,9 +451,9 @@ namespace SolarSailNavigator {
 
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
-		    var angles = new float [] { Control.ParseSingle(coneStrings[i]),
-						Control.ParseSingle(clockStrings[i]),
-						Control.ParseSingle(flatspinStrings[i]) };
+		    var angles = new float [] { Control.ParseSingle(angle0Strings[i]),
+						Control.ParseSingle(angle1Strings[i]),
+						Control.ParseSingle(angle2Strings[i]) };
 		    controls.Add(new Control(navigator,
 					     this,
 					     angles,
@@ -696,17 +696,17 @@ namespace SolarSailNavigator {
 	    navigator.UT0 = UT0;
 	    // Controls
 	    navigator.frames = controls[0].frame.name;
-	    navigator.cones = controls[0].cone.ToString();
-	    navigator.clocks = controls[0].clock.ToString();
-	    navigator.flatspins = controls[0].flatspin.ToString();
+	    navigator.angle0s = controls[0].angle0.ToString();
+	    navigator.angle1s = controls[0].angle1.ToString();
+	    navigator.angle2s = controls[0].angle2.ToString();
 	    navigator.throttles = controls[0].throttle.ToString();
 	    navigator.sailons = controls[0].sailon.ToString();
 	    navigator.durations = controls[0].duration.ToString();
 	    for (var i = 1; i < ncontrols; i++) {
 		navigator.frames += delimiter + controls[i].frame.name;
-		navigator.cones += delimiter + controls[i].cone.ToString();
-		navigator.clocks += delimiter + controls[i].clock.ToString();
-		navigator.flatspins += delimiter + controls[i].flatspin.ToString();
+		navigator.angle0s += delimiter + controls[i].angle0.ToString();
+		navigator.angle1s += delimiter + controls[i].angle1.ToString();
+		navigator.angle2s += delimiter + controls[i].angle2.ToString();
 		navigator.throttles += delimiter + controls[i].throttle.ToString();
 		navigator.sailons += delimiter + controls[i].sailon.ToString();
 		navigator.durations += delimiter + controls[i].duration.ToString();
