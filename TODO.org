@@ -212,17 +212,17 @@ Toggle "Show Preview" to redraw
 * TODO Toolbar to Show/Hide controls instead of right-clicking on control module :FEATURE:WISHLIST:
 * TODO Final orbit line can obscure trajectory line 			:BUG:
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
-* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [2/9] :FEATURE:
+* TODO Create "Frame" class to store info on reference frame e.g. name and name of Euler angles [8/9] :FEATURE:
 ** DONE Create Frame class
 *** Names of Euler angles
 *** Angles
 *** Function of orbit, UT, and angles to generate spacecraft quaternion
-** TODO Use Frame class parameters in Controls instead of hard coded values
-** TODO Persistent values in Navigator for generic "angles" instead of cone/clock/flatspin
-** TODO Persistent values in Navigator for "frames"
-** TODO Load & save to "angles" and "frames"
-** TODO "Control" constructor should use "angles"
-** TODO "Control" object should have "angles" instead of cone/clock/flatspin
+** DONE Use Frame class parameters in Controls instead of hard coded values
+** DONE Persistent values in Navigator for generic "angles" instead of cone/clock/flatspin
+** DONE Persistent values in Navigator for "frames"
+** DONE Load & save to "angles" and "frames"
+** DONE "Control" constructor should use "angles"
+** DONE "Control" object should have "angles" instead of cone/clock/flatspin
 ** DONE GUIAngle instead of GUICone/Clock/Clatspin
 ** TODO Allow selection from a list of frames available
 * TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
