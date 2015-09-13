@@ -461,7 +461,7 @@ namespace SolarSailNavigator {
 					     Control.ParseBool(sailonStrings[i]),
 					     Control.ParseDouble(durationStrings[i]),
 					     Control.defaultiwarp,
-					     "RTN"));
+					     frameStrings[i]));
 		}
 	    }
 
