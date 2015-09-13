@@ -122,8 +122,7 @@ namespace SolarSailNavigator {
 		if (FlightGlobals.fetch != null && IsLocked) {
 		    // Set attitude
 		    Control control = controls.Lookup(UT);
-		    var angles = new float [] { control.angle0, control.angle1, control.angle2 };
-		    vessel.SetRotation(control.frame.qfn(vessel.orbit, UT, angles));
+		    vessel.SetRotation(control.frame.qfn(vessel.orbit, UT, control.angles));
 		    
 		    // Set throttle
 		    if (isEnabled) {

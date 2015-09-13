@@ -12,15 +12,9 @@ namespace SolarSailNavigator {
 	// Fields
 	// Reference frame
 	public Frame frame;
-	// Angle0 Angle
-	public float angle0;
-	public string angle0_str;
-	// Angle1 angle
-	public float angle1;
-	public string angle1_str;
-	// Angle2 angle
-	public float angle2;
-	public string angle2_str;
+	// Angles
+	public float [] angles;
+	public string [] anglestr;
 	// Throttle
 	public float throttle;
 	public string throttle_str;
@@ -264,9 +258,9 @@ namespace SolarSailNavigator {
 
 	    GUILayout.BeginHorizontal();
 	    
-	    GUIAngle(ref angle0, ref angle0_str, frame.names[0]);
-	    GUIAngle(ref angle1, ref angle1_str, frame.names[1]);
-	    GUIAngle(ref angle2, ref angle2_str, frame.names[2]);
+	    GUIAngle(ref angles[0], ref anglestr[0], frame.names[0]);
+	    GUIAngle(ref angles[1], ref anglestr[1], frame.names[1]);
+	    GUIAngle(ref angles[2], ref anglestr[2], frame.names[2]);
 	    GUIThrottle();
 	    GUITime();
 	    GUIColor(color);
@@ -331,12 +325,12 @@ namespace SolarSailNavigator {
 	    // Reference frame for control angles
 	    this.frame = Frame.Frames[frame];
 	    // Angles
-	    this.angle0 = angles[0];
-	    angle0_str = angles[0].ToString();
-	    this.angle1 = angles[1];
-	    angle1_str = angles[1].ToString();
-	    this.angle2 = angles[2];
-	    angle2_str = angles[2].ToString();
+	    this.angles = angles;
+	    // Angle strings
+	    anglestr = new string [3];
+	    for (int i = 0; i < 3; i++) {
+		anglestr[i] = angles[i].ToString();
+	    }
 	    // Throttle
 	    throttle_str = throttle.ToString();
 	    this.throttle = throttle;
@@ -696,17 +690,17 @@ namespace SolarSailNavigator {
 	    navigator.UT0 = UT0;
 	    // Controls
 	    navigator.frames = controls[0].frame.name;
-	    navigator.angle0s = controls[0].angle0.ToString();
-	    navigator.angle1s = controls[0].angle1.ToString();
-	    navigator.angle2s = controls[0].angle2.ToString();
+	    navigator.angle0s = controls[0].angles[0].ToString();
+	    navigator.angle1s = controls[0].angles[1].ToString();
+	    navigator.angle2s = controls[0].angles[2].ToString();
 	    navigator.throttles = controls[0].throttle.ToString();
 	    navigator.sailons = controls[0].sailon.ToString();
 	    navigator.durations = controls[0].duration.ToString();
 	    for (var i = 1; i < ncontrols; i++) {
 		navigator.frames += delimiter + controls[i].frame.name;
-		navigator.angle0s += delimiter + controls[i].angle0.ToString();
-		navigator.angle1s += delimiter + controls[i].angle1.ToString();
-		navigator.angle2s += delimiter + controls[i].angle2.ToString();
+		navigator.angle0s += delimiter + controls[i].angles[0].ToString();
+		navigator.angle1s += delimiter + controls[i].angles[1].ToString();
+		navigator.angle2s += delimiter + controls[i].angles[2].ToString();
 		navigator.throttles += delimiter + controls[i].throttle.ToString();
 		navigator.sailons += delimiter + controls[i].sailon.ToString();
 		navigator.durations += delimiter + controls[i].duration.ToString();

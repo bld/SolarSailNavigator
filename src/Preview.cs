@@ -28,9 +28,6 @@ namespace SolarSailNavigator {
 	public void Propagate(Navigator navigator, Orbit orbit0, double UT0, double UTf, double dT, Control control, double m0in) {
 
 	    // Control parameters
-	    var angle0 = control.angle0;
-	    var angle1 = control.angle1;
-	    var angle2 = control.angle2;
 	    var throttle = control.throttle;
 	    var sailon = control.sailon;
 	    var frame = control.frame;
@@ -74,9 +71,7 @@ namespace SolarSailNavigator {
 		}
 		
 		// Spacecraft reference frame
-		//Quaternion sailFrame = Frames.SailFrame(orbit, angle0, angle1, angle2, UT);
-		var angles = new float[] {angle0, angle1, angle2};
-		Quaternion sailFrame = frame.qfn(orbit, UT, angles);
+		Quaternion sailFrame = frame.qfn(orbit, UT, control.angles);
 
 		// Total deltaV vector
 		Vector3d deltaVV = new Vector3d(0.0, 0.0, 0.0);
@@ -125,12 +120,6 @@ namespace SolarSailNavigator {
 			if (!SolarSailPart.inSun(orbit, UT)) {
 			    sunlightFactor = 0.0;
 			}
-			
-			// Local orientation of sail
-			//Quaternion Qsl = s.transform.localRotation;
-			
-			// World orientation of sail
-			//Quaternion Qsw = sailFrame * Qsl;
 			
 			// Normal vector
 			Vector3d n = sailFrame * new Vector3d(0.0, 1.0, 0.0);
