@@ -414,7 +414,8 @@ namespace SolarSailNavigator {
 	    navigatorOff = Control.Default(navigator, this);
 
 	    // If the navigator doesn't have saved controls, return default
-	    if (String.IsNullOrEmpty(navigator.cones) ||
+	    if (String.IsNullOrEmpty(navigator.frames) ||
+		String.IsNullOrEmpty(navigator.cones) ||
 		String.IsNullOrEmpty(navigator.clocks) ||
 		String.IsNullOrEmpty(navigator.flatspins) ||
 		String.IsNullOrEmpty(navigator.throttles) ||
@@ -427,6 +428,7 @@ namespace SolarSailNavigator {
 	    } else { // Otherwise, parse saved controls
 
 		// Split into arrays
+		var frameStrings = navigator.frames.Split(delimiter);
 		var coneStrings = navigator.cones.Split(delimiter);
 		var clockStrings = navigator.clocks.Split(delimiter);
 		var flatspinStrings = navigator.flatspins.Split(delimiter);
@@ -435,8 +437,15 @@ namespace SolarSailNavigator {
 		var sailonStrings = navigator.sailons.Split(delimiter);
 
 		// Find number of controls
-		ncontrols = Math.Min(Math.Min(coneStrings.Length, clockStrings.Length), Math.Min(durationStrings.Length, Math.Min(flatspinStrings.Length, Math.Min(throttleStrings.Length, sailonStrings.Length))));
-
+		ncontrols =
+		    Math.Min(frameStrings.Length,
+			     Math.Min(coneStrings.Length,
+				      Math.Min(clockStrings.Length,
+					       Math.Min(flatspinStrings.Length,
+							Math.Min(throttleStrings.Length,
+								 Math.Min(durationStrings.Length,
+									  sailonStrings.Length))))));
+		
 		// Initialize controls array
 		controls = new List<Control>();
 
@@ -686,6 +695,7 @@ namespace SolarSailNavigator {
 	    // Initial time
 	    navigator.UT0 = UT0;
 	    // Controls
+	    navigator.frames = controls[0].frame.name;
 	    navigator.cones = controls[0].cone.ToString();
 	    navigator.clocks = controls[0].clock.ToString();
 	    navigator.flatspins = controls[0].flatspin.ToString();
@@ -693,6 +703,7 @@ namespace SolarSailNavigator {
 	    navigator.sailons = controls[0].sailon.ToString();
 	    navigator.durations = controls[0].duration.ToString();
 	    for (var i = 1; i < ncontrols; i++) {
+		navigator.frames += delimiter + controls[i].frame.name;
 		navigator.cones += delimiter + controls[i].cone.ToString();
 		navigator.clocks += delimiter + controls[i].clock.ToString();
 		navigator.flatspins += delimiter + controls[i].flatspin.ToString();
