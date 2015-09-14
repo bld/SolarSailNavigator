@@ -19,27 +19,36 @@ namespace SolarSailNavigator {
 	// Fields
 	public string name;
 	public string[] names;
+	public string summary;
 	public float[] defaults;
 	public Qbase qbasefn;
 	public Qlocal qlocalfn;
 	public Q qfn;
-	
+
 	// Constructor
-	public Frame (string name, string[] names, float[] defaults, Qbase qbasefn, Qlocal qlocalfn, Q qfn) {
+	public Frame (string name, string[] names, string summary, float[] defaults, Qbase qbasefn, Qlocal qlocalfn, Q qfn) {
 	    this.name = name;
 	    this.names = names;
+	    this.summary = summary;
 	    this.defaults = defaults;
 	    this.qbasefn = qbasefn;
 	    this.qlocalfn = qlocalfn;
 	    this.qfn = qfn;
 	}
 
+	// ToString() override
+	public override string ToString() {
+	    return name;
+	}
+
+	// Dictionary of reference frames
 	public static Dictionary<string, Frame> Frames = new Dictionary<string, Frame>
 	    {
 		// Radial/tangential/normal reference frame
 		// With Cone/Clock/Flatspin angles
 		{"RTN", new Frame("RTN",
 				  new string[] {"Cone", "Clock", "Flatspin"},
+				  "Radial/Tangential/Normal",
 				  new float[] {90.0f, 0.0f, 0.0f},
 				  RTNFrame,
 				  SailFrameLocal,
@@ -48,6 +57,7 @@ namespace SolarSailNavigator {
 		// With Flight path angle (FPA)/Azimuth/Flatspin angles
 		{"ICN", new Frame("ICN",
 				  new string[] {"FPA", "Az", "Flatspin"},
+				  "In-track/Cross-track/Normal",
 				  new float[] {0f, 0f, 0f},
 				  ICNFrame,
 				  FAFLocal,

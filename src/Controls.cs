@@ -52,21 +52,7 @@ namespace SolarSailNavigator {
 	public static double SecondsPerMinute = 60.0;
 	public static double HoursPerDay = 6.0;
 	public static double[] warpLevels = { 1, 2, 3, 4, 5, 10, 50, 100, 1000, 10000, 100000 };
-
-	// Modulous function (instead of % operator, which is remainder)
-	float Mod (float a, float b) {
-	    return a - b * (float)Math.Floor(a / b);
-	}
 	
-	// Normalize angles between -180 and 180 degrees
-	public float normalizeAngle (float angle) {
-	    if (angle < -180 || angle > 180) {
-		return Mod((angle + 180.0f), 360.0f) - 180.0f;
-	    } else {
-		return angle;
-	    }
-	}
-
 	// Angle controls
 	public void GUIAngle (ref float angle, ref string angle_str, string name) {
 	    // Text field
@@ -80,18 +66,18 @@ namespace SolarSailNavigator {
 		angle_str = new_str;
 		float parsedValue;
 		if (Single.TryParse(angle_str, out parsedValue)) {
-		    angle = normalizeAngle(parsedValue);
+		    angle = Utils.normalizeAngle(parsedValue);
 		    controls.Update();
 		}
 	    }
 	    // +/- buttons
 	    if (GUILayout.Button("+")) {
-		angle = normalizeAngle(angle + 5);
+		angle = Utils.normalizeAngle(angle + 5);
 		angle_str = angle.ToString();
 		controls.Update();
 	    }
 	    if (GUILayout.Button("-")) {
-		angle = normalizeAngle(angle - 5);
+		angle = Utils.normalizeAngle(angle - 5);
 		angle_str = angle.ToString();
 		controls.Update();
 	    }
@@ -250,6 +236,35 @@ namespace SolarSailNavigator {
 	    ctx.Apply();
 	    GUILayout.Label(" ", cstyle, GUILayout.Width(30), GUILayout.Height(30));
 	}
+
+	// Frame selection GUI
+	Rect frameWindowPos = new Rect(0, 50, 0, 0);
+	int frameID;
+	bool showFrameWindow = false;
+	void DrawFrameWindow () {
+	    if (showFrameWindow) {
+		frameWindowPos = GUILayout.Window(frameID, frameWindowPos, FrameWindow, "Frame selection");
+	    }
+	}
+	void FrameWindow (int WindowID) {
+	    GUILayout.BeginVertical();
+	    foreach (var f in Frame.Frames.Values) {
+		GUILayout.BeginHorizontal();
+		if (GUILayout.Button(f.name)) {
+		    frame = f;
+		    showFrameWindow = false;
+		    controls.Update();
+		}
+		GUILayout.Label(f.summary, GUILayout.Width(80));
+		GUILayout.EndHorizontal();
+	    }
+	    GUILayout.EndVertical();
+	}
+	public void GUIFrame () {
+	    if (GUILayout.Button(frame.name, GUILayout.Width(40))) {
+		showFrameWindow = true;
+	    }
+	}
 	
 	// GUI line
 	public void GUILine (Color color, int i) {
@@ -264,6 +279,7 @@ namespace SolarSailNavigator {
 	    GUIThrottle();
 	    GUITime();
 	    GUIColor(color);
+	    GUIFrame();
 
 	    // Add/Remove buttons
 	    if (GUILayout.Button("INS")) { controls.Add(i); };
@@ -275,49 +291,13 @@ namespace SolarSailNavigator {
 	    GUILayout.Space(5);
 	}
 	
-	// Parse a string to a single
-	public static float ParseSingle (string str) {
-	    float tmp;
-	    if (Single.TryParse(str, out tmp)) {
-		return tmp;
-	    } else {
-		return 0.0f;
-	    }
-	}
-
-	// Parse a string to a double
-	public static double ParseDouble (string str) {
-	    double tmp;
-	    if (Double.TryParse(str, out tmp)) {
-		return tmp;
-	    } else {
-		return 0.0;
-	    }
-	}
-
-	// Parse a string to an int
-	public static int ParseInt (string str) {
-	    int tmp;
-	    if (Int32.TryParse(str, out tmp)) {
-		return tmp;
-	    } else {
-		return 0;
-	    }
-	}
-
-	// Parse a string to a bool
-	public static bool ParseBool (string str) {
-	    bool tmp;
-	    if (Boolean.TryParse(str, out tmp)) {
-		return tmp;
-	    } else {
-		return false;
-	    }
-	}
-	
 	// Constructor
 
 	public Control (Navigator navigator, Controls controls, float [] angles, float throttle, bool sailon, double duration, int iwarp, string frame) {
+	    // Frame window ID
+	    frameID = GUIUtility.GetControlID(FocusType.Keyboard);
+	    // Initialize frame selection window
+	    RenderingManager.AddToPostDrawQueue(3, new Callback(DrawFrameWindow));
 	    // Navigator
 	    this.navigator = navigator;
 	    // Parent controls object
@@ -374,6 +354,7 @@ namespace SolarSailNavigator {
 	bool updateTargetLine = false; // Indicate if target line needs updating
 	public Preview preview;
 	public string previewButtonText = "Show Preview";
+	int id; // GUI window id
 	
 	// Static fields
 	static Color[] colorMap = { Color.yellow,
@@ -395,6 +376,9 @@ namespace SolarSailNavigator {
 	    // Assign navigator field
 	    this.navigator = navigator;
 	    Debug.Log(this.navigator.ToString());
+
+	    // Controls window id
+	    id = GUIUtility.GetControlID(FocusType.Keyboard);
 
 	    // Initial time
 	    if (navigator.UT0 == 0) {
@@ -445,15 +429,15 @@ namespace SolarSailNavigator {
 
 		// Populate controls
 		for(var i = 0; i < ncontrols; i++) {
-		    var angles = new float [] { Control.ParseSingle(angle0Strings[i]),
-						Control.ParseSingle(angle1Strings[i]),
-						Control.ParseSingle(angle2Strings[i]) };
+		    var angles = new float [] { Utils.ParseSingle(angle0Strings[i]),
+						Utils.ParseSingle(angle1Strings[i]),
+						Utils.ParseSingle(angle2Strings[i]) };
 		    controls.Add(new Control(navigator,
 					     this,
 					     angles,
-					     Control.ParseSingle(throttleStrings[i]),
-					     Control.ParseBool(sailonStrings[i]),
-					     Control.ParseDouble(durationStrings[i]),
+					     Utils.ParseSingle(throttleStrings[i]),
+					     Utils.ParseBool(sailonStrings[i]),
+					     Utils.ParseDouble(durationStrings[i]),
 					     Control.defaultiwarp,
 					     frameStrings[i]));
 		}
@@ -479,9 +463,10 @@ namespace SolarSailNavigator {
 	    if (Math.Abs(speedms) < 1000) {
 		return Math.Round(speedms, 1).ToString() + " m/s";
 	    } else {
-		return Math.Round(speedms / 1000, 3).ToString() + " km/s";
+		return Math.Round(speedms / 1000.0, 3).ToString() + " km/s";
 	    }
 	}
+	
 	
 	// GUI
 	public void ControlsGUI(int WindowID) {
@@ -508,6 +493,7 @@ namespace SolarSailNavigator {
 	    GUILayout.Label("Days", GUILayout.Width(120));
 	    GUILayout.Label("Hours", GUILayout.Width(65));
 	    GUILayout.Label("Color", GUILayout.Width(30));
+	    GUILayout.Label("Frame", GUILayout.Width(40));
 	    GUILayout.Label("", GUILayout.Width(80));
 	    GUILayout.EndHorizontal();
 
@@ -644,12 +630,12 @@ namespace SolarSailNavigator {
 	}
 
 	// Controls GUI rectangle
-	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
+	private Rect controlWindowPos = new Rect(100, 50, 0, 0);
 
 	// Controls GUI function
 	public void DrawControls () {
 	    if (navigator.vessel == FlightGlobals.ActiveVessel)
-		controlWindowPos = GUILayout.Window(10, controlWindowPos, ControlsGUI, "Controls");
+		controlWindowPos = GUILayout.Window(id, controlWindowPos, ControlsGUI, "Controls");
 	}
 	
 	// Add a control
