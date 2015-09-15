@@ -85,29 +85,21 @@ namespace SolarSailNavigator {
 		    // Only count thrust of engines that are not shut down in preview
 		    if (e.getIgnitionState) {
 
-			// Local orientation of engine
-			//Quaternion Qel = e.transform.localRotation;
-			
-			// World orientation of engine
-			//Quaternion Qew = sailFrame * Qel;
-			
-			// Up vector for thrust
-			//Vector3d newup = Qew * new Vector3d(0.0, 1.0, 0.0);
-			//Debug.Log("new up vector: " + newup.ToString());
-			Vector3d up = sailFrame * new Vector3d(0.0, 1.0, 0.0);
+			// Thrust unit vector
+			Vector3d thrustUV = sailFrame * new Vector3d(0.0, 1.0, 0.0);
 			
 			// Isp: Currently vacuum. TODO: calculate at current air pressure
 			float isp = e.atmosphereCurve.Evaluate(0);
 			
 			// Thrust vector
 			float thrust = throttle * e.maxThrust;
-			
-			// DeltaV vector
-			double mdot = thrust / (isp * 9.81); // Mass flow rate
-			double dm = mdot * dT; // Change in mass
-			dms += dm;
-			double deltaV = isp * 9.81 * Math.Log(m0i / (m0i - dm)); // deltaV
-			deltaVV += deltaV * up; // Increment deltaV vector
+
+			// Calculate deltaV vector
+			double demandMass;
+			deltaVV += e.CalculateDeltaVV(m0i, dT, thrust, isp, thrustUV, out demandMass);
+
+			// Update mass usage
+			dms += demandMass * e.densityAverage;
 		    }
 		}
 		
