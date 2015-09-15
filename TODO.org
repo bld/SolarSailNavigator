@@ -107,6 +107,7 @@ public override void OnUpdate()
 ** DONE Buttons change frame
 ** DONE Buttons call Controls.Update
 * DONE Use methods in PersistentEngine to calculate mass & deltaV   :FEATURE:
+* DONE Put frame GUI window into its own class			    :FEATURE:
 * TODO Require navigation instruments [0/3]			   :WISHLIST:
 ** TODO Sun sensor (for sail)
 ** TODO Star tracker
@@ -238,11 +239,9 @@ Toggle "Show Preview" to redraw
 * TODO Show Start Time in years/days/hours/seconds or Real Solar System time :FEATURE:
 * TODO "navigatorOff" attitude need customizable flatspin to orient the panels correctly :BUG:
 Default Flatspin for all control sequences?
-* TODO Navigator default settings [0/2] 			    :FEATURE:
-** TODO GUI window & class to fill out settings
-** TODO Reference frame and angles
 * TODO "Add" or "INS" buttons should copy values from last (Add) or selected (INS) control [0/2] :FEATURE:
 ** TODO When "Add" clicked, copy values from last control
 ** TODO When "INS" clicked, copy valued from the corresponding control
-* TODO Put frame GUI window into its own class			    :FEATURE:
-
+* TODO Navigator default settings [0/2] 			    :FEATURE:
+** TODO GUI window & class to fill out settings
+** TODO Reference frame and angles

@@ -170,4 +170,43 @@ namespace SolarSailNavigator {
 	    return ICNFrame(orbit, UT) * FAFLocal(angles);
 	}
     }
+
+    public class FrameWindow {
+	// Rectangle object
+	Rect frameWindowPos;
+	int frameID;
+	public bool showFrameWindow = false;
+	Control control;
+
+	public FrameWindow (Control control) {
+	    // Rectangle object
+	    frameWindowPos = new Rect(0, 50, 0, 0);
+	    // Frame window ID
+	    frameID = GUIUtility.GetControlID(FocusType.Keyboard);
+	    // Initialize frame selection window
+	    RenderingManager.AddToPostDrawQueue(3, new Callback(DrawFrameWindow));
+	    this.control = control;
+	}
+
+	void DrawFrameWindow () {
+	    if (showFrameWindow) {
+		frameWindowPos = GUILayout.Window(frameID, frameWindowPos, FrameWindowGUI, "Frame selection");
+	    }
+	}
+
+	void FrameWindowGUI (int WindowID) {
+	    GUILayout.BeginVertical();
+	    foreach (var f in Frame.Frames.Values) {
+		GUILayout.BeginHorizontal();
+		if (GUILayout.Button(f.name)) {
+		    control.frame = f;
+		    showFrameWindow = false;
+		    control.controls.Update();
+		}
+		GUILayout.Label(f.summary, GUILayout.Width(80));
+		GUILayout.EndHorizontal();
+	    }
+	    GUILayout.EndVertical();
+	}
+    }
 }

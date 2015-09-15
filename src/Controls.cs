@@ -38,6 +38,8 @@ namespace SolarSailNavigator {
 	public Controls controls;
 	// Parent navigator object
 	public Navigator navigator;
+	// Windows
+	FrameWindow frameWindow;
 
 	// Static fields
 	// Defaults
@@ -237,32 +239,9 @@ namespace SolarSailNavigator {
 	    GUILayout.Label(" ", cstyle, GUILayout.Width(30), GUILayout.Height(30));
 	}
 
-	// Frame selection GUI
-	Rect frameWindowPos = new Rect(0, 50, 0, 0);
-	int frameID;
-	bool showFrameWindow = false;
-	void DrawFrameWindow () {
-	    if (showFrameWindow) {
-		frameWindowPos = GUILayout.Window(frameID, frameWindowPos, FrameWindow, "Frame selection");
-	    }
-	}
-	void FrameWindow (int WindowID) {
-	    GUILayout.BeginVertical();
-	    foreach (var f in Frame.Frames.Values) {
-		GUILayout.BeginHorizontal();
-		if (GUILayout.Button(f.name)) {
-		    frame = f;
-		    showFrameWindow = false;
-		    controls.Update();
-		}
-		GUILayout.Label(f.summary, GUILayout.Width(80));
-		GUILayout.EndHorizontal();
-	    }
-	    GUILayout.EndVertical();
-	}
 	public void GUIFrame () {
 	    if (GUILayout.Button(frame.name, GUILayout.Width(40))) {
-		showFrameWindow = true;
+		frameWindow.showFrameWindow = true;
 	    }
 	}
 	
@@ -294,16 +273,14 @@ namespace SolarSailNavigator {
 	// Constructor
 
 	public Control (Navigator navigator, Controls controls, float [] angles, float throttle, bool sailon, double duration, int iwarp, string frame) {
-	    // Frame window ID
-	    frameID = GUIUtility.GetControlID(FocusType.Keyboard);
-	    // Initialize frame selection window
-	    RenderingManager.AddToPostDrawQueue(3, new Callback(DrawFrameWindow));
 	    // Navigator
 	    this.navigator = navigator;
 	    // Parent controls object
 	    this.controls = controls;
 	    // Reference frame for control angles
 	    this.frame = Frame.Frames[frame];
+	    // Frame window
+	    frameWindow = new FrameWindow(this);
 	    // Angles
 	    this.angles = angles;
 	    // Angle strings
