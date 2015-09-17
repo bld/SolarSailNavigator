@@ -41,13 +41,6 @@ namespace SolarSailNavigator {
 	// Windows
 	FrameWindow frameWindow;
 
-	// Static fields
-	// Defaults
-	public static float defaultThrottle = 0f;
-	public static bool defaultSailon = true;
-	public static string defaultFrame = "RTN";
-	public static double defaultDuration = 10 * SecondsPerDay;
-	public static int defaultiwarp = 10; // Warp level index
 	// Time Conversion
 	public static double SecondsPerDay = 21600.0;
 	public static double SecondsPerHour = 3600.0;
@@ -241,7 +234,9 @@ namespace SolarSailNavigator {
 
 	public void GUIFrame () {
 	    if (GUILayout.Button(frame.name, GUILayout.Width(40))) {
-		frameWindow.showFrameWindow = true;
+		frameWindow.show = true;
+		// Run Controls.Update when window returns
+
 	    }
 	}
 	
@@ -308,8 +303,10 @@ namespace SolarSailNavigator {
 	}
 
 	public static Control Default (Navigator navigator, Controls controls) {
-	    var frame = Frame.Frames[defaultFrame];
-	    return new Control(navigator, controls, frame.defaults, defaultThrottle, defaultSailon, defaultDuration, defaultiwarp, defaultFrame);
+	    var frame = Frame.Frames[navigator.defaultFrame];
+	    var defaultAngles = new float [] { navigator.defaultAngle0, navigator.defaultAngle1, navigator.defaultAngle2 };
+	    var defaultDuration = navigator.defaultDays * SecondsPerDay + navigator.defaultHours * SecondsPerHour;
+	    return new Control(navigator, controls, defaultAngles, navigator.defaultThrottle, navigator.defaultSailon, defaultDuration, navigator.defaultIWarp, navigator.defaultFrame);
 	}
     }
 
@@ -345,11 +342,17 @@ namespace SolarSailNavigator {
 	// Delimiter between controls
 	private char delimiter = ':';
 
+	// Defaults window
+	DefaultWindow defaultWindow;
+	
 	// Constructor
 
 	// Give the navigator to which this control is for
 	public Controls (Navigator navigator) {
 
+	    // Defaults window
+	    defaultWindow = new DefaultWindow(navigator);
+	    
 	    // Assign navigator field
 	    this.navigator = navigator;
 	    Debug.Log(this.navigator.ToString());
@@ -415,7 +418,7 @@ namespace SolarSailNavigator {
 					     Utils.ParseSingle(throttleStrings[i]),
 					     Utils.ParseBool(sailonStrings[i]),
 					     Utils.ParseDouble(durationStrings[i]),
-					     Control.defaultiwarp,
+					     navigator.defaultIWarp,
 					     frameStrings[i]));
 		}
 	    }
@@ -425,7 +428,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Convert length in meters to string with bigger units
-	string LengthToString(double lengthm) {
+	string LengthToString (double lengthm) {
 	    if (Math.Abs(lengthm) < 1000) {
 		return Math.Round(lengthm).ToString() + " m";
 	    } else if (Math.Abs(lengthm) < 1000000000) {
@@ -436,7 +439,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Convert speed in m/s to string with bigger units
-	string SpeedToString(double speedms) {
+	string SpeedToString (double speedms) {
 	    if (Math.Abs(speedms) < 1000) {
 		return Math.Round(speedms, 1).ToString() + " m/s";
 	    } else {
@@ -446,7 +449,7 @@ namespace SolarSailNavigator {
 	
 	
 	// GUI
-	public void ControlsGUI(int WindowID) {
+	public void ControlsGUI (int WindowID) {
 	    GUILayout.BeginVertical();
 
 	    // Lock/Unlock attitude
@@ -461,14 +464,17 @@ namespace SolarSailNavigator {
 	    }
 	    GUILayout.EndHorizontal();
 
+	    // Defaults
+	    defaultWindow.show = GUILayout.Toggle(defaultWindow.show, "Set Defaults");
+
 	    // Controls
 	    GUILayout.BeginHorizontal();
 	    GUILayout.Label("Angle 1", GUILayout.Width(80));
 	    GUILayout.Label("Angle 2", GUILayout.Width(80));
 	    GUILayout.Label("Angle 3", GUILayout.Width(80));
 	    GUILayout.Label("Throttle", GUILayout.Width(80));
-	    GUILayout.Label("Days", GUILayout.Width(120));
-	    GUILayout.Label("Hours", GUILayout.Width(65));
+	    GUILayout.Label("Days", GUILayout.Width(115));
+	    GUILayout.Label("Hours", GUILayout.Width(70));
 	    GUILayout.Label("Color", GUILayout.Width(30));
 	    GUILayout.Label("Frame", GUILayout.Width(40));
 	    GUILayout.Label("", GUILayout.Width(80));
@@ -607,7 +613,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Controls GUI rectangle
-	private Rect controlWindowPos = new Rect(100, 50, 0, 0);
+	private Rect controlWindowPos = new Rect(0, 50, 0, 0);
 
 	// Controls GUI function
 	public void DrawControls () {

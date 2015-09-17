@@ -175,12 +175,12 @@ namespace SolarSailNavigator {
 	// Rectangle object
 	Rect frameWindowPos;
 	int frameID;
-	public bool showFrameWindow = false;
+	public bool show = false;
 	Control control;
 
 	public FrameWindow (Control control) {
 	    // Rectangle object
-	    frameWindowPos = new Rect(0, 50, 0, 0);
+	    frameWindowPos = new Rect(705, 50, 0, 0);
 	    // Frame window ID
 	    frameID = GUIUtility.GetControlID(FocusType.Keyboard);
 	    // Initialize frame selection window
@@ -189,7 +189,7 @@ namespace SolarSailNavigator {
 	}
 
 	void DrawFrameWindow () {
-	    if (showFrameWindow) {
+	    if (show) {
 		frameWindowPos = GUILayout.Window(frameID, frameWindowPos, FrameWindowGUI, "Frame selection");
 	    }
 	}
@@ -200,13 +200,14 @@ namespace SolarSailNavigator {
 		GUILayout.BeginHorizontal();
 		if (GUILayout.Button(f.name)) {
 		    control.frame = f;
-		    showFrameWindow = false;
+		    show = false;
 		    control.controls.Update();
 		}
 		GUILayout.Label(f.summary, GUILayout.Width(80));
 		GUILayout.EndHorizontal();
 	    }
 	    GUILayout.EndVertical();
+	    GUI.DragWindow();
 	}
     }
 }

@@ -4,7 +4,8 @@ KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 PT	:= ${KSPDIR}/GameData/PersistentThrust/Plugins/
 MM	:= ${KSPDIR}/GameData/
-SSFILES	:= src/Utils.cs \
+SSFILES	:= src/Default.cs \
+	src/Utils.cs \
 	src/Navigator.cs \
 	src/Controls.cs \
 	src/Preview.cs \

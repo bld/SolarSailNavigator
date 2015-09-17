@@ -31,6 +31,25 @@ namespace SolarSailNavigator {
 	public string throttles;
 	[KSPField(isPersistant = true)] // Is sail on?
 	public string sailons;
+	// Default control parameters
+	[KSPField(isPersistant = true)] // Steering frame
+	public string defaultFrame = "RTN";
+	[KSPField(isPersistant = true)] // Euler angles 0
+	public float defaultAngle0 = Frame.Frames["RTN"].defaults[0];
+	[KSPField(isPersistant = true)] // Euler angles 1
+	public float defaultAngle1 = Frame.Frames["RTN"].defaults[1];
+	[KSPField(isPersistant = true)] // Euler angles 2
+	public float defaultAngle2 = Frame.Frames["RTN"].defaults[2];
+	[KSPField(isPersistant = true)] // Days
+	public double defaultDays = 10.0;
+	[KSPField(isPersistant = true)] // Hours
+	public double defaultHours = 0.0;
+	[KSPField(isPersistant = true)] // Throttle
+	public float defaultThrottle = 0f;
+	[KSPField(isPersistant = true)] // Is sail on?
+	public bool defaultSailon = true;
+	[KSPField(isPersistant = true)] // Is sail on?
+	public int defaultIWarp = 10;
 
 	// Are there any persistent engines or sails?
 	bool anyPersistent;
