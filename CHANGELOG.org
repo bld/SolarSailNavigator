@@ -1,10 +1,14 @@
 * SolarSailNavigator Changelog
 ** v1.0.5
+*** Popup window to change the default frame/angles/throttle/days/hours
 *** PersistentThrust now a separate module: https://github.com/bld/PersistentThrust
-*** Internal changes underway to eventually allow other reference frames for steering
-*** Type in control angles, throttle, days, and hours
+*** Two reference frames now available: Radial/Tangential/Normal (RTN) and In-track/Cross-track/Normal (ICN)
+**** RTN frame angles are Cone (angle off sun), Clock (rotation about sun), and Flatspin (rotation about vessel "up" vector)
+**** ICN frame angles are Flight path angle, Azimuth (rotation about velocity), and Flatspin
+*** Type in control angles, throttle, hours, and days
 *** Fixed bug so that angles now limited to +/- 180 degrees
 *** Fixed bug so that throttle now limited to 0-100%
+*** Internally, uses new deltaV and mass consumption methods from PersistentThrust
 ** v1.0.4
 *** Navigation controls now attached to a part on the spacecraft, instead of the propulsion system, and controls all continuous thrust parts on the vessel.
 *** Realtime, timewarp, and navigation preview tested to work for multiple sails and persistent thrust engines.

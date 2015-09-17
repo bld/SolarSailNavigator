@@ -7,24 +7,15 @@ This is a developmental release of a solar sail and low thrust engine
 navigation plugin for Kerbal Space Program (KSP,
 http://www.kerbalspaceprogram.com). Plot the course of a spacecraft
 pushed by the pressure of sunlight or a continuous thrust engine
-(e.g. ion engines). Unlike rockets, solar sails and continuous thrust
-engines apply a small amount of thrust throughout the trajectory,
-gradually changing the orbit until reaching their destination. This
-plugin simulates these propulsion systems and helps plan transfer
-trajectories.
+(e.g. ion engines). Unlike chemical rockets, solar sails and
+continuous thrust engines apply a small amount of thrust throughout
+the trajectory, gradually changing the orbit until reaching their
+destination. This plugin shows the future path your vessel will take
+so you can plan transfer trajectories.
 
-A sub-module of this project is called PersistentThrust and is
-licensed under the KSP Interstellar open source license. It includes:
-- Solar sail model with animated deployment by Sasquatch Marmalade
-- Force model by Fractal_UK from the KSP Interstellar mod that works
-  during time warp
-- Force model of continuous thrust engines that during time warp
-- Module Manager patch to the stock ion engine that reduces the thrust
-  to realistic levels while keeping power consumption the same
-
-The main plugin includes the Navigator module, which adds controls to
-any command pod to schedule the steering and throttle of the vessel,
-show what the future trajectory will look like, and show how close the
+The plugin includes the Navigator module, which adds controls to any
+command pod to schedule the steering and throttle of the vessel, show
+what the future trajectory will look like, and show how close the
 vessel gets to a target at the end of the command schedule. The
 navigation system (everything outside PersistentThrust) is licensed
 under the LGPL (see LICENSE.txt)
@@ -87,15 +78,18 @@ warp.
 This shows the time that the attitude maneuvers begin in Universal
 Time (UT) seconds. Click the "Set to Now" button to reset the start
 time to now. Do this if you are starting a new sequence.
-**** Reference frame
+**** Reference frames
 The sail attitude is controlled relative to a reference frame that
-rotates with the vessel as it travels around the sun. It is defined by
-the vectors:
+rotates with the vessel as it travels around the sun. There are
+currently two frames available.
+***** Radial/Tangential/Normal
 - X: from the sun to the sail (radial, "R")
 - Y: perpendicular to R, lying in the orbit, in the direction of the
   orbit rotation (tangential, "T")
 - Z: perpendicular to the orbit plane (normal, "N")
-**** Cone
+
+The three RTN angles are:
+****** Cone (angle the vessel points off of the radial / sun vector). 
 The "Cone" angle is the angle between the sun and the line
 perpendicular to the surface of the sail (sail "normal" vector). As
 the sail tilts away from the sun, the reflected light will start
@@ -105,16 +99,25 @@ against the velocity to tack closer to the sun. At 0 degrees, the sail
 faces directly at the sun. At 90 degrees, the sail is edge on to the
 sun, which effectively turns the sail off. This is the rotation about
 the Z axis, after the clock angle has been applied.
-**** Clock
+****** Clock (rotation around the radial / sun vector)
 The "Clock" angle is the rotation around the sun-sail line (X or R in
 the RTN frame). It lets you direct the solar force above or below the
 orbit plane to change the orbit inclination. If the clock angle is 0
 degrees, the cone angle tilts the sail within the orbit plane. At
 +/-90 degrees, the cone angle tilts the sail out of the orbit plane.
-**** Flatspin
+****** Flatspin (rotation about the vessel's "up" vector)
 The "Flatspin" angle is the rotation about the spacecraft's local
 up/down axis. Use this to, for example, make sure the solar panels are
 oriented to collect power during maneuvers.
+***** In-track/Cross-track/Normal
+- X: velocity vector (in-track "I")
+- Y: perpendicular to the velocity vector, in the orbit plane, and pointing inside the orbit (cross-track "C")
+- Z: perpendicular to the orbit plane (normal, "N")
+
+The three ICN angles are:
+****** Flight path angle (angle away from the velocity vector)
+****** Azimuth (rotation around the velocity vector)
+****** Flatspin (rotation around the vessel's "up" vector)
 **** Throttle
 The throttle (for continuous thrust engines) will set the vessel
 throttle to the specified level from 0.00 to 1.00 in 0.05 increments
@@ -129,9 +132,14 @@ next to "Hours" fine tune the duration.
 **** Color
 This shows the color of this attitude maneuver segment on the
 trajectory preview in map mode.
-**** Add/Remove
-The "Add" and "Remove" buttons add or subtract attitude maneuvers to
-the sequence. The first maneuver cannot be removed.
+**** Frame
+Click the button with the name of the current frame to change it to a
+different one. Click the new frame in the popup window.
+**** Insert / Delete
+Insert a new control before this one (INS), or delete this control
+(DEL).
+**** Add
+Add a new control to the end of the list.
 **** Final Orbit Color
 This shows the color of the final orbit, which is drawn in the preview.
 **** Total
@@ -159,8 +167,9 @@ elements with the target.
 Module Manager is required to patch the ion engine part to use all the
 features of this plugin, and adjust the thrust to realistic levels.
 *** PersistentThrust
-PersistentThrust is now its own separate module, which the navigator
-uses to calculate the preview trajectory.
+The PersistentThrust plugin is needed to calculate the thrust,
+delta-V, and resource consumption of the vessel. It is now a separate
+plugin available at: https://github.com/bld/PersistentThrust
 ** Helpful Plugins
 *** MechJeb
 The Mechanical Jeb plugin (http://mechjeb.com) includes a tool called

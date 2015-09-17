@@ -1,9 +1,6 @@
 * SolarSailNavigator Known Issues and Limitations
 *** Really only supports trajectories orbiting the sun. Sailing around a planet or moon hasn't been tested, and tools to help navigate around a planet haven't been written.
-*** The cone angle (angle off the sun) is limited to +/- 90 degrees.
-*** Only one reference frame is currently available for steering, and it is geared towards solar sailing around the sun.
 *** Plotting trajectories is entirely manual, and is time consuming, especially if you are trying to accurately rendezvous with a target. It is suggested to have a backup high thrust propulsion system to close the gap. Future versions of SolarSailNavigator may have a "fine tuning" tool that takes your initial trajectory and hones in on the target orbit.
-*** At high time warp, the ElectricCharge usage of an ion engine spacecraft has an error where stored energy drops (even to 0), even though energy production is high enough. The vessel keeps operating, and the propellant mass use works correctly.
 *** Preview doesn't detect when the trajectory enters the sphere of influence of another body
 *** Final orbit not drawn when parabolic or hyperbolic
 *** Recalculate target line and error when new target is selected - toggle "Show Preview" to workaround
