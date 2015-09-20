@@ -189,6 +189,7 @@ Currently need to manually click "Set to Now"
 *** Is that orbit.UTsoi?
 * TODO Make sail deployment a staged event that can only happen once :WISHLIST:
 * TODO Automatic navigation				   :FEATURE:WISHLIST:
+** http://strathprints.strath.ac.uk/6621/
 ** Using manual navigation as initial guess, perform local optimization (e.g. gradient) to calculate cones/clocks/durations
 ** Orbital rendezvous
 *** Select target
