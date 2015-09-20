@@ -92,7 +92,10 @@ namespace SolarSailNavigator {
 			if (pm is SolarSailPart) {
 			    solarSails.Add((SolarSailPart)pm);
 			} else if (pm is PersistentEngine) {
-			    persistentEngines.Add((PersistentEngine)pm);
+			    var pm2 = (PersistentEngine)pm;
+			    if (pm2.IsPersistentEngine) {
+				persistentEngines.Add((PersistentEngine)pm);
+			    }
 			}
 		    }
 		}
