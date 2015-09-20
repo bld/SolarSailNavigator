@@ -80,32 +80,32 @@ namespace SolarSailNavigator {
 		double dms = 0.0;
 		
 		// Iterate over engines
-		foreach (var e in navigator.engines) {
+		foreach (var pe in navigator.persistentEngines) {
 
 		    // Only count thrust of engines that are not shut down in preview
-		    if (e.getIgnitionState) {
+		    if (pe.engine.getIgnitionState) {
 
 			// Thrust unit vector
 			Vector3d thrustUV = sailFrame * new Vector3d(0.0, 1.0, 0.0);
 			
 			// Isp: Currently vacuum. TODO: calculate at current air pressure
-			float isp = e.atmosphereCurve.Evaluate(0);
+			float isp = pe.engine.atmosphereCurve.Evaluate(0);
 			
 			// Thrust vector
-			float thrust = throttle * e.maxThrust;
+			float thrust = throttle * pe.engine.maxThrust;
 
 			// Calculate deltaV vector
 			double demandMass;
-			deltaVV += e.CalculateDeltaVV(m0i, dT, thrust, isp, thrustUV, out demandMass);
+			deltaVV += pe.CalculateDeltaVV(m0i, dT, thrust, isp, thrustUV, out demandMass);
 
 			// Update mass usage
-			dms += demandMass * e.densityAverage;
+			dms += demandMass * pe.densityAverage;
 		    }
 		}
 		
 		// Iterate over sails
 		if (sailon) {
-		    foreach (var s in navigator.sails) {
+		    foreach (var s in navigator.solarSails) {
 			
 			// Check if sail in sun
 			double sunlightFactor = 1.0;

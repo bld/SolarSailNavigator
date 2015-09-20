@@ -58,10 +58,10 @@ namespace SolarSailNavigator {
 	public Controls controls;
 
 	// Engine part modules this controls
-	public List<PersistentEngine> engines;
+	public List<PersistentEngine> persistentEngines;
 
 	// Solar sail part modules this controls
-	public List<SolarSailPart> sails;
+	public List<SolarSailPart> solarSails;
 	
 	// Show controls
 	[KSPEvent(guiActive = true, guiName = "Show Navigator Controls", active = true)]
@@ -89,15 +89,15 @@ namespace SolarSailNavigator {
 		// Find sails and persistent engines
 		foreach (Part p in vessel.parts) {
 		    foreach (PartModule pm in p.Modules) {
-			if (pm.ClassName == "SolarSailPart") {
-			    sails.Add((SolarSailPart)pm);
-			} else if (pm.ClassName == "PersistentEngine") {
-			    engines.Add((PersistentEngine)pm);
+			if (pm is SolarSailPart) {
+			    solarSails.Add((SolarSailPart)pm);
+			} else if (pm is PersistentEngine) {
+			    persistentEngines.Add((PersistentEngine)pm);
 			}
 		    }
 		}
 				
-		if (sails.Count > 0 || engines.Count > 0) {
+		if (solarSails.Count > 0 || persistentEngines.Count > 0) {
 		    // Persistent propulsion found
 		    anyPersistent = true;
 		    
@@ -151,16 +151,16 @@ namespace SolarSailNavigator {
 			}
 			// Warp mode
 			else {
-			    foreach (var e in engines) {
-				e.ThrottlePersistent = control.throttle;
-				e.ThrustPersistent = control.throttle * e.maxThrust;
-				e.IspPersistent = e.atmosphereCurve.Evaluate(0);
+			    foreach (var pe in persistentEngines) {
+				pe.ThrottlePersistent = control.throttle;
+				pe.ThrustPersistent = control.throttle * pe.engine.maxThrust;
+				pe.IspPersistent = pe.engine.atmosphereCurve.Evaluate(0);
 			    }
 			}
 		    }
 
 		    // Are sails in use?
-		    foreach (var s in sails) {
+		    foreach (var s in solarSails) {
 			// Control's "sailon" changes relative to sail's "IsEnabled"
 			if (control.sailon != s.IsEnabled) {
 			    if (control.sailon) { // Sail on
