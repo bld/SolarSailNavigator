@@ -1,4 +1,7 @@
 * SolarSailNavigator Changelog
+** v1.0.6
+*** Don't use parts with PersistentEngine module but no ModuleEngines
+*** Treat PersistentEngine as a PartModule with an engine field instead of treating it as a child of ModuleEngines
 ** v1.0.5
 *** Popup window to change the default frame/angles/throttle/days/hours
 *** PersistentThrust now a separate module: https://github.com/bld/PersistentThrust
