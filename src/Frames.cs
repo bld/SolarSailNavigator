@@ -181,14 +181,18 @@ namespace SolarSailNavigator {
 	public FrameWindow (Control control) {
 	    // Rectangle object
 	    frameWindowPos = new Rect(705, 50, 0, 0);
-	    // Frame window ID
-	    frameID = GUIUtility.GetControlID(FocusType.Keyboard);
-	    // Initialize frame selection window
-	    RenderingManager.AddToPostDrawQueue(3, new Callback(DrawFrameWindow));
+	    // Frame window ID: create new if none, otherwise increment from last
+	    if (control.controls.controls == null || control.controls.controls.Count == 0) {
+		frameID = GUIUtility.GetControlID(FocusType.Keyboard);
+	    }
+	    else {
+		frameID = control.controls.controls.Last().frameWindow.frameID + 1;
+	    }
+	    // Save control this FrameWindow refers to
 	    this.control = control;
 	}
 
-	void DrawFrameWindow () {
+	public void DrawFrameWindow () {
 	    if (show) {
 		frameWindowPos = GUILayout.Window(frameID, frameWindowPos, FrameWindowGUI, "Frame selection");
 	    }

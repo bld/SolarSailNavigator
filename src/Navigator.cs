@@ -62,12 +62,12 @@ namespace SolarSailNavigator {
 
 	// Solar sail part modules this controls
 	public List<SolarSailPart> solarSails;
-	
+
 	// Show controls
 	[KSPEvent(guiActive = true, guiName = "Show Navigator Controls", active = true)]
 	public void ShowControls() {
 	    IsControlled = true;
-	    RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
+	    //RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 
 	// Hide controls
@@ -75,9 +75,20 @@ namespace SolarSailNavigator {
 	public void HideControls() {
 	    // Remove control window
 	    IsControlled = false;
-	    RenderingManager.RemoveFromPostDrawQueue(3, new Callback(controls.DrawControls));
+	    //RenderingManager.RemoveFromPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 
+	// When to draw Controls GUI
+	private void OnGUI() {
+	    if (IsControlled & anyPersistent) {
+		controls.DrawControls();
+		controls.defaultWindow.DrawWindow();
+		foreach (var control in controls.controls) {
+		    control.frameWindow.DrawFrameWindow();
+		}
+	    }
+	}
+	
 	// Initialization
 	public override void OnStart(StartState state) {
 
@@ -108,9 +119,11 @@ namespace SolarSailNavigator {
 		    controls = new Controls(this);
 		    
 		    // Draw controls
+		    /*
 		    if (IsControlled) {
 			RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 		    }
+		    */
 		} else {
 		    anyPersistent = false;
 		    Events["ShowControls"].active = false;
@@ -145,7 +158,6 @@ namespace SolarSailNavigator {
 		    // Set attitude
 		    Control control = controls.Lookup(UT);
 		    vessel.SetRotation(control.frame.qfn(vessel.orbit, UT, control.angles));
-		    
 		    // Set throttle
 		    if (isEnabled) {
 			// Realtime mode
@@ -161,7 +173,6 @@ namespace SolarSailNavigator {
 			    }
 			}
 		    }
-
 		    // Are sails in use?
 		    foreach (var s in solarSails) {
 			// Control's "sailon" changes relative to sail's "IsEnabled"

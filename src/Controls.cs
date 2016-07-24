@@ -39,7 +39,7 @@ namespace SolarSailNavigator {
 	// Parent navigator object
 	public Navigator navigator;
 	// Windows
-	FrameWindow frameWindow;
+	public FrameWindow frameWindow;
 
 	// Time Conversion
 	public static double SecondsPerDay = 21600.0;
@@ -343,7 +343,7 @@ namespace SolarSailNavigator {
 	private char delimiter = ':';
 
 	// Defaults window
-	DefaultWindow defaultWindow;
+	public DefaultWindow defaultWindow;
 	
 	// Constructor
 
