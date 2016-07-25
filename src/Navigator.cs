@@ -67,7 +67,6 @@ namespace SolarSailNavigator {
 	[KSPEvent(guiActive = true, guiName = "Show Navigator Controls", active = true)]
 	public void ShowControls() {
 	    IsControlled = true;
-	    //RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 
 	// Hide controls
@@ -75,7 +74,6 @@ namespace SolarSailNavigator {
 	public void HideControls() {
 	    // Remove control window
 	    IsControlled = false;
-	    //RenderingManager.RemoveFromPostDrawQueue(3, new Callback(controls.DrawControls));
 	}
 
 	// When to draw Controls GUI
@@ -117,13 +115,6 @@ namespace SolarSailNavigator {
 		    
 		    // Sail controls
 		    controls = new Controls(this);
-		    
-		    // Draw controls
-		    /*
-		    if (IsControlled) {
-			RenderingManager.AddToPostDrawQueue(3, new Callback(controls.DrawControls));
-		    }
-		    */
 		} else {
 		    anyPersistent = false;
 		    Events["ShowControls"].active = false;

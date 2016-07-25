@@ -17,7 +17,6 @@ namespace SolarSailNavigator {
 	    this.navigator = navigator;
 	    windowPos = new Rect(705, 100, 0, 0);
 	    frameID = GUIUtility.GetControlID(FocusType.Keyboard);
-	    //RenderingManager.AddToPostDrawQueue(3, new Callback(DrawWindow));
 	    fields = new Dictionary<string, string>();
 	    fields["Frame"] = navigator.defaultFrame;
 	    fields["Angle(0)"] = navigator.defaultAngle0.ToString();
