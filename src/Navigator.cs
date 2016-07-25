@@ -146,8 +146,7 @@ namespace SolarSailNavigator {
 	}
 
 	// Physics update
-	public override void OnFixedUpdate() {
-
+	public void FixedUpdate() {
 	    if (anyPersistent) {
 		
 		// Universal time
@@ -187,9 +186,6 @@ namespace SolarSailNavigator {
 		    }
 		}
 	    }
-
-	    // Execute spacecraft dynamics
-	    base.OnFixedUpdate();
 
 	    // Update preview trajectory if it exists
 	    if (anyPersistent) {
