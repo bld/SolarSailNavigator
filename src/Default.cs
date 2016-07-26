@@ -42,6 +42,7 @@ namespace SolarSailNavigator {
 		var newstr = GUILayout.TextField(fields[key], GUILayout.Width(80));
 		float parsedSingle;
 		int parsedInt;
+		bool parsedBool;
 		if (newstr != fields[key]) {
 		    fields[key] = newstr;
 		    switch (key) {
@@ -79,7 +80,18 @@ namespace SolarSailNavigator {
 				}
 			    }
 			    break;
-			    
+			case "Throttle":
+			    if (Single.TryParse(fields[key], out parsedSingle)) {
+				if (parsedSingle >= 0 && parsedSingle <= 1) {
+				    navigator.defaultThrottle = parsedSingle;
+				}
+			    }
+			    break;
+			case "Sail on":
+			    if (Boolean.TryParse(fields[key], out parsedBool)) {
+				navigator.defaultSailon = parsedBool;
+			    }
+			    break;
 		    }
 		}
 		

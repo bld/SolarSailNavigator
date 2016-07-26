@@ -1,4 +1,8 @@
 * SolarSailNavigator Changelog
+** v1.0.7
+*** Updated to compile with KSP 1.1 and Unity 5
+*** Navigator physics (attitude) updated in FixedUpdate() instead of OnFixedUpdate() to bypass part activation
+*** Default "Sail on" and throttle now work
 ** v1.0.6
 *** Don't use parts with PersistentEngine module but no ModuleEngines
 *** Treat PersistentEngine as a PartModule with an engine field instead of treating it as a child of ModuleEngines
