@@ -1,4 +1,6 @@
 * SolarSailNavigator Changelog
+** v1.0.8
+*** Updated to compile with KSP 1.2
 ** v1.0.7
 *** Updated to compile with KSP 1.1 and Unity 5
 *** Navigator physics (attitude) updated in FixedUpdate() instead of OnFixedUpdate() to bypass part activation
