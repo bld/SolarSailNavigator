@@ -455,6 +455,18 @@ namespace SolarSailNavigator {
 	    // Lock/Unlock attitude
 	    navigator.IsLocked = GUILayout.Toggle(navigator.IsLocked, "Lock Attitude");
 
+	    // Check for any other locked navigators
+	    if (navigator.IsLocked) {
+		foreach (var p in navigator.vessel.parts) {
+		    foreach (var m in p.Modules) {
+			if (!System.Object.ReferenceEquals(m, navigator) && m is Navigator && (m as Navigator).IsLocked) {
+			    navigator.IsLocked = false;
+			    Debug.Log("[SolarSailNavigator] " + (m as PartModule).part.partName + " is already locked. Cannot lock " + navigator.part.partName);
+			}
+		    }
+		}
+	    }
+
 	    // Set the initial time of the sequence
 	    GUILayout.BeginHorizontal();
 	    GUILayout.Label("Start time: " + UT0.ToString());
