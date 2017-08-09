@@ -10,7 +10,7 @@ SSFILES	:= src/Default.cs \
 	src/Controls.cs \
 	src/Preview.cs \
 	src/Frames.cs
-GMCS	:= gmcs
+MCS	:= mcs
 TAR	:= tar
 ZIP	:= zip
 
@@ -18,7 +18,7 @@ all: 	build
 
 info:
 	@echo "== SolarSailNavigator Build Information =="
-	@echo "  gmcs:     ${GMCS}"
+	@echo "  mcs:     ${MCS}"
 	@echo "  tar:      ${TAR}"
 	@echo "  zip:      ${ZIP}"
 	@echo "  KSP Data: ${KSPDIR}"
@@ -29,7 +29,7 @@ build: build/SolarSailNavigator.dll
 
 build/%.dll: ${SSFILES}
 	mkdir -p build
-	${GMCS} -t:library -lib:"${MANAGED}" -lib:"${PT}" -lib:"${MM}" \
+	${MCS} -t:library -lib:"${MANAGED}" -lib:"${PT}" -lib:"${MM}" \
 		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust,UnityEngine.UI \
 		-out:$@ \
 		${SSFILES}
