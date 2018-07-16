@@ -1,4 +1,14 @@
 * SolarSailNavigator Changelog
+** v1.0.10
+*** Updated Makefile to compile on KSP 1.4.4
+*** Changed 'gmcs' to 'mcs'
+*** Removed 'KSPUtil' dependency
+*** Changed location of KSP install directory
+** v1.0.9
+*** Recompiled for KSP 1.3.0
+*** Updated Makefile to use mcs instead of gmcs from Mono
+** v1.0.8
+*** Updated to compile with KSP 1.2
 ** v1.0.7
 *** Updated to compile with KSP 1.1 and Unity 5
 *** Navigator physics (attitude) updated in FixedUpdate() instead of OnFixedUpdate() to bypass part activation

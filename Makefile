@@ -1,6 +1,6 @@
 # Makefile for building SolarSailNavigator
 
-KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
+KSPDIR	:= ${HOME}/.steam/steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 PT	:= ${KSPDIR}/GameData/PersistentThrust/Plugins/
 MM	:= ${KSPDIR}/GameData/
@@ -10,7 +10,7 @@ SSFILES	:= src/Default.cs \
 	src/Controls.cs \
 	src/Preview.cs \
 	src/Frames.cs
-GMCS	:= gmcs
+GMCS	:= mcs
 TAR	:= tar
 ZIP	:= zip
 
@@ -30,7 +30,7 @@ build: build/SolarSailNavigator.dll
 build/%.dll: ${SSFILES}
 	mkdir -p build
 	${GMCS} -t:library -lib:"${MANAGED}" -lib:"${PT}" -lib:"${MM}" \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust,KSPUtil,UnityEngine.UI \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,PersistentThrust,UnityEngine.UI \
 		-out:$@ \
 		${SSFILES}
 
