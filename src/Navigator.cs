@@ -90,6 +90,9 @@ namespace SolarSailNavigator {
 	// Initialization
 	public override void OnStart(StartState state) {
 
+	    // Check: are we starting?
+	    Debug.Log("[SolarSailNavigator] " + this.part.partName + " OnStart(). IsLocked: " + this.IsLocked);
+	    
 	    // Base initialization
 	    base.OnStart(state);
 	    

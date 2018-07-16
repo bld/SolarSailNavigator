@@ -247,3 +247,5 @@ Toggle "Show Preview" to redraw
 ** TODO When "Add" clicked, copy values from last control
 ** TODO When "INS" clicked, copy valued from the corresponding control
 * TODO After adding or inserting a new control, clicking the frame button creates an empty window. Quiting to the space center and clicking the frame button works as usual. :BUG:
+* TODO Check if another controller is locked, prevent locking, and show an error message. :BUG:
+Prevent two controllers from fighting each other
